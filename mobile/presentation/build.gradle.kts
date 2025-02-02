@@ -2,6 +2,7 @@ plugins {
     id("mobile-config") version "1.0.0"
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.compose)
+    alias(libs.plugins.kotlinx.serialization)
 }
 
 android {
@@ -19,4 +20,6 @@ dependencies{
     commonMainImplementation(compose.foundation)
     commonMainImplementation(compose.material3)
     commonMainImplementation(compose.ui)
+    commonMainImplementation(libs.androidx.navigation.compose)
+    commonMainImplementation(libs.koin.compose.viewmodel)
 }

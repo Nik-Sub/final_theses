@@ -1,5 +1,8 @@
-/*
 package com.mobile.iwbi.application.authentication.output
+
+import com.mobile.iwbi.domain.auth.AuthenticationResult
+import com.mobile.iwbi.domain.auth.User
+import kotlinx.coroutines.flow.StateFlow
 
 interface AuthenticationProviderPort {
     suspend fun getIdToken(): String?
@@ -10,7 +13,7 @@ interface AuthenticationProviderPort {
 
     suspend fun resendVerificationEmail(): Boolean
 
-    suspend fun signInWithGoogle(): AuthenticationResult
+    //suspend fun signInWithGoogle(): AuthenticationResult
 
     suspend fun signInWithEmailPassword(email: String, password: String): AuthenticationResult
 
@@ -18,4 +21,3 @@ interface AuthenticationProviderPort {
 
     suspend fun signOut()
 }
-*/

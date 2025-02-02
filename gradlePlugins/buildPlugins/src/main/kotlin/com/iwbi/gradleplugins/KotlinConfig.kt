@@ -57,9 +57,9 @@ internal fun Project.configureKotlin() {
         }
     }*/
 
-    tasks.withType<KotlinJsTest>().configureEach {
+    /*tasks.withType<KotlinJsTest>().configureEach {
         useKarma {
             useChromeHeadlessNoSandbox()
         }
-    }
+    }*/
 }

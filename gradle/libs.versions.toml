@@ -4,6 +4,7 @@ android-buildTools = "34.0.0"
 android-minSdk = "28"
 android-targetSdk = "35"
 android-jvmTarget = "17"
+jvmTarget = "17"
 agp = "8.5.2"
 firebaseBom = "33.8.0"
 kotlin = "2.0.0"
@@ -12,6 +13,9 @@ compose-material3 = "1.3.1"
 androidx-activityCompose = "1.8.0"
 runtimeAndroid = "1.7.6"
 koin = "4.0.0-RC1"
+
+kotlinxCoroutines = "1.8.1"
+kotlinxSerialization = "1.7.1"
 
 gitlive-firebase = "2.1.0"
 jetbrainsKotlinJvm = "2.0.0"
@@ -27,6 +31,7 @@ compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview"
 compose-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "compose" }
 compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "compose-material3" }
 androidx-runtime-android = { group = "androidx.compose.runtime", name = "runtime-android", version.ref = "runtimeAndroid" }
+androidx-navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version = "2.8.0-alpha10" }
 
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 
@@ -43,14 +48,22 @@ gitlive-firebase-analytics = { module = "dev.gitlive:firebase-analytics", versio
 gitlive-firebase-auth = { module = "dev.gitlive:firebase-auth", version.ref = "gitlive-firebase" }
 gitlive-firebase-crashlytics = { module = "dev.gitlive:firebase-crashlytics", version.ref = "gitlive-firebase" }
 kborowy-firebaseAuthProvider = { module = "com.kborowy:firebase-auth-provider", version = "1.4.0" }
+firebase-auth = { module = "com.google.firebase:firebase-auth" }
 
 # Auth
 androidx-credentials = { module = "androidx.credentials:credentials", version = "1.3.0" }
 androidx-credentials-playServicesAuth = { module = "androidx.credentials:credentials-play-services-auth", version = "1.3.0" }
-google-android-playServicesAuth = { module = "com.google.android.gms:play-services-auth", version = "21.2.0" }
+google-android-playServicesAuth = { module = "com.google.android.gms:play-services-auth", version = "21.3.0" }
 google-android-identity-googleid = { module = "com.google.android.libraries.identity.googleid:googleid", version = "1.1.1" }
 
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version = "0.6.0" }
+kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinxSerialization" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 
+kotlin-logging = { module = "io.github.oshai:kotlin-logging", version = "7.0.0" }
+slf4j-api = { module = "org.slf4j:slf4j-api", version = "2.0.16" }
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
@@ -60,3 +73,6 @@ kotlinCocoapods = { id = "org.jetbrains.kotlin.native.cocoapods", version.ref = 
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 compose = { id = "org.jetbrains.compose", version = "1.7.0" }
 jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
+kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+google-services = { id = "com.google.gms.google-services", version = "4.4.2" }
+redacted = { id = "dev.zacsweers.redacted", version = "1.9.0" }

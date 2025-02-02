@@ -1,9 +1,9 @@
-/*
 package com.mobile.iwbi.application.authentication
 
 import com.mobile.iwbi.application.authentication.input.AuthenticationServicePort
 import com.mobile.iwbi.application.authentication.output.AuthenticationProviderPort
-//import kotlinx.coroutines.flow.StateFlow
+import com.mobile.iwbi.domain.auth.User
+import kotlinx.coroutines.flow.StateFlow
 
 internal class AuthenticationService(
     private val authenticationProviderPort: AuthenticationProviderPort,
@@ -17,7 +17,7 @@ internal class AuthenticationService(
     override suspend fun resendVerificationEmail(): Boolean =
         authenticationProviderPort.resendVerificationEmail()
 
-    override suspend fun signInWithGoogle() = authenticationProviderPort.signInWithGoogle()
+    //override suspend fun signInWithGoogle() = authenticationProviderPort.signInWithGoogle()
 
     override suspend fun signInWithEmailPassword(email: String, password: String) =
         authenticationProviderPort.signInWithEmailPassword(email, password)
@@ -26,4 +26,4 @@ internal class AuthenticationService(
         authenticationProviderPort.signUpWithEmailPassword(email, password)
 
     override suspend fun signOut() = authenticationProviderPort.signOut()
-}*/
+}

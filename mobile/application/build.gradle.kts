@@ -8,5 +8,5 @@ android {
 
 dependencies{
     //api(projects.gradlePlugins.buildPlugins)
-    commonMainApi(projects.mobile.infrastructure)
+    commonMainApi(projects.mobile.domain)
 }

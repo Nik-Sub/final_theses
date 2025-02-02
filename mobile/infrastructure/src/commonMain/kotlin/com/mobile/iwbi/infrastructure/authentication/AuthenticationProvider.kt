@@ -1,10 +1,9 @@
-/*
 package com.mobile.iwbi.infrastructure.authentication
 
-import com.cm.mobile.domain.auth.AuthenticationError
-import com.cm.mobile.domain.auth.AuthenticationResult
-import com.cm.mobile.domain.auth.User
-import com.cm.mobile.infrastructure.auth.GoogleAuthenticationProvider
+import com.mobile.iwbi.domain.auth.AuthenticationError
+import com.mobile.iwbi.domain.auth.AuthenticationResult
+import com.mobile.iwbi.domain.auth.User
+//import com.cm.mobile.infrastructure.auth.GoogleAuthenticationProvider
 import com.cm.mobile.infrastructure.auth.UserCancelledAuthenticationException
 import com.mobile.iwbi.application.authentication.output.AuthenticationProviderPort
 import dev.gitlive.firebase.Firebase
@@ -21,7 +20,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 internal class AuthenticationProvider(
-    private val googleAuthenticationProvider: GoogleAuthenticationProvider,
+    //private val googleAuthenticationProvider: GoogleAuthenticationProvider,
 ) : AuthenticationProviderPort {
     private val logger = KotlinLogging.logger { }
 
@@ -73,10 +72,10 @@ internal class AuthenticationProvider(
         user.sendEmailVerification()
     }
 
-    override suspend fun signInWithGoogle() = runWithErrorHandling {
+    /*override suspend fun signInWithGoogle() = runWithErrorHandling {
         logger.info { "signInWithGoogle()" }
         googleAuthenticationProvider.signInWithGoogle()
-    }
+    }*/
 
     override suspend fun signOut() {
         logger.info { "signOut()" }
@@ -119,4 +118,3 @@ private fun FirebaseUser.toUser() = User(
     photoUrl = photoURL,
     isEmailVerified = isEmailVerified
 )
-*/

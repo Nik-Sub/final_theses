@@ -12,14 +12,19 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.annotation.KoinExperimentalAPI
 
 
+@OptIn(KoinExperimentalAPI::class)
 @Composable
 fun LoginScreen(
-//    onLoginClick: (String, String) -> Unit
+    onLogin: () -> Unit
 ) {
-    var username by remember { mutableStateOf(TextFieldValue("")) }
-    var password by remember { mutableStateOf(TextFieldValue("")) }
+
+    val viewModel = koinViewModel<LoginPanelViewModel>()
+    val uiState by viewModel.uiState.collectAsState()
+
     var isPasswordVisible by remember { mutableStateOf(false) }
 
     Column(
@@ -35,16 +40,16 @@ fun LoginScreen(
         )
         Spacer(modifier = Modifier.height(24.dp))
         OutlinedTextField(
-            value = username,
-            onValueChange = { username = it },
+            value = uiState.email,
+            onValueChange = { viewModel.updateEmail(it) },
             label = { Text("Username") },
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(16.dp))
         OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
+            value = uiState.password,
+            onValueChange = { viewModel.updatePassword(it) },
             label = { Text("Password") },
             singleLine = true,
             visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -58,13 +63,25 @@ fun LoginScreen(
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(24.dp))
-        Button(
-            onClick = {
-                //onLoginClick(username.text, password.text)
-                      },
-            modifier = Modifier.fillMaxWidth()
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text("Login")
+            Button(
+                onClick = {
+                    viewModel.onLoginClick()
+                    onLogin()
+                },
+            ) {
+                Text("Login")
+            }
+            Button(
+                onClick = {
+                    viewModel.onRegisterClick()
+                },
+            ) {
+                Text("Register")
+            }
         }
     }
 }

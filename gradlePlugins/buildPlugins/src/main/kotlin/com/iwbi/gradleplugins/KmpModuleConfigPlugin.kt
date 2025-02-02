@@ -22,7 +22,7 @@ class KmpModuleConfigPlugin : Plugin<Project> {
     override fun apply(project: Project): Unit = with(project) {
         apply<KotlinMultiplatformPluginWrapper>()
 
-        //configureKotlin()
+        configureKotlin()
 
         val targets: KmpTargets = if (extra.has(KMP_TARGETS)) {
             extra.get(KMP_TARGETS) as KmpTargets
@@ -30,18 +30,18 @@ class KmpModuleConfigPlugin : Plugin<Project> {
             KmpTargets(
                 android = findProperty("enableAndroidTarget") == "true",
                 ios = findProperty("enableIosTarget") == "true",
+                jvm = findProperty("enableJvmTarget") == "true",
             )
         }
         configure<KotlinMultiplatformExtension> {
+            if (targets.jvm) {
+                jvm()
+            }
+
             if (targets.android) {
                 plugins.apply(LibraryPlugin::class.java)
                 androidTarget()
-                //configureAndroid(project)
                 configureAndroid()
-
-                /*afterEvaluate {
-                    configureLintForMultiplatformLibrary(this@configure)
-                }*/
             }
 
             if (targets.ios) {
@@ -60,13 +60,15 @@ const val KMP_TARGETS = "kmpTargets"
 fun Project.setKmpTargets(
     android: Boolean = false,
     ios: Boolean = false,
+    jvm: Boolean = false,
 ) {
-    extra.set(KMP_TARGETS, KmpTargets(android = android, ios = ios))
+    extra.set(KMP_TARGETS, KmpTargets(android = android, ios = ios, jvm = jvm))
 }
 
 internal data class KmpTargets(
     val android: Boolean = false,
     val ios: Boolean = false,
+    val jvm: Boolean = false,
 )
 
 /*private fun configureAndroid(project: Project) {

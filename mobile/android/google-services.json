@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "724830466877",
+    "project_id": "iwbi-final-theses",
+    "storage_bucket": "iwbi-final-theses.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:724830466877:android:445e27c7df00cda5128b54",
+        "android_client_info": {
+          "package_name": "com.mobile.iwbi.android"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "724830466877-7qholke4ieiihtpohid3p984dpuvacmm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDnX8tiqvdQadU8oSoSH_mG7kAnzOVjD24"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "724830466877-7qholke4ieiihtpohid3p984dpuvacmm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

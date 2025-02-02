@@ -7,5 +7,7 @@ android {
 }
 
 dependencies {
+    commonMainApi(projects.mobile.application)
+    commonMainApi(projects.mobile.infrastructure)
     commonMainApi(projects.mobile.presentation)
 }
