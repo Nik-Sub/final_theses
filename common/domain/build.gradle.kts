@@ -8,5 +8,5 @@ android {
 }
 
 dependencies {
-    commonMainApi(projects.common)
+    commonMainApi(projects.modules.common)
 }

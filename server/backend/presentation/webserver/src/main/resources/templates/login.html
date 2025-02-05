@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>CargoMinds - Dispatcher</title>
+  <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth.js"></script>
+  <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth.css"/>
+  <script type="module">
+      import {initializeApp} from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js';
+      import {
+          getAuth,
+          GoogleAuthProvider,
+          EmailAuthProvider
+      } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js';
+
+      const firebaseConfig = {FIREBASE_CONFIG}
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+
+      // FirebaseUI config.
+      const uiConfig = {
+          callbacks: {
+            signInSuccessWithAuthResult: function() {
+                return false;
+            }
+          },
+          signInFlow: 'popup',
+          signInOptions: [
+              {
+                  provider: GoogleAuthProvider.PROVIDER_ID,
+                  clientId: "{GOOGLE_CLIENT_ID}"
+              },
+              EmailAuthProvider.PROVIDER_ID,
+          ]
+      };
+
+      function goToRedirectUrl() {
+          const searchParams = new URLSearchParams(window.location.search)
+          const redirectUrl = searchParams.get('redirectUrl') || '/'
+          window.location.replace(window.location.origin + redirectUrl);
+      }
+
+      function doSessionLogin(idToken) {
+          const payload = {
+              idToken: idToken
+          }
+          fetch(
+              window.location.origin + "/sessionLogin",
+              {
+                  method: 'POST',
+                  body: JSON.stringify(payload),
+                  headers: {
+                      'Content-Type': 'application/json'
+                  }
+              }
+          ).then((response) => {
+              if (response.ok) {
+                  goToRedirectUrl()
+              } else {
+                  auth.signOut();
+              }
+          });
+      }
+
+      auth.onAuthStateChanged((user) => {
+          console.log(`onAuthStateChanged(${user})`);
+          if (user) {
+              console.log(user);
+              window.user = user;
+
+              fetch(
+                  window.location.origin + "/loggedIn"
+              ).then((response) => {
+                  if (response.ok) {
+                      goToRedirectUrl()
+                  } else {
+                      doSessionLogin(user.accessToken);
+                  }
+              })
+          }
+      })
+
+      // Initialize the FirebaseUI Widget using Firebase.
+      const ui = new firebaseui.auth.AuthUI(auth);
+      // The start method will wait until the DOM is loaded.
+      ui.start('#firebaseui-auth-container', uiConfig);
+  </script>
+</head>
+<body>
+<h1>CargoMinds Login</h1>
+<div id="firebaseui-auth-container"></div>
+</body>
+</html>

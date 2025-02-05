@@ -9,3 +9,8 @@ plugins {
     alias(libs.plugins.google.services) apply false
     alias(libs.plugins.redacted) apply false
 }
+
+// Include plugin tasks with build task
+tasks.matching { it.name == "build" }.configureEach {
+    dependsOn(gradle.includedBuild("buildPlugins").task(":build"))
+}

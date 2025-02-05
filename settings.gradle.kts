@@ -1,6 +1,5 @@
 import org.apache.tools.ant.DirectoryScanner
 
-
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 pluginManagement {
     repositories {
@@ -30,3 +29,10 @@ include(":mobile:presentation")
 include(":gradlePlugins")
 include(":common")
 include("common:domain")
+include(":server")
+include(":server:domain")
+include(":server:backend:application")
+include(":server:backend:infrastructure")
+include(":server:backend:presentation")
+include(":modules:common")
+include(":server:backend:presentation:webserver")
