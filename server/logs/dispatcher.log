@@ -1,320 +1,78 @@
-2025-02-05T17:07:47,568 INFO [main] App: [>] Starting...
-2025-02-05T17:07:47,596 INFO [main] WebServer: [>] Starting...
-2025-02-05T17:07:47,596 INFO [main] application: Autoreload is disabled because the development mode is off.
-2025-02-05T17:07:47,623 INFO [main] application: Application started in 0.04 seconds.
-2025-02-05T17:07:47,623 INFO [main] application: Application started: io.ktor.server.application.Application@1c05a54d
-2025-02-05T17:07:47,625 DEBUG [main] InternalLoggerFactory: Using SLF4J as the default logging framework
-2025-02-05T17:07:47,633 DEBUG [main] PlatformDependent0: -Dio.netty.noUnsafe: false
-2025-02-05T17:07:47,634 DEBUG [main] PlatformDependent0: Java version: 17
-2025-02-05T17:07:47,634 DEBUG [main] PlatformDependent0: sun.misc.Unsafe.theUnsafe: available
-2025-02-05T17:07:47,634 DEBUG [main] PlatformDependent0: sun.misc.Unsafe base methods: all available
-2025-02-05T17:07:47,635 DEBUG [main] PlatformDependent0: sun.misc.Unsafe.storeFence: available
-2025-02-05T17:07:47,635 DEBUG [main] PlatformDependent0: java.nio.Buffer.address: available
-2025-02-05T17:07:47,635 DEBUG [main] PlatformDependent0: direct buffer constructor: unavailable: Reflective setAccessible(true) disabled
-2025-02-05T17:07:47,635 DEBUG [main] PlatformDependent0: java.nio.Bits.unaligned: available, true
-2025-02-05T17:07:47,635 DEBUG [main] PlatformDependent0: jdk.internal.misc.Unsafe.allocateUninitializedArray(int): unavailable: class io.netty.util.internal.PlatformDependent0$7 cannot access class jdk.internal.misc.Unsafe (in module java.base) because module java.base does not export jdk.internal.misc to unnamed module @5965d37
-2025-02-05T17:07:47,636 DEBUG [main] PlatformDependent0: java.nio.DirectByteBuffer.<init>(long, {int,long}): unavailable
-2025-02-05T17:07:47,636 DEBUG [main] PlatformDependent: sun.misc.Unsafe: available
-2025-02-05T17:07:47,636 DEBUG [main] PlatformDependent: -Dio.netty.tmpdir: /var/folders/x1/k5nk211j4dz_7hx5zfsbwfmh0000gn/T (java.io.tmpdir)
-2025-02-05T17:07:47,636 DEBUG [main] PlatformDependent: -Dio.netty.bitMode: 64 (sun.arch.data.model)
-2025-02-05T17:07:47,636 DEBUG [main] PlatformDependent: Platform: MacOS
-2025-02-05T17:07:47,636 DEBUG [main] PlatformDependent: -Dio.netty.maxDirectMemory: -1 bytes
-2025-02-05T17:07:47,636 DEBUG [main] PlatformDependent: -Dio.netty.uninitializedArrayAllocationThreshold: -1
-2025-02-05T17:07:47,636 DEBUG [main] CleanerJava9: java.nio.ByteBuffer.cleaner(): available
-2025-02-05T17:07:47,636 DEBUG [main] PlatformDependent: -Dio.netty.noPreferDirect: false
-2025-02-05T17:07:47,637 DEBUG [main] NativeLibraryLoader: -Dio.netty.native.workdir: /var/folders/x1/k5nk211j4dz_7hx5zfsbwfmh0000gn/T (io.netty.tmpdir)
-2025-02-05T17:07:47,637 DEBUG [main] NativeLibraryLoader: -Dio.netty.native.deleteLibAfterLoading: true
-2025-02-05T17:07:47,637 DEBUG [main] NativeLibraryLoader: -Dio.netty.native.tryPatchShadedId: true
-2025-02-05T17:07:47,637 DEBUG [main] NativeLibraryLoader: -Dio.netty.native.detectNativeLibraryDuplicates: true
-2025-02-05T17:07:47,646 DEBUG [main] MultithreadEventLoopGroup: -Dio.netty.eventLoopThreads: 24
-2025-02-05T17:07:47,648 DEBUG [main] GlobalEventExecutor: -Dio.netty.globalEventExecutor.quietPeriodSeconds: 1
-2025-02-05T17:07:47,649 DEBUG [main] InternalThreadLocalMap: -Dio.netty.threadLocalMap.stringBuilder.initialSize: 1024
-2025-02-05T17:07:47,649 DEBUG [main] InternalThreadLocalMap: -Dio.netty.threadLocalMap.stringBuilder.maxSize: 4096
-2025-02-05T17:07:47,651 DEBUG [main] NioEventLoop: -Dio.netty.noKeySetOptimization: false
-2025-02-05T17:07:47,651 DEBUG [main] NioEventLoop: -Dio.netty.selectorAutoRebuildThreshold: 512
-2025-02-05T17:07:47,653 DEBUG [main] PlatformDependent: org.jctools-core.MpscChunkedArrayQueue: available
-2025-02-05T17:07:47,663 DEBUG [main] DefaultChannelId: -Dio.netty.processId: 62882 (auto-detected)
-2025-02-05T17:07:47,665 DEBUG [main] NetUtil: -Djava.net.preferIPv4Stack: false
-2025-02-05T17:07:47,665 DEBUG [main] NetUtil: -Djava.net.preferIPv6Addresses: false
-2025-02-05T17:07:47,667 DEBUG [main] NetUtilInitializations: Loopback interface: lo0 (lo0, 0:0:0:0:0:0:0:1%lo0)
-2025-02-05T17:07:47,667 DEBUG [main] NetUtil: Failed to get SOMAXCONN from sysctl and file /proc/sys/net/core/somaxconn. Default: 128
-2025-02-05T17:07:47,668 DEBUG [main] DefaultChannelId: -Dio.netty.machineId: 80:a9:97:ff:fe:34:2b:c5 (auto-detected)
-2025-02-05T17:07:47,671 DEBUG [main] ResourceLeakDetector: -Dio.netty.leakDetection.level: simple
-2025-02-05T17:07:47,671 DEBUG [main] ResourceLeakDetector: -Dio.netty.leakDetection.targetRecords: 4
-2025-02-05T17:07:47,678 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.numHeapArenas: 24
-2025-02-05T17:07:47,678 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.numDirectArenas: 24
-2025-02-05T17:07:47,678 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.pageSize: 8192
-2025-02-05T17:07:47,678 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.maxOrder: 9
-2025-02-05T17:07:47,678 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.chunkSize: 4194304
-2025-02-05T17:07:47,678 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.smallCacheSize: 256
-2025-02-05T17:07:47,678 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.normalCacheSize: 64
-2025-02-05T17:07:47,678 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.maxCachedBufferCapacity: 32768
-2025-02-05T17:07:47,678 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.cacheTrimInterval: 8192
-2025-02-05T17:07:47,678 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.cacheTrimIntervalMillis: 0
-2025-02-05T17:07:47,678 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.useCacheForAllThreads: false
-2025-02-05T17:07:47,678 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.maxCachedByteBuffersPerChunk: 1023
-2025-02-05T17:07:47,681 DEBUG [main] ByteBufUtil: -Dio.netty.allocator.type: pooled
-2025-02-05T17:07:47,681 DEBUG [main] ByteBufUtil: -Dio.netty.threadLocalDirectBufferSize: 0
-2025-02-05T17:07:47,681 DEBUG [main] ByteBufUtil: -Dio.netty.maxThreadLocalCharBufferSize: 16384
-2025-02-05T17:07:47,681 DEBUG [main] ChannelInitializerExtensions: -Dio.netty.bootstrap.extensions: null
-2025-02-05T17:07:47,687 INFO [main] WebServer: [<] Started
-2025-02-05T17:07:47,687 INFO [DefaultDispatcher-worker-1] application: Responding at http://0.0.0.0:8080
-2025-02-05T17:07:47,687 INFO [main] App: [<] Started
-2025-02-05T17:07:59,275 DEBUG [eventLoopGroupProxy-3-1] AbstractByteBuf: -Dio.netty.buffer.checkAccessible: true
-2025-02-05T17:07:59,276 DEBUG [eventLoopGroupProxy-3-1] AbstractByteBuf: -Dio.netty.buffer.checkBounds: true
-2025-02-05T17:07:59,277 DEBUG [eventLoopGroupProxy-3-1] ResourceLeakDetectorFactory: Loaded default ResourceLeakDetector: io.netty.util.ResourceLeakDetector@5327d9f6
-2025-02-05T17:07:59,300 DEBUG [eventLoopGroupProxy-3-1] Recycler: -Dio.netty.recycler.maxCapacityPerThread: 4096
-2025-02-05T17:07:59,300 DEBUG [eventLoopGroupProxy-3-1] Recycler: -Dio.netty.recycler.ratio: 8
-2025-02-05T17:07:59,301 DEBUG [eventLoopGroupProxy-3-1] Recycler: -Dio.netty.recycler.chunkSize: 32
-2025-02-05T17:07:59,301 DEBUG [eventLoopGroupProxy-3-1] Recycler: -Dio.netty.recycler.blocking: false
-2025-02-05T17:07:59,301 DEBUG [eventLoopGroupProxy-3-1] Recycler: -Dio.netty.recycler.batchFastThreadLocalOnly: true
-2025-02-05T17:07:59,737 INFO [eventLoopGroupProxy-4-1] application: [31m404 Not Found[m: [36mGET[m - / in 399ms
-2025-02-05T17:12:39,539 INFO [Thread-0] App: [>] Stopping...
-2025-02-05T17:12:39,541 INFO [Thread-0] WebServer: [>] Stopping...
-2025-02-05T17:12:41,631 DEBUG [eventLoopGroupProxy-3-1] PoolThreadCache: Freed 2 thread-local buffer(s) from thread: eventLoopGroupProxy-3-1
-2025-02-05T17:12:43,703 INFO [Thread-0] application: Application stopping: io.ktor.server.application.Application@1c05a54d
-2025-02-05T17:12:43,706 INFO [Thread-0] application: Application stopped: io.ktor.server.application.Application@1c05a54d
-2025-02-05T17:12:43,717 INFO [Thread-0] WebServer: [<] Stopped
-2025-02-05T17:12:43,718 INFO [Thread-0] App: [<] Stopped
-2025-02-05T17:12:44,453 INFO [main] App: [>] Starting...
-2025-02-05T17:12:44,477 INFO [main] WebServer: [>] Starting...
-2025-02-05T17:12:44,478 INFO [main] application: Autoreload is disabled because the development mode is off.
-2025-02-05T17:12:44,504 INFO [main] application: Application started in 0.039 seconds.
-2025-02-05T17:12:44,504 INFO [main] application: Application started: io.ktor.server.application.Application@e362c57
-2025-02-05T17:12:44,506 DEBUG [main] InternalLoggerFactory: Using SLF4J as the default logging framework
-2025-02-05T17:12:44,514 DEBUG [main] PlatformDependent0: -Dio.netty.noUnsafe: false
-2025-02-05T17:12:44,514 DEBUG [main] PlatformDependent0: Java version: 17
-2025-02-05T17:12:44,514 DEBUG [main] PlatformDependent0: sun.misc.Unsafe.theUnsafe: available
-2025-02-05T17:12:44,515 DEBUG [main] PlatformDependent0: sun.misc.Unsafe base methods: all available
-2025-02-05T17:12:44,515 DEBUG [main] PlatformDependent0: sun.misc.Unsafe.storeFence: available
-2025-02-05T17:12:44,515 DEBUG [main] PlatformDependent0: java.nio.Buffer.address: available
-2025-02-05T17:12:44,515 DEBUG [main] PlatformDependent0: direct buffer constructor: unavailable: Reflective setAccessible(true) disabled
-2025-02-05T17:12:44,515 DEBUG [main] PlatformDependent0: java.nio.Bits.unaligned: available, true
-2025-02-05T17:12:44,516 DEBUG [main] PlatformDependent0: jdk.internal.misc.Unsafe.allocateUninitializedArray(int): unavailable: class io.netty.util.internal.PlatformDependent0$7 cannot access class jdk.internal.misc.Unsafe (in module java.base) because module java.base does not export jdk.internal.misc to unnamed module @5965d37
-2025-02-05T17:12:44,516 DEBUG [main] PlatformDependent0: java.nio.DirectByteBuffer.<init>(long, {int,long}): unavailable
-2025-02-05T17:12:44,516 DEBUG [main] PlatformDependent: sun.misc.Unsafe: available
-2025-02-05T17:12:44,516 DEBUG [main] PlatformDependent: -Dio.netty.tmpdir: /var/folders/x1/k5nk211j4dz_7hx5zfsbwfmh0000gn/T (java.io.tmpdir)
-2025-02-05T17:12:44,516 DEBUG [main] PlatformDependent: -Dio.netty.bitMode: 64 (sun.arch.data.model)
-2025-02-05T17:12:44,516 DEBUG [main] PlatformDependent: Platform: MacOS
-2025-02-05T17:12:44,516 DEBUG [main] PlatformDependent: -Dio.netty.maxDirectMemory: -1 bytes
-2025-02-05T17:12:44,516 DEBUG [main] PlatformDependent: -Dio.netty.uninitializedArrayAllocationThreshold: -1
-2025-02-05T17:12:44,517 DEBUG [main] CleanerJava9: java.nio.ByteBuffer.cleaner(): available
-2025-02-05T17:12:44,517 DEBUG [main] PlatformDependent: -Dio.netty.noPreferDirect: false
-2025-02-05T17:12:44,517 DEBUG [main] NativeLibraryLoader: -Dio.netty.native.workdir: /var/folders/x1/k5nk211j4dz_7hx5zfsbwfmh0000gn/T (io.netty.tmpdir)
-2025-02-05T17:12:44,518 DEBUG [main] NativeLibraryLoader: -Dio.netty.native.deleteLibAfterLoading: true
-2025-02-05T17:12:44,518 DEBUG [main] NativeLibraryLoader: -Dio.netty.native.tryPatchShadedId: true
-2025-02-05T17:12:44,518 DEBUG [main] NativeLibraryLoader: -Dio.netty.native.detectNativeLibraryDuplicates: true
-2025-02-05T17:12:44,525 DEBUG [main] MultithreadEventLoopGroup: -Dio.netty.eventLoopThreads: 24
-2025-02-05T17:12:44,527 DEBUG [main] GlobalEventExecutor: -Dio.netty.globalEventExecutor.quietPeriodSeconds: 1
-2025-02-05T17:12:44,529 DEBUG [main] InternalThreadLocalMap: -Dio.netty.threadLocalMap.stringBuilder.initialSize: 1024
-2025-02-05T17:12:44,529 DEBUG [main] InternalThreadLocalMap: -Dio.netty.threadLocalMap.stringBuilder.maxSize: 4096
-2025-02-05T17:12:44,530 DEBUG [main] NioEventLoop: -Dio.netty.noKeySetOptimization: false
-2025-02-05T17:12:44,530 DEBUG [main] NioEventLoop: -Dio.netty.selectorAutoRebuildThreshold: 512
-2025-02-05T17:12:44,532 DEBUG [main] PlatformDependent: org.jctools-core.MpscChunkedArrayQueue: available
-2025-02-05T17:12:44,540 DEBUG [main] DefaultChannelId: -Dio.netty.processId: 65990 (auto-detected)
-2025-02-05T17:12:44,541 DEBUG [main] NetUtil: -Djava.net.preferIPv4Stack: false
-2025-02-05T17:12:44,541 DEBUG [main] NetUtil: -Djava.net.preferIPv6Addresses: false
-2025-02-05T17:12:44,544 DEBUG [main] NetUtilInitializations: Loopback interface: lo0 (lo0, 0:0:0:0:0:0:0:1%lo0)
-2025-02-05T17:12:44,544 DEBUG [main] NetUtil: Failed to get SOMAXCONN from sysctl and file /proc/sys/net/core/somaxconn. Default: 128
-2025-02-05T17:12:44,544 DEBUG [main] DefaultChannelId: -Dio.netty.machineId: 80:a9:97:ff:fe:34:2b:c5 (auto-detected)
-2025-02-05T17:12:44,547 DEBUG [main] ResourceLeakDetector: -Dio.netty.leakDetection.level: simple
-2025-02-05T17:12:44,547 DEBUG [main] ResourceLeakDetector: -Dio.netty.leakDetection.targetRecords: 4
-2025-02-05T17:12:44,554 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.numHeapArenas: 24
-2025-02-05T17:12:44,554 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.numDirectArenas: 24
-2025-02-05T17:12:44,554 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.pageSize: 8192
-2025-02-05T17:12:44,554 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.maxOrder: 9
-2025-02-05T17:12:44,554 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.chunkSize: 4194304
-2025-02-05T17:12:44,554 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.smallCacheSize: 256
-2025-02-05T17:12:44,554 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.normalCacheSize: 64
-2025-02-05T17:12:44,554 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.maxCachedBufferCapacity: 32768
-2025-02-05T17:12:44,554 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.cacheTrimInterval: 8192
-2025-02-05T17:12:44,554 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.cacheTrimIntervalMillis: 0
-2025-02-05T17:12:44,554 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.useCacheForAllThreads: false
-2025-02-05T17:12:44,554 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.maxCachedByteBuffersPerChunk: 1023
-2025-02-05T17:12:44,557 DEBUG [main] ByteBufUtil: -Dio.netty.allocator.type: pooled
-2025-02-05T17:12:44,557 DEBUG [main] ByteBufUtil: -Dio.netty.threadLocalDirectBufferSize: 0
-2025-02-05T17:12:44,557 DEBUG [main] ByteBufUtil: -Dio.netty.maxThreadLocalCharBufferSize: 16384
-2025-02-05T17:12:44,557 DEBUG [main] ChannelInitializerExtensions: -Dio.netty.bootstrap.extensions: null
-2025-02-05T17:12:44,562 INFO [main] WebServer: [<] Started
-2025-02-05T17:12:44,562 INFO [DefaultDispatcher-worker-1] application: Responding at http://0.0.0.0:8080
-2025-02-05T17:12:44,562 INFO [main] App: [<] Started
-2025-02-05T17:12:50,082 DEBUG [eventLoopGroupProxy-3-1] AbstractByteBuf: -Dio.netty.buffer.checkAccessible: true
-2025-02-05T17:12:50,082 DEBUG [eventLoopGroupProxy-3-1] AbstractByteBuf: -Dio.netty.buffer.checkBounds: true
-2025-02-05T17:12:50,083 DEBUG [eventLoopGroupProxy-3-1] ResourceLeakDetectorFactory: Loaded default ResourceLeakDetector: io.netty.util.ResourceLeakDetector@405452c8
-2025-02-05T17:12:50,103 DEBUG [eventLoopGroupProxy-3-1] Recycler: -Dio.netty.recycler.maxCapacityPerThread: 4096
-2025-02-05T17:12:50,104 DEBUG [eventLoopGroupProxy-3-1] Recycler: -Dio.netty.recycler.ratio: 8
-2025-02-05T17:12:50,104 DEBUG [eventLoopGroupProxy-3-1] Recycler: -Dio.netty.recycler.chunkSize: 32
-2025-02-05T17:12:50,104 DEBUG [eventLoopGroupProxy-3-1] Recycler: -Dio.netty.recycler.blocking: false
-2025-02-05T17:12:50,105 DEBUG [eventLoopGroupProxy-3-1] Recycler: -Dio.netty.recycler.batchFastThreadLocalOnly: true
-2025-02-05T17:12:50,509 INFO [eventLoopGroupProxy-4-1] application: [31m404 Not Found[m: [36mGET[m - / in 375ms
-2025-02-05T17:15:17,372 INFO [eventLoopGroupProxy-4-2] application: [31m404 Not Found[m: [36mGET[m - /api in 1ms
-2025-02-05T17:16:04,116 INFO [eventLoopGroupProxy-4-3] application: [31m404 Not Found[m: [36mGET[m - / in 1ms
-2025-02-05T17:16:39,023 INFO [Thread-0] App: [>] Stopping...
-2025-02-05T17:16:39,025 INFO [Thread-0] WebServer: [>] Stopping...
-2025-02-05T17:16:41,114 DEBUG [eventLoopGroupProxy-3-1] PoolThreadCache: Freed 2 thread-local buffer(s) from thread: eventLoopGroupProxy-3-1
-2025-02-05T17:16:41,114 DEBUG [eventLoopGroupProxy-3-3] PoolThreadCache: Freed 2 thread-local buffer(s) from thread: eventLoopGroupProxy-3-3
-2025-02-05T17:16:41,114 DEBUG [eventLoopGroupProxy-3-2] PoolThreadCache: Freed 2 thread-local buffer(s) from thread: eventLoopGroupProxy-3-2
-2025-02-05T17:16:43,190 INFO [Thread-0] application: Application stopping: io.ktor.server.application.Application@e362c57
-2025-02-05T17:16:43,192 INFO [Thread-0] application: Application stopped: io.ktor.server.application.Application@e362c57
-2025-02-05T17:16:43,196 INFO [Thread-0] WebServer: [<] Stopped
-2025-02-05T17:16:43,198 INFO [Thread-0] App: [<] Stopped
-2025-02-05T17:16:43,975 INFO [main] App: [>] Starting...
-2025-02-05T17:16:44,000 INFO [main] WebServer: [>] Starting...
-2025-02-05T17:16:44,000 INFO [main] application: Autoreload is disabled because the development mode is off.
-2025-02-05T17:16:44,026 INFO [main] application: Application started in 0.038 seconds.
-2025-02-05T17:16:44,027 INFO [main] application: Application started: io.ktor.server.application.Application@10567255
-2025-02-05T17:16:44,028 DEBUG [main] InternalLoggerFactory: Using SLF4J as the default logging framework
-2025-02-05T17:16:44,036 DEBUG [main] PlatformDependent0: -Dio.netty.noUnsafe: false
-2025-02-05T17:16:44,036 DEBUG [main] PlatformDependent0: Java version: 17
-2025-02-05T17:16:44,037 DEBUG [main] PlatformDependent0: sun.misc.Unsafe.theUnsafe: available
-2025-02-05T17:16:44,037 DEBUG [main] PlatformDependent0: sun.misc.Unsafe base methods: all available
-2025-02-05T17:16:44,037 DEBUG [main] PlatformDependent0: sun.misc.Unsafe.storeFence: available
-2025-02-05T17:16:44,037 DEBUG [main] PlatformDependent0: java.nio.Buffer.address: available
-2025-02-05T17:16:44,037 DEBUG [main] PlatformDependent0: direct buffer constructor: unavailable: Reflective setAccessible(true) disabled
-2025-02-05T17:16:44,037 DEBUG [main] PlatformDependent0: java.nio.Bits.unaligned: available, true
-2025-02-05T17:16:44,038 DEBUG [main] PlatformDependent0: jdk.internal.misc.Unsafe.allocateUninitializedArray(int): unavailable: class io.netty.util.internal.PlatformDependent0$7 cannot access class jdk.internal.misc.Unsafe (in module java.base) because module java.base does not export jdk.internal.misc to unnamed module @5965d37
-2025-02-05T17:16:44,038 DEBUG [main] PlatformDependent0: java.nio.DirectByteBuffer.<init>(long, {int,long}): unavailable
-2025-02-05T17:16:44,038 DEBUG [main] PlatformDependent: sun.misc.Unsafe: available
-2025-02-05T17:16:44,038 DEBUG [main] PlatformDependent: -Dio.netty.tmpdir: /var/folders/x1/k5nk211j4dz_7hx5zfsbwfmh0000gn/T (java.io.tmpdir)
-2025-02-05T17:16:44,038 DEBUG [main] PlatformDependent: -Dio.netty.bitMode: 64 (sun.arch.data.model)
-2025-02-05T17:16:44,038 DEBUG [main] PlatformDependent: Platform: MacOS
-2025-02-05T17:16:44,038 DEBUG [main] PlatformDependent: -Dio.netty.maxDirectMemory: -1 bytes
-2025-02-05T17:16:44,038 DEBUG [main] PlatformDependent: -Dio.netty.uninitializedArrayAllocationThreshold: -1
-2025-02-05T17:16:44,039 DEBUG [main] CleanerJava9: java.nio.ByteBuffer.cleaner(): available
-2025-02-05T17:16:44,039 DEBUG [main] PlatformDependent: -Dio.netty.noPreferDirect: false
-2025-02-05T17:16:44,040 DEBUG [main] NativeLibraryLoader: -Dio.netty.native.workdir: /var/folders/x1/k5nk211j4dz_7hx5zfsbwfmh0000gn/T (io.netty.tmpdir)
-2025-02-05T17:16:44,040 DEBUG [main] NativeLibraryLoader: -Dio.netty.native.deleteLibAfterLoading: true
-2025-02-05T17:16:44,040 DEBUG [main] NativeLibraryLoader: -Dio.netty.native.tryPatchShadedId: true
-2025-02-05T17:16:44,040 DEBUG [main] NativeLibraryLoader: -Dio.netty.native.detectNativeLibraryDuplicates: true
-2025-02-05T17:16:44,047 DEBUG [main] MultithreadEventLoopGroup: -Dio.netty.eventLoopThreads: 24
-2025-02-05T17:16:44,049 DEBUG [main] GlobalEventExecutor: -Dio.netty.globalEventExecutor.quietPeriodSeconds: 1
-2025-02-05T17:16:44,050 DEBUG [main] InternalThreadLocalMap: -Dio.netty.threadLocalMap.stringBuilder.initialSize: 1024
-2025-02-05T17:16:44,050 DEBUG [main] InternalThreadLocalMap: -Dio.netty.threadLocalMap.stringBuilder.maxSize: 4096
-2025-02-05T17:16:44,052 DEBUG [main] NioEventLoop: -Dio.netty.noKeySetOptimization: false
-2025-02-05T17:16:44,052 DEBUG [main] NioEventLoop: -Dio.netty.selectorAutoRebuildThreshold: 512
-2025-02-05T17:16:44,054 DEBUG [main] PlatformDependent: org.jctools-core.MpscChunkedArrayQueue: available
-2025-02-05T17:16:44,063 DEBUG [main] DefaultChannelId: -Dio.netty.processId: 68435 (auto-detected)
-2025-02-05T17:16:44,065 DEBUG [main] NetUtil: -Djava.net.preferIPv4Stack: false
-2025-02-05T17:16:44,065 DEBUG [main] NetUtil: -Djava.net.preferIPv6Addresses: false
-2025-02-05T17:16:44,067 DEBUG [main] NetUtilInitializations: Loopback interface: lo0 (lo0, 0:0:0:0:0:0:0:1%lo0)
-2025-02-05T17:16:44,067 DEBUG [main] NetUtil: Failed to get SOMAXCONN from sysctl and file /proc/sys/net/core/somaxconn. Default: 128
-2025-02-05T17:16:44,068 DEBUG [main] DefaultChannelId: -Dio.netty.machineId: 80:a9:97:ff:fe:34:2b:c5 (auto-detected)
-2025-02-05T17:16:44,071 DEBUG [main] ResourceLeakDetector: -Dio.netty.leakDetection.level: simple
-2025-02-05T17:16:44,071 DEBUG [main] ResourceLeakDetector: -Dio.netty.leakDetection.targetRecords: 4
-2025-02-05T17:16:44,079 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.numHeapArenas: 24
-2025-02-05T17:16:44,079 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.numDirectArenas: 24
-2025-02-05T17:16:44,079 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.pageSize: 8192
-2025-02-05T17:16:44,079 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.maxOrder: 9
-2025-02-05T17:16:44,079 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.chunkSize: 4194304
-2025-02-05T17:16:44,079 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.smallCacheSize: 256
-2025-02-05T17:16:44,079 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.normalCacheSize: 64
-2025-02-05T17:16:44,079 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.maxCachedBufferCapacity: 32768
-2025-02-05T17:16:44,079 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.cacheTrimInterval: 8192
-2025-02-05T17:16:44,079 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.cacheTrimIntervalMillis: 0
-2025-02-05T17:16:44,079 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.useCacheForAllThreads: false
-2025-02-05T17:16:44,079 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.maxCachedByteBuffersPerChunk: 1023
-2025-02-05T17:16:44,082 DEBUG [main] ByteBufUtil: -Dio.netty.allocator.type: pooled
-2025-02-05T17:16:44,082 DEBUG [main] ByteBufUtil: -Dio.netty.threadLocalDirectBufferSize: 0
-2025-02-05T17:16:44,082 DEBUG [main] ByteBufUtil: -Dio.netty.maxThreadLocalCharBufferSize: 16384
-2025-02-05T17:16:44,083 DEBUG [main] ChannelInitializerExtensions: -Dio.netty.bootstrap.extensions: null
-2025-02-05T17:16:44,088 INFO [main] WebServer: [<] Started
-2025-02-05T17:16:44,088 INFO [DefaultDispatcher-worker-1] application: Responding at http://0.0.0.0:8080
-2025-02-05T17:16:44,088 INFO [main] App: [<] Started
-2025-02-05T17:16:47,538 DEBUG [eventLoopGroupProxy-3-1] AbstractByteBuf: -Dio.netty.buffer.checkAccessible: true
-2025-02-05T17:16:47,538 DEBUG [eventLoopGroupProxy-3-1] AbstractByteBuf: -Dio.netty.buffer.checkBounds: true
-2025-02-05T17:16:47,539 DEBUG [eventLoopGroupProxy-3-1] ResourceLeakDetectorFactory: Loaded default ResourceLeakDetector: io.netty.util.ResourceLeakDetector@269606fe
-2025-02-05T17:16:47,555 DEBUG [eventLoopGroupProxy-3-1] Recycler: -Dio.netty.recycler.maxCapacityPerThread: 4096
-2025-02-05T17:16:47,555 DEBUG [eventLoopGroupProxy-3-1] Recycler: -Dio.netty.recycler.ratio: 8
-2025-02-05T17:16:47,555 DEBUG [eventLoopGroupProxy-3-1] Recycler: -Dio.netty.recycler.chunkSize: 32
-2025-02-05T17:16:47,556 DEBUG [eventLoopGroupProxy-3-1] Recycler: -Dio.netty.recycler.blocking: false
-2025-02-05T17:16:47,556 DEBUG [eventLoopGroupProxy-3-1] Recycler: -Dio.netty.recycler.batchFastThreadLocalOnly: true
-2025-02-05T17:16:47,912 INFO [eventLoopGroupProxy-4-1] application: [31m404 Not Found[m: [36mGET[m - / in 338ms
-2025-02-05T17:16:50,816 INFO [eventLoopGroupProxy-4-2] application: [32m200 OK[m: [36mGET[m - /api in 30ms
-2025-02-05T17:17:00,067 INFO [Thread-0] App: [>] Stopping...
-2025-02-05T17:17:00,069 INFO [Thread-0] WebServer: [>] Stopping...
-2025-02-05T17:17:02,157 DEBUG [eventLoopGroupProxy-3-1] PoolThreadCache: Freed 2 thread-local buffer(s) from thread: eventLoopGroupProxy-3-1
-2025-02-05T17:17:02,157 DEBUG [eventLoopGroupProxy-3-2] PoolThreadCache: Freed 2 thread-local buffer(s) from thread: eventLoopGroupProxy-3-2
-2025-02-05T17:17:04,237 INFO [Thread-0] application: Application stopping: io.ktor.server.application.Application@10567255
-2025-02-05T17:17:04,240 INFO [Thread-0] application: Application stopped: io.ktor.server.application.Application@10567255
-2025-02-05T17:17:04,247 INFO [Thread-0] WebServer: [<] Stopped
-2025-02-05T17:17:04,248 INFO [Thread-0] App: [<] Stopped
-2025-02-05T18:02:20,034 INFO [main] App: [>] Starting...
-2025-02-05T18:02:20,061 INFO [main] WebServer: [>] Starting...
-2025-02-05T18:02:20,061 INFO [main] application: Autoreload is disabled because the development mode is off.
-2025-02-05T18:02:20,089 INFO [main] application: Application started in 0.041 seconds.
-2025-02-05T18:02:20,089 INFO [main] application: Application started: io.ktor.server.application.Application@10567255
-2025-02-05T18:02:20,092 DEBUG [main] InternalLoggerFactory: Using SLF4J as the default logging framework
-2025-02-05T18:02:20,101 DEBUG [main] PlatformDependent0: -Dio.netty.noUnsafe: false
-2025-02-05T18:02:20,101 DEBUG [main] PlatformDependent0: Java version: 17
-2025-02-05T18:02:20,102 DEBUG [main] PlatformDependent0: sun.misc.Unsafe.theUnsafe: available
-2025-02-05T18:02:20,102 DEBUG [main] PlatformDependent0: sun.misc.Unsafe base methods: all available
-2025-02-05T18:02:20,102 DEBUG [main] PlatformDependent0: sun.misc.Unsafe.storeFence: available
-2025-02-05T18:02:20,102 DEBUG [main] PlatformDependent0: java.nio.Buffer.address: available
-2025-02-05T18:02:20,102 DEBUG [main] PlatformDependent0: direct buffer constructor: unavailable: Reflective setAccessible(true) disabled
-2025-02-05T18:02:20,102 DEBUG [main] PlatformDependent0: java.nio.Bits.unaligned: available, true
-2025-02-05T18:02:20,103 DEBUG [main] PlatformDependent0: jdk.internal.misc.Unsafe.allocateUninitializedArray(int): unavailable: class io.netty.util.internal.PlatformDependent0$7 cannot access class jdk.internal.misc.Unsafe (in module java.base) because module java.base does not export jdk.internal.misc to unnamed module @5965d37
-2025-02-05T18:02:20,103 DEBUG [main] PlatformDependent0: java.nio.DirectByteBuffer.<init>(long, {int,long}): unavailable
-2025-02-05T18:02:20,103 DEBUG [main] PlatformDependent: sun.misc.Unsafe: available
-2025-02-05T18:02:20,103 DEBUG [main] PlatformDependent: -Dio.netty.tmpdir: /var/folders/x1/k5nk211j4dz_7hx5zfsbwfmh0000gn/T (java.io.tmpdir)
-2025-02-05T18:02:20,103 DEBUG [main] PlatformDependent: -Dio.netty.bitMode: 64 (sun.arch.data.model)
-2025-02-05T18:02:20,103 DEBUG [main] PlatformDependent: Platform: MacOS
-2025-02-05T18:02:20,104 DEBUG [main] PlatformDependent: -Dio.netty.maxDirectMemory: -1 bytes
-2025-02-05T18:02:20,104 DEBUG [main] PlatformDependent: -Dio.netty.uninitializedArrayAllocationThreshold: -1
-2025-02-05T18:02:20,104 DEBUG [main] CleanerJava9: java.nio.ByteBuffer.cleaner(): available
-2025-02-05T18:02:20,104 DEBUG [main] PlatformDependent: -Dio.netty.noPreferDirect: false
-2025-02-05T18:02:20,105 DEBUG [main] NativeLibraryLoader: -Dio.netty.native.workdir: /var/folders/x1/k5nk211j4dz_7hx5zfsbwfmh0000gn/T (io.netty.tmpdir)
-2025-02-05T18:02:20,105 DEBUG [main] NativeLibraryLoader: -Dio.netty.native.deleteLibAfterLoading: true
-2025-02-05T18:02:20,105 DEBUG [main] NativeLibraryLoader: -Dio.netty.native.tryPatchShadedId: true
-2025-02-05T18:02:20,105 DEBUG [main] NativeLibraryLoader: -Dio.netty.native.detectNativeLibraryDuplicates: true
-2025-02-05T18:02:20,113 DEBUG [main] MultithreadEventLoopGroup: -Dio.netty.eventLoopThreads: 24
-2025-02-05T18:02:20,116 DEBUG [main] GlobalEventExecutor: -Dio.netty.globalEventExecutor.quietPeriodSeconds: 1
-2025-02-05T18:02:20,117 DEBUG [main] InternalThreadLocalMap: -Dio.netty.threadLocalMap.stringBuilder.initialSize: 1024
-2025-02-05T18:02:20,117 DEBUG [main] InternalThreadLocalMap: -Dio.netty.threadLocalMap.stringBuilder.maxSize: 4096
-2025-02-05T18:02:20,119 DEBUG [main] NioEventLoop: -Dio.netty.noKeySetOptimization: false
-2025-02-05T18:02:20,119 DEBUG [main] NioEventLoop: -Dio.netty.selectorAutoRebuildThreshold: 512
-2025-02-05T18:02:20,121 DEBUG [main] PlatformDependent: org.jctools-core.MpscChunkedArrayQueue: available
-2025-02-05T18:02:20,130 DEBUG [main] DefaultChannelId: -Dio.netty.processId: 96118 (auto-detected)
-2025-02-05T18:02:20,132 DEBUG [main] NetUtil: -Djava.net.preferIPv4Stack: false
-2025-02-05T18:02:20,132 DEBUG [main] NetUtil: -Djava.net.preferIPv6Addresses: false
-2025-02-05T18:02:20,134 DEBUG [main] NetUtilInitializations: Loopback interface: lo0 (lo0, 0:0:0:0:0:0:0:1%lo0)
-2025-02-05T18:02:20,134 DEBUG [main] NetUtil: Failed to get SOMAXCONN from sysctl and file /proc/sys/net/core/somaxconn. Default: 128
-2025-02-05T18:02:20,135 DEBUG [main] DefaultChannelId: -Dio.netty.machineId: 80:a9:97:ff:fe:34:2b:c5 (auto-detected)
-2025-02-05T18:02:20,138 DEBUG [main] ResourceLeakDetector: -Dio.netty.leakDetection.level: simple
-2025-02-05T18:02:20,138 DEBUG [main] ResourceLeakDetector: -Dio.netty.leakDetection.targetRecords: 4
-2025-02-05T18:02:20,146 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.numHeapArenas: 24
-2025-02-05T18:02:20,146 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.numDirectArenas: 24
-2025-02-05T18:02:20,146 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.pageSize: 8192
-2025-02-05T18:02:20,147 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.maxOrder: 9
-2025-02-05T18:02:20,147 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.chunkSize: 4194304
-2025-02-05T18:02:20,147 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.smallCacheSize: 256
-2025-02-05T18:02:20,147 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.normalCacheSize: 64
-2025-02-05T18:02:20,147 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.maxCachedBufferCapacity: 32768
-2025-02-05T18:02:20,147 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.cacheTrimInterval: 8192
-2025-02-05T18:02:20,147 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.cacheTrimIntervalMillis: 0
-2025-02-05T18:02:20,147 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.useCacheForAllThreads: false
-2025-02-05T18:02:20,147 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.maxCachedByteBuffersPerChunk: 1023
-2025-02-05T18:02:20,150 DEBUG [main] ByteBufUtil: -Dio.netty.allocator.type: pooled
-2025-02-05T18:02:20,150 DEBUG [main] ByteBufUtil: -Dio.netty.threadLocalDirectBufferSize: 0
-2025-02-05T18:02:20,150 DEBUG [main] ByteBufUtil: -Dio.netty.maxThreadLocalCharBufferSize: 16384
-2025-02-05T18:02:20,150 DEBUG [main] ChannelInitializerExtensions: -Dio.netty.bootstrap.extensions: null
-2025-02-05T18:02:20,155 INFO [main] WebServer: [<] Started
-2025-02-05T18:02:20,155 INFO [DefaultDispatcher-worker-1] application: Responding at http://0.0.0.0:8080
-2025-02-05T18:02:20,155 INFO [main] App: [<] Started
-2025-02-05T18:50:43,961 DEBUG [eventLoopGroupProxy-3-1] AbstractByteBuf: -Dio.netty.buffer.checkAccessible: true
-2025-02-05T18:50:43,962 DEBUG [eventLoopGroupProxy-3-1] AbstractByteBuf: -Dio.netty.buffer.checkBounds: true
-2025-02-05T18:50:43,963 DEBUG [eventLoopGroupProxy-3-1] ResourceLeakDetectorFactory: Loaded default ResourceLeakDetector: io.netty.util.ResourceLeakDetector@5b015680
-2025-02-05T18:50:43,984 DEBUG [eventLoopGroupProxy-3-1] Recycler: -Dio.netty.recycler.maxCapacityPerThread: 4096
-2025-02-05T18:50:43,984 DEBUG [eventLoopGroupProxy-3-1] Recycler: -Dio.netty.recycler.ratio: 8
-2025-02-05T18:50:43,984 DEBUG [eventLoopGroupProxy-3-1] Recycler: -Dio.netty.recycler.chunkSize: 32
-2025-02-05T18:50:43,984 DEBUG [eventLoopGroupProxy-3-1] Recycler: -Dio.netty.recycler.blocking: false
-2025-02-05T18:50:43,984 DEBUG [eventLoopGroupProxy-3-1] Recycler: -Dio.netty.recycler.batchFastThreadLocalOnly: true
-2025-02-05T18:50:44,413 INFO [eventLoopGroupProxy-4-1] application: [31m404 Not Found[m: [36mGET[m - /api/api/hello-world in 409ms
-2025-02-05T18:56:26,522 INFO [eventLoopGroupProxy-4-2] application: [32m200 OK[m: [36mGET[m - /api/hello-world in 16ms
-2025-02-05T18:56:31,371 INFO [Thread-0] App: [>] Stopping...
-2025-02-05T18:56:31,371 INFO [Thread-0] WebServer: [>] Stopping...
-2025-02-05T18:56:33,467 DEBUG [eventLoopGroupProxy-3-1] PoolThreadCache: Freed 2 thread-local buffer(s) from thread: eventLoopGroupProxy-3-1
-2025-02-05T18:56:35,527 DEBUG [eventLoopGroupProxy-3-2] PoolThreadCache: Freed 2 thread-local buffer(s) from thread: eventLoopGroupProxy-3-2
-2025-02-05T18:56:35,544 INFO [Thread-0] application: Application stopping: io.ktor.server.application.Application@10567255
-2025-02-05T18:56:35,547 INFO [Thread-0] application: Application stopped: io.ktor.server.application.Application@10567255
-2025-02-05T18:56:35,552 INFO [Thread-0] WebServer: [<] Stopped
-2025-02-05T18:56:35,553 INFO [Thread-0] App: [<] Stopped
+2025-08-11T15:28:55,997 INFO [main] App: [>] Starting...
+2025-08-11T15:28:56,035 INFO [main] WebServer: [>] Starting...
+2025-08-11T15:28:56,036 INFO [main] application: Autoreload is disabled because the development mode is off.
+2025-08-11T15:28:56,071 INFO [main] application: Application started in 0.052 seconds.
+2025-08-11T15:28:56,071 INFO [main] application: Application started: io.ktor.server.application.Application@6ac4944a
+2025-08-11T15:28:56,073 DEBUG [main] InternalLoggerFactory: Using SLF4J as the default logging framework
+2025-08-11T15:28:56,084 DEBUG [main] PlatformDependent0: -Dio.netty.noUnsafe: false
+2025-08-11T15:28:56,084 DEBUG [main] PlatformDependent0: Java version: 17
+2025-08-11T15:28:56,085 DEBUG [main] PlatformDependent0: sun.misc.Unsafe.theUnsafe: available
+2025-08-11T15:28:56,085 DEBUG [main] PlatformDependent0: sun.misc.Unsafe base methods: all available
+2025-08-11T15:28:56,085 DEBUG [main] PlatformDependent0: sun.misc.Unsafe.storeFence: available
+2025-08-11T15:28:56,085 DEBUG [main] PlatformDependent0: java.nio.Buffer.address: available
+2025-08-11T15:28:56,086 DEBUG [main] PlatformDependent0: direct buffer constructor: unavailable: Reflective setAccessible(true) disabled
+2025-08-11T15:28:56,086 DEBUG [main] PlatformDependent0: java.nio.Bits.unaligned: available, true
+2025-08-11T15:28:56,086 DEBUG [main] PlatformDependent0: jdk.internal.misc.Unsafe.allocateUninitializedArray(int): unavailable: class io.netty.util.internal.PlatformDependent0$7 cannot access class jdk.internal.misc.Unsafe (in module java.base) because module java.base does not export jdk.internal.misc to unnamed module @5965d37
+2025-08-11T15:28:56,087 DEBUG [main] PlatformDependent0: java.nio.DirectByteBuffer.<init>(long, {int,long}): unavailable
+2025-08-11T15:28:56,087 DEBUG [main] PlatformDependent: sun.misc.Unsafe: available
+2025-08-11T15:28:56,087 DEBUG [main] PlatformDependent: -Dio.netty.tmpdir: /var/folders/x1/k5nk211j4dz_7hx5zfsbwfmh0000gn/T (java.io.tmpdir)
+2025-08-11T15:28:56,087 DEBUG [main] PlatformDependent: -Dio.netty.bitMode: 64 (sun.arch.data.model)
+2025-08-11T15:28:56,087 DEBUG [main] PlatformDependent: Platform: MacOS
+2025-08-11T15:28:56,087 DEBUG [main] PlatformDependent: -Dio.netty.maxDirectMemory: -1 bytes
+2025-08-11T15:28:56,087 DEBUG [main] PlatformDependent: -Dio.netty.uninitializedArrayAllocationThreshold: -1
+2025-08-11T15:28:56,087 DEBUG [main] CleanerJava9: java.nio.ByteBuffer.cleaner(): available
+2025-08-11T15:28:56,088 DEBUG [main] PlatformDependent: -Dio.netty.noPreferDirect: false
+2025-08-11T15:28:56,089 DEBUG [main] NativeLibraryLoader: -Dio.netty.native.workdir: /var/folders/x1/k5nk211j4dz_7hx5zfsbwfmh0000gn/T (io.netty.tmpdir)
+2025-08-11T15:28:56,089 DEBUG [main] NativeLibraryLoader: -Dio.netty.native.deleteLibAfterLoading: true
+2025-08-11T15:28:56,089 DEBUG [main] NativeLibraryLoader: -Dio.netty.native.tryPatchShadedId: true
+2025-08-11T15:28:56,089 DEBUG [main] NativeLibraryLoader: -Dio.netty.native.detectNativeLibraryDuplicates: true
+2025-08-11T15:28:56,102 DEBUG [main] MultithreadEventLoopGroup: -Dio.netty.eventLoopThreads: 24
+2025-08-11T15:28:56,104 DEBUG [main] GlobalEventExecutor: -Dio.netty.globalEventExecutor.quietPeriodSeconds: 1
+2025-08-11T15:28:56,105 DEBUG [main] InternalThreadLocalMap: -Dio.netty.threadLocalMap.stringBuilder.initialSize: 1024
+2025-08-11T15:28:56,105 DEBUG [main] InternalThreadLocalMap: -Dio.netty.threadLocalMap.stringBuilder.maxSize: 4096
+2025-08-11T15:28:56,108 DEBUG [main] NioEventLoop: -Dio.netty.noKeySetOptimization: false
+2025-08-11T15:28:56,108 DEBUG [main] NioEventLoop: -Dio.netty.selectorAutoRebuildThreshold: 512
+2025-08-11T15:28:56,110 DEBUG [main] PlatformDependent: org.jctools-core.MpscChunkedArrayQueue: available
+2025-08-11T15:28:56,126 DEBUG [main] DefaultChannelId: -Dio.netty.processId: 97473 (auto-detected)
+2025-08-11T15:28:56,129 DEBUG [main] NetUtil: -Djava.net.preferIPv4Stack: false
+2025-08-11T15:28:56,129 DEBUG [main] NetUtil: -Djava.net.preferIPv6Addresses: false
+2025-08-11T15:28:56,133 DEBUG [main] NetUtilInitializations: Loopback interface: lo0 (lo0, 0:0:0:0:0:0:0:1%lo0)
+2025-08-11T15:28:56,142 DEBUG [main] NetUtil: Failed to get SOMAXCONN from sysctl and file /proc/sys/net/core/somaxconn. Default: 128
+2025-08-11T15:28:56,143 DEBUG [main] DefaultChannelId: -Dio.netty.machineId: 56:d4:7a:ff:fe:92:d7:c9 (auto-detected)
+2025-08-11T15:28:56,147 DEBUG [main] ResourceLeakDetector: -Dio.netty.leakDetection.level: simple
+2025-08-11T15:28:56,147 DEBUG [main] ResourceLeakDetector: -Dio.netty.leakDetection.targetRecords: 4
+2025-08-11T15:28:56,156 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.numHeapArenas: 24
+2025-08-11T15:28:56,156 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.numDirectArenas: 24
+2025-08-11T15:28:56,156 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.pageSize: 8192
+2025-08-11T15:28:56,156 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.maxOrder: 9
+2025-08-11T15:28:56,156 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.chunkSize: 4194304
+2025-08-11T15:28:56,156 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.smallCacheSize: 256
+2025-08-11T15:28:56,156 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.normalCacheSize: 64
+2025-08-11T15:28:56,156 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.maxCachedBufferCapacity: 32768
+2025-08-11T15:28:56,156 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.cacheTrimInterval: 8192
+2025-08-11T15:28:56,156 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.cacheTrimIntervalMillis: 0
+2025-08-11T15:28:56,156 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.useCacheForAllThreads: false
+2025-08-11T15:28:56,156 DEBUG [main] PooledByteBufAllocator: -Dio.netty.allocator.maxCachedByteBuffersPerChunk: 1023
+2025-08-11T15:28:56,160 DEBUG [main] ByteBufUtil: -Dio.netty.allocator.type: pooled
+2025-08-11T15:28:56,160 DEBUG [main] ByteBufUtil: -Dio.netty.threadLocalDirectBufferSize: 0
+2025-08-11T15:28:56,160 DEBUG [main] ByteBufUtil: -Dio.netty.maxThreadLocalCharBufferSize: 16384
+2025-08-11T15:28:56,161 DEBUG [main] ChannelInitializerExtensions: -Dio.netty.bootstrap.extensions: null
+2025-08-11T15:28:56,168 INFO [main] WebServer: [<] Started
+2025-08-11T15:28:56,168 INFO [DefaultDispatcher-worker-1] application: Responding at http://0.0.0.0:8080
+2025-08-11T15:28:56,168 INFO [main] App: [<] Started
+2025-08-11T15:29:20,548 DEBUG [eventLoopGroupProxy-3-1] AbstractByteBuf: -Dio.netty.buffer.checkAccessible: true
+2025-08-11T15:29:20,548 DEBUG [eventLoopGroupProxy-3-1] AbstractByteBuf: -Dio.netty.buffer.checkBounds: true
+2025-08-11T15:29:20,548 DEBUG [eventLoopGroupProxy-3-1] ResourceLeakDetectorFactory: Loaded default ResourceLeakDetector: io.netty.util.ResourceLeakDetector@23faa306
+2025-08-11T15:29:20,564 DEBUG [eventLoopGroupProxy-3-1] Recycler: -Dio.netty.recycler.maxCapacityPerThread: 4096
+2025-08-11T15:29:20,564 DEBUG [eventLoopGroupProxy-3-1] Recycler: -Dio.netty.recycler.ratio: 8
+2025-08-11T15:29:20,564 DEBUG [eventLoopGroupProxy-3-1] Recycler: -Dio.netty.recycler.chunkSize: 32
+2025-08-11T15:29:20,564 DEBUG [eventLoopGroupProxy-3-1] Recycler: -Dio.netty.recycler.blocking: false
+2025-08-11T15:29:20,564 DEBUG [eventLoopGroupProxy-3-1] Recycler: -Dio.netty.recycler.batchFastThreadLocalOnly: true
+2025-08-11T15:29:20,971 INFO [eventLoopGroupProxy-4-1] application: [32m200 OK[m: [36mGET[m - /api/hello-world in 387ms
+2025-08-11T19:50:13,324 INFO [Thread-0] App: [>] Stopping...
+2025-08-11T19:50:13,326 INFO [Thread-0] WebServer: [>] Stopping...
+2025-08-11T19:50:15,411 DEBUG [eventLoopGroupProxy-3-1] PoolThreadCache: Freed 2 thread-local buffer(s) from thread: eventLoopGroupProxy-3-1
+2025-08-11T19:50:17,485 INFO [Thread-0] application: Application stopping: io.ktor.server.application.Application@6ac4944a
+2025-08-11T19:50:17,486 INFO [Thread-0] application: Application stopped: io.ktor.server.application.Application@6ac4944a
+2025-08-11T19:50:17,489 INFO [Thread-0] WebServer: [<] Stopped
+2025-08-11T19:50:17,490 INFO [Thread-0] App: [<] Stopped
