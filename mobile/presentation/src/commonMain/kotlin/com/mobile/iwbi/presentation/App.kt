@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.mobile.iwbi.domain.store.Store
+import com.mobile.iwbi.domain.store.StoreDataProvider
 import com.mobile.iwbi.presentation.home.HomePanel
 import com.mobile.iwbi.presentation.login.LoginScreen
 import com.mobile.iwbi.presentation.navigation.CustomNavType
@@ -41,37 +42,7 @@ fun App() {
             }
             composable<Panel.StorePanel> {
                 StorePanel(
-                    stores = listOf(Store("Store 1", """
-{
-  "nodes": [
-    { "id": "n1", "x": 50.0, "y": 100.0, "label": "Entrance" },
-    { "id": "n2", "x": 200.0, "y": 100.0, "label": "Checkout" },
-    { "id": "n3", "x": 200.0, "y": 300.0, "label": "Electronics" },
-    { "id": "n4", "x": 50.0, "y": 300.0, "label": "Clothing" }
-  ],
-  "edges": [
-    { "from": "n1", "to": "n2" },
-    { "from": "n2", "to": "n3" },
-    { "from": "n3", "to": "n4" },
-    { "from": "n4", "to": "n1" }
-  ]
-}
-""".trimIndent()), Store("Store 2", """
-{
-  "nodes": [
-    { "id": "n1", "x": 50.0, "y": 100.0, "label": "Entrance" },
-    { "id": "n2", "x": 200.0, "y": 100.0, "label": "Checkout" },
-    { "id": "n3", "x": 200.0, "y": 300.0, "label": "Electronics" },
-    { "id": "n4", "x": 50.0, "y": 300.0, "label": "Clothing" }
-  ],
-  "edges": [
-    { "from": "n1", "to": "n2" },
-    { "from": "n2", "to": "n3" },
-    { "from": "n3", "to": "n4" },
-    { "from": "n4", "to": "n1" }
-  ]
-}
-""".trimIndent())), // Example stores
+                    stores = StoreDataProvider.getSampleStores(),
                     onStoreSelected = { store ->
                         navController.navigate(Panel.StoreMapScreen(store))
                     }
