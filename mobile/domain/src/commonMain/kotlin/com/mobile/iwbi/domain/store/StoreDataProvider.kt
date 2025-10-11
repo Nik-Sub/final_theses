@@ -1,8 +1,7 @@
 package com.mobile.iwbi.domain.store
 
-import com.mobile.iwbi.domain.map.MapData
-import com.mobile.iwbi.domain.map.MapEdge
-import com.mobile.iwbi.domain.map.MapNode
+import com.mobile.iwbi.domain.map.StoreLayout
+import com.mobile.iwbi.domain.map.MapSection
 import com.mobile.iwbi.domain.map.NodeType
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -10,118 +9,135 @@ import kotlinx.serialization.json.Json
 object StoreDataProvider {
 
     fun getSampleStores(): List<Store> = listOf(
-        Store("SuperMart Downtown", createSuperMartMap()),
-        Store("Fresh Foods Market", createFreshFoodsMap())
+        Store("SuperMart Downtown", createModernStoreLayout()),
+        Store("Fresh Foods Market", createBoutiqueStoreLayout())
     )
 
-    private fun createSuperMartMap(): String {
-        val mapData = MapData(
-            nodes = listOf(
-                // Entrance
-                MapNode("entrance", 100f, 50f, "Main Entrance", NodeType.ENTRANCE, width = 60f, height = 30f),
+    private fun createModernStoreLayout(): String {
+        val layout = StoreLayout(
+            gridWidth = 12,
+            gridHeight = 10,
+            sections = listOf(
+                // Entrance at top
+                MapSection("entrance", "Main Entrance", "M12 2L2 7V10C2 11.1 2.9 12 4 12H20C21.1 12 22 11.1 22 10V7L12 2Z", 5, 0, 2, 1, NodeType.ENTRANCE, "#4CAF50"),
 
-                // Pathways
-                MapNode("path_main", 100f, 150f, "", NodeType.PATHWAY, width = 40f, height = 40f),
-                MapNode("path_left", 50f, 250f, "", NodeType.PATHWAY, width = 40f, height = 40f),
-                MapNode("path_center", 150f, 250f, "", NodeType.PATHWAY, width = 40f, height = 40f),
-                MapNode("path_right", 250f, 250f, "", NodeType.PATHWAY, width = 40f, height = 40f),
-                MapNode("path_back", 150f, 350f, "", NodeType.PATHWAY, width = 40f, height = 40f),
+                // Scattered produce icons (green)
+                MapSection("produce1", "Fresh Produce", "M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM12 8C16 8 20 10 20 12V20C20 21.1 19.1 22 18 22H6C4.9 22 4 21.1 4 20V12C4 10 8 8 12 8Z", 1, 2, 1, 1, NodeType.SECTION, "#8BC34A",
+                    listOf("apples", "bananas", "fruits")),
+                MapSection("produce2", "Fresh Produce", "M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM12 8C16 8 20 10 20 12V20C20 21.1 19.1 22 18 22H6C4.9 22 4 21.1 4 20V12C4 10 8 8 12 8Z", 1, 4, 1, 1, NodeType.SECTION, "#66BB6A",
+                    listOf("carrots", "lettuce", "vegetables")),
+                MapSection("produce3", "Fresh Produce", "M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM12 8C16 8 20 10 20 12V20C20 21.1 19.1 22 18 22H6C4.9 22 4 21.1 4 20V12C4 10 8 8 12 8Z", 1, 6, 1, 1, NodeType.SECTION, "#4CAF50",
+                    listOf("tomatoes", "organic")),
 
-                // Shelves
-                MapNode("shelf_produce", 50f, 200f, "Fresh Produce", NodeType.SHELF,
-                    listOf("apples", "bananas", "carrots", "lettuce"), 80f, 40f),
-                MapNode("shelf_dairy", 150f, 200f, "Dairy Section", NodeType.SHELF,
-                    listOf("milk", "cheese", "yogurt", "butter"), 80f, 40f),
-                MapNode("shelf_bakery", 250f, 200f, "Bakery", NodeType.SHELF,
-                    listOf("bread", "croissants", "muffins", "cakes"), 80f, 40f),
-                MapNode("shelf_candy", 100f, 300f, "Candy & Chocolate", NodeType.SHELF,
-                    listOf("chocolate", "candy", "gum", "cookies"), 80f, 40f),
-                MapNode("shelf_beverages", 200f, 300f, "Beverages", NodeType.SHELF,
-                    listOf("soda", "juice", "water", "coffee"), 80f, 40f),
-                MapNode("shelf_frozen", 50f, 400f, "Frozen Foods", NodeType.SHELF,
-                    listOf("ice cream", "frozen pizza", "frozen vegetables"), 80f, 40f),
-                MapNode("shelf_meat", 250f, 400f, "Meat & Deli", NodeType.SHELF,
-                    listOf("chicken", "beef", "ham", "turkey"), 80f, 40f),
+                // Bakery icons (orange)
+                MapSection("bakery1", "Bakery", "M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM12 8C16 8 20 10 20 12V20C20 21.1 19.1 22 18 22H6C4.9 22 4 21.1 4 20V12C4 10 8 8 12 8Z", 3, 1, 1, 1, NodeType.SECTION, "#FF9800",
+                    listOf("bread", "croissants")),
+                MapSection("bakery2", "Bakery", "M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM12 8C16 8 20 10 20 12V20C20 21.1 19.1 22 18 22H6C4.9 22 4 21.1 4 20V12C4 10 8 8 12 8Z", 3, 3, 1, 1, NodeType.SECTION, "#FF8F00",
+                    listOf("muffins", "cakes")),
+                MapSection("bakery3", "Bakery", "M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM12 8C16 8 20 10 20 12V20C20 21.1 19.1 22 18 22H6C4.9 22 4 21.1 4 20V12C4 10 8 8 12 8Z", 3, 5, 1, 1, NodeType.SECTION, "#EF6C00",
+                    listOf("pastries", "donuts")),
 
-                // Checkout
-                MapNode("checkout_1", 100f, 450f, "Checkout 1", NodeType.CHECKOUT, width = 60f, height = 30f),
-                MapNode("checkout_2", 160f, 450f, "Checkout 2", NodeType.CHECKOUT, width = 60f, height = 30f),
+                // Meat & Deli icons (red)
+                MapSection("meat1", "Meat & Deli", "M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM12 8C16 8 20 10 20 12V20C20 21.1 19.1 22 18 22H6C4.9 22 4 21.1 4 20V12C4 10 8 8 12 8Z", 5, 2, 1, 1, NodeType.SECTION, "#F44336",
+                    listOf("chicken", "beef")),
+                MapSection("meat2", "Meat & Deli", "M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM12 8C16 8 20 10 20 12V20C20 21.1 19.1 22 18 22H6C4.9 22 4 21.1 4 20V12C4 10 8 8 12 8Z", 5, 4, 1, 1, NodeType.SECTION, "#E53935",
+                    listOf("ham", "turkey")),
+                MapSection("meat3", "Meat & Deli", "M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM12 8C16 8 20 10 20 12V20C20 21.1 19.1 22 18 22H6C4.9 22 4 21.1 4 20V12C4 10 8 8 12 8Z", 5, 6, 1, 1, NodeType.SECTION, "#D32F2F",
+                    listOf("bacon", "sausage")),
 
-                // Other facilities
-                MapNode("customer_service", 300f, 100f, "Customer Service", NodeType.CUSTOMER_SERVICE, width = 80f, height = 30f),
-                MapNode("restroom", 300f, 350f, "Restroom", NodeType.RESTROOM, width = 60f, height = 30f)
-            ),
-            edges = listOf(
-                // Main path connections
-                MapEdge("entrance", "path_main", 100f),
-                MapEdge("path_main", "path_left", 70f),
-                MapEdge("path_main", "path_center", 50f),
-                MapEdge("path_main", "path_right", 150f),
-                MapEdge("path_center", "path_back", 100f),
-                MapEdge("path_left", "path_center", 100f),
-                MapEdge("path_center", "path_right", 100f),
+                // Dairy icons (yellow)
+                MapSection("dairy1", "Dairy", "M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM12 8C16 8 20 10 20 12V20C20 21.1 19.1 22 18 22H6C4.9 22 4 21.1 4 20V12C4 10 8 8 12 8Z", 7, 1, 1, 1, NodeType.SECTION, "#FFEB3B",
+                    listOf("milk", "cheese")),
+                MapSection("dairy2", "Dairy", "M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM12 8C16 8 20 10 20 12V20C20 21.1 19.1 22 18 22H6C4.9 22 4 21.1 4 20V12C4 10 8 8 12 8Z", 7, 3, 1, 1, NodeType.SECTION, "#FDD835",
+                    listOf("yogurt", "butter")),
+                MapSection("dairy3", "Dairy", "M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM12 8C16 8 20 10 20 12V20C20 21.1 19.1 22 18 22H6C4.9 22 4 21.1 4 20V12C4 10 8 8 12 8Z", 7, 5, 1, 1, NodeType.SECTION, "#F9A825",
+                    listOf("cream", "eggs")),
 
-                // Shelf connections
-                MapEdge("path_left", "shelf_produce", 50f),
-                MapEdge("path_center", "shelf_dairy", 50f),
-                MapEdge("path_right", "shelf_bakery", 50f),
-                MapEdge("path_back", "shelf_candy", 50f),
-                MapEdge("path_back", "shelf_beverages", 50f),
-                MapEdge("path_back", "shelf_frozen", 100f),
-                MapEdge("path_back", "shelf_meat", 100f),
+                // Frozen icons (blue)
+                MapSection("frozen1", "Frozen Foods", "M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM12 8C16 8 20 10 20 12V20C20 21.1 19.1 22 18 22H6C4.9 22 4 21.1 4 20V12C4 10 8 8 12 8Z", 9, 2, 1, 1, NodeType.SECTION, "#2196F3",
+                    listOf("ice cream", "frozen pizza")),
+                MapSection("frozen2", "Frozen Foods", "M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM12 8C16 8 20 10 20 12V20C20 21.1 19.1 22 18 22H6C4.9 22 4 21.1 4 20V12C4 10 8 8 12 8Z", 9, 4, 1, 1, NodeType.SECTION, "#1976D2",
+                    listOf("frozen vegetables", "frozen meals")),
 
-                // Checkout connections
-                MapEdge("path_back", "checkout_1", 100f),
-                MapEdge("path_back", "checkout_2", 100f),
+                // Candy icons (pink)
+                MapSection("candy1", "Candy & Snacks", "M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM12 8C16 8 20 10 20 12V20C20 21.1 19.1 22 18 22H6C4.9 22 4 21.1 4 20V12C4 10 8 8 12 8Z", 11, 1, 1, 1, NodeType.SECTION, "#E91E63",
+                    listOf("chocolate", "candy")),
+                MapSection("candy2", "Candy & Snacks", "M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM12 8C16 8 20 10 20 12V20C20 21.1 19.1 22 18 22H6C4.9 22 4 21.1 4 20V12C4 10 8 8 12 8Z", 11, 3, 1, 1, NodeType.SECTION, "#C2185B",
+                    listOf("chips", "cookies")),
+                MapSection("candy3", "Candy & Snacks", "M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM12 8C16 8 20 10 20 12V20C20 21.1 19.1 22 18 22H6C4.9 22 4 21.1 4 20V12C4 10 8 8 12 8Z", 11, 5, 1, 1, NodeType.SECTION, "#AD1457",
+                    listOf("snacks", "gum")),
 
-                // Facility connections
-                MapEdge("path_main", "customer_service", 200f),
-                MapEdge("path_right", "restroom", 100f)
+                // Beverages icons (light blue)
+                MapSection("beverages1", "Beverages", "M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM12 8C16 8 20 10 20 12V20C20 21.1 19.1 22 18 22H6C4.9 22 4 21.1 4 20V12C4 10 8 8 12 8Z", 2, 8, 1, 1, NodeType.SECTION, "#03A9F4",
+                    listOf("soda", "juice")),
+                MapSection("beverages2", "Beverages", "M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM12 8C16 8 20 10 20 12V20C20 21.1 19.1 22 18 22H6C4.9 22 4 21.1 4 20V12C4 10 8 8 12 8Z", 4, 8, 1, 1, NodeType.SECTION, "#0288D1",
+                    listOf("water", "coffee")),
+                MapSection("beverages3", "Beverages", "M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM12 8C16 8 20 10 20 12V20C20 21.1 19.1 22 18 22H6C4.9 22 4 21.1 4 20V12C4 10 8 8 12 8Z", 6, 8, 1, 1, NodeType.SECTION, "#0277BD",
+                    listOf("tea", "energy drinks")),
+
+                // Bottom facilities
+                MapSection("checkout1", "Checkout 1", "M7 4V2C7 0.9 7.9 0 9 0H15C16.1 0 17 0.9 17 2V4H20C21.1 4 22 4.9 22 6S21.1 8 20 8H19V19C19 20.1 18.1 21 17 21H7C5.9 21 5 20.1 5 19V8H4C2.9 8 2 7.1 2 6S2.9 4 4 4H7ZM9 2V4H15V2H9Z", 2, 9, 1, 1, NodeType.CHECKOUT, "#607D8B"),
+                MapSection("checkout2", "Checkout 2", "M7 4V2C7 0.9 7.9 0 9 0H15C16.1 0 17 0.9 17 2V4H20C21.1 4 22 4.9 22 6S21.1 8 20 8H19V19C19 20.1 18.1 21 17 21H7C5.9 21 5 20.1 5 19V8H4C2.9 8 2 7.1 2 6S2.9 4 4 4H7ZM9 2V4H15V2H9Z", 4, 9, 1, 1, NodeType.CHECKOUT, "#607D8B"),
+                MapSection("checkout3", "Checkout 3", "M7 4V2C7 0.9 7.9 0 9 0H15C16.1 0 17 0.9 17 2V4H20C21.1 4 22 4.9 22 6S21.1 8 20 8H19V19C19 20.1 18.1 21 17 21H7C5.9 21 5 20.1 5 19V8H4C2.9 8 2 7.1 2 6S2.9 4 4 4H7ZM9 2V4H15V2H9Z", 6, 9, 1, 1, NodeType.CHECKOUT, "#607D8B"),
+                MapSection("checkout4", "Self Checkout", "M7 4V2C7 0.9 7.9 0 9 0H15C16.1 0 17 0.9 17 2V4H20C21.1 4 22 4.9 22 6S21.1 8 20 8H19V19C19 20.1 18.1 21 17 21H7C5.9 21 5 20.1 5 19V8H4C2.9 8 2 7.1 2 6S2.9 4 4 4H7ZM9 2V4H15V2H9Z", 8, 9, 1, 1, NodeType.CHECKOUT, "#607D8B"),
+                MapSection("customer_service", "Customer Service", "M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM12 7C15.3 7 18 9.7 18 13V20H6V13C6 9.7 8.7 7 12 7Z", 0, 9, 1, 1, NodeType.CUSTOMER_SERVICE, "#3F51B5"),
+                MapSection("restroom", "Restrooms", "M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H5C3.9 1 3 1.9 3 3V7H21V9H3V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V9Z", 10, 9, 2, 1, NodeType.RESTROOM, "#9C27B0")
             ),
             productLocations = mapOf(
-                "chocolate" to listOf("shelf_candy"),
-                "candy" to listOf("shelf_candy"),
-                "milk" to listOf("shelf_dairy"),
-                "bread" to listOf("shelf_bakery"),
-                "apples" to listOf("shelf_produce"),
-                "ice cream" to listOf("shelf_frozen"),
-                "chicken" to listOf("shelf_meat"),
-                "soda" to listOf("shelf_beverages")
+                "chocolate" to listOf("candy1", "candy2", "candy3"),
+                "candy" to listOf("candy1", "candy2", "candy3"),
+                "milk" to listOf("dairy1", "dairy2", "dairy3"),
+                "bread" to listOf("bakery1", "bakery2", "bakery3"),
+                "apples" to listOf("produce1", "produce2", "produce3"),
+                "ice cream" to listOf("frozen1", "frozen2"),
+                "chicken" to listOf("meat1", "meat2", "meat3"),
+                "soda" to listOf("beverages1", "beverages2", "beverages3")
             )
         )
 
-        return Json.encodeToString(mapData)
+        return Json.encodeToString(layout)
     }
 
-    private fun createFreshFoodsMap(): String {
-        val mapData = MapData(
-            nodes = listOf(
-                MapNode("entrance", 80f, 50f, "Main Entrance", NodeType.ENTRANCE, width = 60f, height = 30f),
-                MapNode("path_1", 80f, 120f, "", NodeType.PATHWAY, width = 40f, height = 40f),
-                MapNode("path_2", 160f, 180f, "", NodeType.PATHWAY, width = 40f, height = 40f),
-                MapNode("organic_produce", 80f, 180f, "Organic Produce", NodeType.SHELF,
-                    listOf("organic apples", "organic carrots", "organic spinach"), 90f, 40f),
-                MapNode("gourmet_cheese", 240f, 180f, "Gourmet Cheese", NodeType.SHELF,
-                    listOf("brie", "cheddar", "gouda", "camembert"), 90f, 40f),
-                MapNode("artisan_bakery", 160f, 280f, "Artisan Bakery", NodeType.SHELF,
-                    listOf("sourdough", "baguettes", "pastries"), 90f, 40f),
-                MapNode("checkout", 160f, 350f, "Express Checkout", NodeType.CHECKOUT, width = 80f, height = 30f)
-            ),
-            edges = listOf(
-                MapEdge("entrance", "path_1", 70f),
-                MapEdge("path_1", "organic_produce", 40f),
-                MapEdge("path_1", "path_2", 100f),
-                MapEdge("path_2", "gourmet_cheese", 80f),
-                MapEdge("path_2", "artisan_bakery", 100f),
-                MapEdge("artisan_bakery", "checkout", 70f)
+    private fun createBoutiqueStoreLayout(): String {
+        val layout = StoreLayout(
+            gridWidth = 4,
+            gridHeight = 6,
+            sections = listOf(
+                // Entrance
+                MapSection("entrance", "Main Entrance", "🚪", 1, 0, 2, 1, NodeType.ENTRANCE, "#4CAF50"),
+
+                // Premium sections
+                MapSection("organic_produce", "Organic Produce", "🥬", 0, 1, 2, 1, NodeType.SECTION, "#8BC34A",
+                    listOf("organic apples", "organic carrots", "organic spinach")),
+                MapSection("artisan_bakery", "Artisan Bakery", "🍞", 2, 1, 2, 1, NodeType.SECTION, "#FF9800",
+                    listOf("sourdough", "baguettes", "pastries")),
+
+                MapSection("gourmet_cheese", "Gourmet Cheese", "🧀", 0, 2, 2, 1, NodeType.SECTION, "#FFF9C4",
+                    listOf("brie", "cheddar", "gouda", "camembert")),
+                MapSection("wine_spirits", "Wine & Spirits", "🍷", 2, 2, 2, 1, NodeType.SECTION, "#8E24AA",
+                    listOf("wine", "champagne", "spirits")),
+
+                MapSection("deli_meats", "Premium Deli", "🥩", 0, 3, 2, 1, NodeType.SECTION, "#F44336",
+                    listOf("prosciutto", "salami", "premium ham")),
+                MapSection("beverages", "Premium Beverages", "🧃", 2, 3, 2, 1, NodeType.SECTION, "#2196F3",
+                    listOf("craft beer", "kombucha", "artisan coffee")),
+
+                MapSection("specialty", "Specialty Items", "🎁", 0, 4, 4, 1, NodeType.SECTION, "#FF9800",
+                    listOf("truffle oil", "imported pasta", "gourmet sauces")),
+
+                // Bottom facilities
+                MapSection("customer_service", "Customer Service", "ℹ️", 0, 5, 1, 1, NodeType.CUSTOMER_SERVICE, "#3F51B5"),
+                MapSection("express_checkout", "Express Checkout", "🛒", 1, 5, 2, 1, NodeType.CHECKOUT, "#607D8B"),
+                MapSection("restroom", "Restrooms", "🚻", 3, 5, 1, 1, NodeType.RESTROOM, "#9C27B0")
             ),
             productLocations = mapOf(
                 "cheese" to listOf("gourmet_cheese"),
                 "bread" to listOf("artisan_bakery"),
-                "apples" to listOf("organic_produce")
+                "apples" to listOf("organic_produce"),
+                "wine" to listOf("wine_spirits")
             )
         )
 
-        return Json.encodeToString(mapData)
+        return Json.encodeToString(layout)
     }
 }

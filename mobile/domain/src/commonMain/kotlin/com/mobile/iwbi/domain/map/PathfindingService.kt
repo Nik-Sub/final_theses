@@ -1,103 +1,118 @@
 package com.mobile.iwbi.domain.map
 
-import kotlin.math.sqrt
-
 class PathfindingService {
 
     data class PathResult(
-        val path: List<String>,
-        val totalDistance: Float
+        val targetSection: MapSection,
+        val path: List<MapSection>,
+        val description: String
     )
 
-    fun findShortestPath(
-        mapData: MapData,
-        startNodeId: String,
-        endNodeId: String
-    ): PathResult? {
-        val distances = mutableMapOf<String, Float>()
-        val previous = mutableMapOf<String, String?>()
-        val unvisited = mutableSetOf<String>()
+    fun findProductLocations(layout: StoreLayout, productName: String): List<MapSection> {
+        return layout.productLocations[productName.lowercase()]?.mapNotNull { sectionId ->
+            layout.sections.find { it.id == sectionId }
+        } ?: layout.sections.filter { section ->
+            section.products.any { it.lowercase().contains(productName.lowercase()) }
+        }
+    }
 
-        // Initialize distances
-        mapData.nodes.forEach { node ->
-            distances[node.id] = Float.MAX_VALUE
-            previous[node.id] = null
-            unvisited.add(node.id)
+    fun findNearestProductLocation(
+        layout: StoreLayout,
+        productName: String
+    ): PathResult? {
+        val productSections = findProductLocations(layout, productName)
+
+        if (productSections.isEmpty()) return null
+
+        val targetSection = productSections.first()
+        val entrance = layout.sections.find { it.type == NodeType.ENTRANCE }
+
+        val path = if (entrance != null) {
+            generatePath(layout, entrance, targetSection)
+        } else {
+            listOf(targetSection)
         }
 
-        distances[startNodeId] = 0f
+        return PathResult(
+            targetSection = targetSection,
+            path = path,
+            description = "Found in ${targetSection.emoji} ${targetSection.name}"
+        )
+    }
 
-        while (unvisited.isNotEmpty()) {
-            // Find unvisited node with minimum distance
-            val current = unvisited.minByOrNull { distances[it] ?: Float.MAX_VALUE }
-                ?: break
+    fun generatePath(layout: StoreLayout, start: MapSection, end: MapSection): List<MapSection> {
+        // Simple pathfinding - create a path through available grid positions
+        val path = mutableListOf<MapSection>()
 
-            if (current == endNodeId) break
+        // Add start section
+        path.add(start)
 
-            unvisited.remove(current)
+        // Generate intermediate pathway points
+        val intermediatePoints = generateIntermediatePathPoints(layout, start, end)
+        path.addAll(intermediatePoints)
 
-            // Check neighbors
-            val neighbors = mapData.edges.filter { it.from == current || it.to == current }
+        // Add end section
+        if (start != end) {
+            path.add(end)
+        }
 
-            neighbors.forEach { edge ->
-                val neighbor = if (edge.from == current) edge.to else edge.from
+        return path
+    }
 
-                if (neighbor in unvisited) {
-                    val edgeDistance = edge.distance ?: calculateDistance(
-                        mapData.nodes.find { it.id == current }!!,
-                        mapData.nodes.find { it.id == neighbor }!!
-                    )
+    private fun generateIntermediatePathPoints(layout: StoreLayout, start: MapSection, end: MapSection): List<MapSection> {
+        val pathPoints = mutableListOf<MapSection>()
 
-                    val newDistance = (distances[current] ?: Float.MAX_VALUE) + edgeDistance
+        // Create pathway sections for visualization
+        val currentX = start.x
+        val currentY = start.y
+        val targetX = end.x
+        val targetY = end.y
 
-                    if (newDistance < (distances[neighbor] ?: Float.MAX_VALUE)) {
-                        distances[neighbor] = newDistance
-                        previous[neighbor] = current
-                    }
+        // Move horizontally first, then vertically (L-shaped path)
+        var x = currentX
+        var y = currentY
+
+        // Horizontal movement
+        while (x != targetX) {
+            x += if (targetX > x) 1 else -1
+            if (x != targetX || y != targetY) {
+                // Only add if it's not occupied by an existing section
+                val existingSection = layout.sections.find { it.x == x && it.y == y }
+                if (existingSection == null) {
+                    pathPoints.add(MapSection(
+                        id = "path_${x}_${y}",
+                        name = "Path",
+                        x = x,
+                        y = y,
+                        type = NodeType.PATHWAY,
+                        color = "#2196F3"
+                    ))
                 }
             }
         }
 
-        // Reconstruct path
-        val path = mutableListOf<String>()
-        var current: String? = endNodeId
-
-        while (current != null) {
-            path.add(0, current)
-            current = previous[current]
+        // Vertical movement
+        while (y != targetY) {
+            y += if (targetY > y) 1 else -1
+            if (y != targetY) {
+                val existingSection = layout.sections.find { it.x == x && it.y == y }
+                if (existingSection == null) {
+                    pathPoints.add(MapSection(
+                        id = "path_${x}_${y}",
+                        name = "Path",
+                        x = x,
+                        y = y,
+                        type = NodeType.PATHWAY,
+                        color = "#2196F3"
+                    ))
+                }
+            }
         }
 
-        return if (path.first() == startNodeId) {
-            PathResult(path, distances[endNodeId] ?: Float.MAX_VALUE)
-        } else {
-            null
-        }
+        return pathPoints
     }
 
-    fun findProductLocations(mapData: MapData, productName: String): List<String> {
-        return mapData.productLocations[productName.lowercase()]
-            ?: mapData.nodes.filter { node ->
-                node.products.any { it.lowercase().contains(productName.lowercase()) }
-            }.map { it.id }
-    }
-
-    fun findNearestProductLocation(
-        mapData: MapData,
-        startNodeId: String,
-        productName: String
-    ): PathResult? {
-        val productLocations = findProductLocations(mapData, productName)
-
-        if (productLocations.isEmpty()) return null
-
-        return productLocations.mapNotNull { location ->
-            findShortestPath(mapData, startNodeId, location)
-        }.minByOrNull { it.totalDistance }
-    }
-
-    private fun calculateDistance(node1: MapNode, node2: MapNode): Float {
-        val dx = node2.x - node1.x
-        val dy = node2.y - node1.y
-        return sqrt(dx * dx + dy * dy)
+    fun generateVisiblePath(layout: StoreLayout, start: MapSection, end: MapSection): List<MapSection> {
+        return generateIntermediatePathPoints(layout, start, end)
     }
 }
