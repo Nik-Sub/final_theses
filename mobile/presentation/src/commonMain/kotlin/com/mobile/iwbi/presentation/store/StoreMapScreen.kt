@@ -52,7 +52,7 @@ fun StoreMapScreen(
 
     val pathfindingService = remember { PathfindingService() }
 
-    // Create a compact square layout with corridors between sections
+    // Create a compact square layout with sections only (no corridor tiles)
     val enhancedLayout = remember(storeLayout) {
         storeLayout?.let { layout ->
             // Create a more compact, square-like arrangement
@@ -66,45 +66,10 @@ fun StoreMapScreen(
                 section.copy(x = col, y = row, width = 1, height = 1)
             }
 
-            // Generate corridor pathways between sections
-            val pathSections = mutableListOf<MapSection>()
             val expandedGridSize = gridSize * 2 - 1 // Account for corridors
 
-            // Create horizontal corridors (between rows of sections)
-            for (row in 1 until expandedGridSize step 2) {
-                for (col in 0 until expandedGridSize) {
-                    pathSections.add(MapSection(
-                        id = "corridor_h_${col}_${row}",
-                        name = "Corridor",
-                        x = col,
-                        y = row,
-                        type = NodeType.PATHWAY,
-                        color = "#E0E0E0", // Light gray for corridors
-                        emoji = ""
-                    ))
-                }
-            }
-
-            // Create vertical corridors (between columns of sections)
-            for (col in 1 until expandedGridSize step 2) {
-                for (row in 0 until expandedGridSize) {
-                    // Skip intersections that are already filled by horizontal corridors
-                    if (row % 2 == 0) {
-                        pathSections.add(MapSection(
-                            id = "corridor_v_${col}_${row}",
-                            name = "Corridor",
-                            x = col,
-                            y = row,
-                            type = NodeType.PATHWAY,
-                            color = "#E0E0E0", // Light gray for corridors
-                            emoji = ""
-                        ))
-                    }
-                }
-            }
-
             layout.copy(
-                sections = rearrangedSections + pathSections,
+                sections = rearrangedSections, // Only sections, no corridor tiles
                 gridWidth = expandedGridSize,
                 gridHeight = expandedGridSize
             )
@@ -280,28 +245,30 @@ fun drawPaths(
     val cellHeight = drawScope.size.height / layout.gridHeight
 
     with(drawScope) {
-        // Draw all possible paths as light gray connected lines
-        val entrance = layout.sections.find { it.type == NodeType.ENTRANCE }
-        if (entrance != null) {
-            layout.sections.filter { it.type == NodeType.SECTION }.forEach { section ->
-                val startX = (entrance.x * cellWidth) + (cellWidth / 2)
-                val startY = (entrance.y * cellHeight) + (cellHeight / 2)
-                val endX = (section.x * cellWidth) + (cellWidth / 2)
-                val endY = (section.y * cellHeight) + (cellHeight / 2)
+        // Draw corridor grid lines
+        val corridorColor = Color.Gray.copy(alpha = 0.4f)
+        val lineWidth = 2.dp.toPx()
 
-                // Draw single connected L-shaped path
-                val path = Path().apply {
-                    moveTo(startX, startY)
-                    lineTo(endX, startY) // Horizontal line
-                    lineTo(endX, endY)   // Vertical line
-                }
+        // Draw horizontal corridor lines (between rows of sections)
+        for (row in 1 until layout.gridHeight step 2) {
+            val y = (row * cellHeight) + (cellHeight / 2)
+            drawLine(
+                color = corridorColor,
+                start = Offset(0f, y),
+                end = Offset(drawScope.size.width, y),
+                strokeWidth = lineWidth
+            )
+        }
 
-                drawPath(
-                    path = path,
-                    color = Color.Gray.copy(alpha = 0.3f),
-                    style = Stroke(width = 2.dp.toPx())
-                )
-            }
+        // Draw vertical corridor lines (between columns of sections)
+        for (col in 1 until layout.gridWidth step 2) {
+            val x = (col * cellWidth) + (cellWidth / 2)
+            drawLine(
+                color = corridorColor,
+                start = Offset(x, 0f),
+                end = Offset(x, drawScope.size.height),
+                strokeWidth = lineWidth
+            )
         }
 
         // Draw highlighted path as single connected bright blue line
