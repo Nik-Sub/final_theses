@@ -1,35 +1,41 @@
 package com.mobile.iwbi.presentation.store
 
-import androidx.compose.animation.*
-import androidx.compose.animation.core.*
-import androidx.compose.foundation.*
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFontFamilyResolver
+import androidx.compose.ui.text.TextMeasurer
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mobile.iwbi.domain.map.StoreLayout
 import com.mobile.iwbi.domain.map.MapSection
 import com.mobile.iwbi.domain.map.NodeType
 import com.mobile.iwbi.domain.map.PathfindingService
+import com.mobile.iwbi.domain.map.PathfindingService.PathNode
 import com.mobile.iwbi.domain.store.Store
 import kotlinx.serialization.json.Json
+import kotlin.math.min
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,9 +44,9 @@ fun StoreMapScreen(
     onSearchItem: (String) -> Unit,
     routeToItem: String? = null
 ) {
-    var searchText by remember { mutableStateOf(routeToItem ?: "") }
-    var selectedSection by remember { mutableStateOf<MapSection?>(null) }
-    var highlightedPath by remember { mutableStateOf<List<MapSection>>(emptyList()) }
+    var searchText by remember { mutableStateOf("") }
+    var highlightedSection by remember { mutableStateOf<MapSection?>(null) }
+    var pathToDisplay by remember { mutableStateOf<List<PathNode>>(emptyList()) }
 
     val storeLayout = remember(store.mapOfTheStore) {
         try {
@@ -52,65 +58,25 @@ fun StoreMapScreen(
 
     val pathfindingService = remember { PathfindingService() }
 
-    // Create a compact square layout with sections only (no corridor tiles)
-    val enhancedLayout = remember(storeLayout) {
-        storeLayout?.let { layout ->
-            // Create a more compact, square-like arrangement
-            val sections = layout.sections.filter { it.type != NodeType.PATHWAY }
-            val gridSize = kotlin.math.ceil(kotlin.math.sqrt(sections.size.toDouble())).toInt()
-
-            // Rearrange sections in a square grid, leaving space for corridors
-            val rearrangedSections = sections.mapIndexed { index, section ->
-                val row = (index / gridSize) * 2 // Multiply by 2 to leave space for corridors
-                val col = (index % gridSize) * 2 // Multiply by 2 to leave space for corridors
-                section.copy(x = col, y = row, width = 1, height = 1)
-            }
-
-            val expandedGridSize = gridSize * 2 - 1 // Account for corridors
-
-            layout.copy(
-                sections = rearrangedSections, // Only sections, no corridor tiles
-                gridWidth = expandedGridSize,
-                gridHeight = expandedGridSize
-            )
-        }
-    }
-
     // Handle search and highlighting
     LaunchedEffect(searchText, storeLayout) {
         if (searchText.isNotEmpty() && storeLayout != null) {
             val pathResult = pathfindingService.findNearestProductLocation(storeLayout, searchText)
+            highlightedSection = pathResult?.targetSection
+            pathToDisplay = pathResult?.path ?: emptyList()
             if (pathResult != null) {
-                selectedSection = pathResult.targetSection
-                // Find the rearranged section
-                val compactSection = enhancedLayout?.sections?.find { it.id == pathResult.targetSection.id }
-                val entrance = enhancedLayout?.sections?.find { it.type == NodeType.ENTRANCE }
-
-                if (compactSection != null && entrance != null) {
-                    highlightedPath = pathfindingService.generatePath(enhancedLayout!!, entrance, compactSection)
-                } else {
-                    highlightedPath = listOfNotNull(compactSection)
-                }
                 onSearchItem(searchText)
             }
         } else {
-            selectedSection = null
-            highlightedPath = emptyList()
+            highlightedSection = null
+            pathToDisplay = emptyList()
         }
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {
-                    Text(
-                        "Map of ${store.name}",
-                        style = MaterialTheme.typography.headlineSmall
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
-                )
+                title = { Text("Map of ${store.name}") }
             )
         }
     ) { padding ->
@@ -120,249 +86,108 @@ fun StoreMapScreen(
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            // Modern Search Bar
-            SearchBar(
-                query = searchText,
-                onQueryChange = { searchText = it },
-                onSearch = { /* handled by LaunchedEffect */ },
-                active = false,
-                onActiveChange = { },
-                placeholder = { Text("Search for products (e.g. milk, bread, apples)") },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
-                trailingIcon = if (searchText.isNotEmpty()) {
-                    {
-                        IconButton(onClick = { searchText = "" }) {
-                            Icon(Icons.Default.Clear, contentDescription = "Clear")
+            // Search bar
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Search",
+                        modifier = Modifier.padding(end = 8.dp)
+                    )
+                    BasicTextField(
+                        value = searchText,
+                        onValueChange = { searchText = it },
+                        modifier = Modifier.weight(1f),
+                        decorationBox = { innerTextField ->
+                            if (searchText.isEmpty()) {
+                                Text(
+                                    "Search for products (e.g., chocolate, bread, milk)",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            innerTextField()
                         }
-                    }
-                } else null,
-                modifier = Modifier.fillMaxWidth()
-            ) { }
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            if (enhancedLayout != null) {
-                // Store Map with square aspect ratio
+            if (storeLayout != null) {
+                // Store Map taking remaining space
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .aspectRatio(1f), // Force square shape
-                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F9FA))
+                        .weight(1f)
+                        .clip(MaterialTheme.shapes.medium),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
                 ) {
-                    Box(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-                        // Canvas for drawing paths as lines
-                        Canvas(modifier = Modifier.fillMaxSize()) {
-                            drawPaths(enhancedLayout, highlightedPath, this)
-                        }
-
-                        // Overlay sections on top of paths
-                        CompactStoreFloorPlan(
-                            layout = enhancedLayout,
-                            selectedSection = selectedSection,
-                            highlightedPath = highlightedPath,
-                            onSectionClick = { section ->
-                                selectedSection = if (selectedSection == section) null else section
-                                if (selectedSection != null) {
-                                    val entrance = enhancedLayout.sections.find { it.type == NodeType.ENTRANCE }
-                                    if (entrance != null) {
-                                        highlightedPath = pathfindingService.generatePath(enhancedLayout, entrance, section)
-                                    } else {
-                                        highlightedPath = listOf(section)
-                                    }
-                                } else {
-                                    highlightedPath = emptyList()
-                                }
-                            },
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color(0xFFF5F5F5))
+                            .padding(16.dp)
+                    ) {
+                        StoreFloorPlan(
+                            layout = storeLayout,
+                            highlightedSection = highlightedSection,
+                            pathToDisplay = pathToDisplay,
                             modifier = Modifier.fillMaxSize()
                         )
                     }
                 }
 
-                // Search result or selection information
-                AnimatedVisibility(
-                    visible = selectedSection != null,
-                    enter = slideInVertically() + fadeIn(),
-                    exit = slideOutVertically() + fadeOut()
-                ) {
-                    selectedSection?.let { section ->
-                        Spacer(modifier = Modifier.height(12.dp))
-                        SectionInfoCard(
-                            section = section,
-                            searchTerm = searchText,
-                            onDismiss = {
-                                selectedSection = null
-                                highlightedPath = emptyList()
+                // Search result information
+                highlightedSection?.let { section ->
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                    ) {
+                        Column(modifier = Modifier.padding(12.dp)) {
+                            Text(
+                                "Found '$searchText' in:",
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                "${section.emoji} ${section.name}",
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontWeight = FontWeight.Medium
+                            )
+                            if (pathToDisplay.isNotEmpty()) {
+                                Text(
+                                    "🔷 Path highlighted from entrance (${pathToDisplay.size} steps)",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
                             }
-                        )
+                        }
                     }
                 }
             } else {
-                // Error state
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer)
                 ) {
-                    Column(
+                    Box(
                         modifier = Modifier.fillMaxSize(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
+                        contentAlignment = Alignment.Center
                     ) {
-                        Icon(
-                            Icons.Default.Warning,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onErrorContainer,
-                            modifier = Modifier.size(48.dp)
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            "Unable to load store map",
+                            "Invalid map data",
                             style = MaterialTheme.typography.headlineSmall,
-                            color = MaterialTheme.colorScheme.onErrorContainer,
-                            textAlign = TextAlign.Center
-                        )
-                        Text(
-                            "Please try again later",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onErrorContainer,
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-fun drawPaths(
-    layout: StoreLayout,
-    highlightedPath: List<MapSection>,
-    drawScope: DrawScope
-) {
-    val cellWidth = drawScope.size.width / layout.gridWidth
-    val cellHeight = drawScope.size.height / layout.gridHeight
-
-    with(drawScope) {
-        // Draw corridor grid lines
-        val corridorColor = Color.Gray.copy(alpha = 0.4f)
-        val lineWidth = 2.dp.toPx()
-
-        // Draw horizontal corridor lines (between rows of sections)
-        for (row in 1 until layout.gridHeight step 2) {
-            val y = (row * cellHeight) + (cellHeight / 2)
-            drawLine(
-                color = corridorColor,
-                start = Offset(0f, y),
-                end = Offset(drawScope.size.width, y),
-                strokeWidth = lineWidth
-            )
-        }
-
-        // Draw vertical corridor lines (between columns of sections)
-        for (col in 1 until layout.gridWidth step 2) {
-            val x = (col * cellWidth) + (cellWidth / 2)
-            drawLine(
-                color = corridorColor,
-                start = Offset(x, 0f),
-                end = Offset(x, drawScope.size.height),
-                strokeWidth = lineWidth
-            )
-        }
-
-        // Draw highlighted path as single connected bright blue line
-        if (highlightedPath.size >= 2) {
-            val pathColor = Color(0xFF2196F3)
-            val highlightedPathDrawable = Path()
-
-            // Start the path from the first section
-            val firstSection = highlightedPath.first()
-            val startX = (firstSection.x * cellWidth) + (cellWidth / 2)
-            val startY = (firstSection.y * cellHeight) + (cellHeight / 2)
-            highlightedPathDrawable.moveTo(startX, startY)
-
-            // Create one continuous connected path through all sections
-            for (i in 1 until highlightedPath.size) {
-                val current = highlightedPath[i-1]
-                val next = highlightedPath[i]
-
-                val currentX = (current.x * cellWidth) + (cellWidth / 2)
-                val currentY = (current.y * cellHeight) + (cellHeight / 2)
-                val nextX = (next.x * cellWidth) + (cellWidth / 2)
-                val nextY = (next.y * cellHeight) + (cellHeight / 2)
-
-                // Connect with L-shaped path (horizontal first, then vertical)
-                highlightedPathDrawable.lineTo(nextX, currentY) // Horizontal line
-                highlightedPathDrawable.lineTo(nextX, nextY)   // Vertical line
-            }
-
-            // Draw the entire path as one connected line
-            drawPath(
-                path = highlightedPathDrawable,
-                color = pathColor,
-                style = Stroke(width = 4.dp.toPx())
-            )
-
-            // Draw arrow at the final destination
-            val lastSection = highlightedPath.last()
-            val endX = (lastSection.x * cellWidth) + (cellWidth / 2)
-            val endY = (lastSection.y * cellHeight) + (cellHeight / 2)
-
-            val arrowSize = 8.dp.toPx()
-            val arrowPath = Path().apply {
-                moveTo(endX - arrowSize, endY - arrowSize)
-                lineTo(endX, endY)
-                lineTo(endX - arrowSize, endY + arrowSize)
-            }
-            drawPath(
-                path = arrowPath,
-                color = pathColor,
-                style = Stroke(width = 3.dp.toPx())
-            )
-        }
-    }
-}
-
-@Composable
-fun CompactStoreFloorPlan(
-    layout: StoreLayout,
-    selectedSection: MapSection?,
-    highlightedPath: List<MapSection>,
-    onSectionClick: (MapSection) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.SpaceEvenly
-    ) {
-        repeat(layout.gridHeight) { row ->
-            Row(
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-            ) {
-                repeat(layout.gridWidth) { col ->
-                    val section = layout.sections.find { it.x == col && it.y == row }
-
-                    if (section != null) {
-                        SectionTile(
-                            section = section,
-                            isSelected = selectedSection == section,
-                            isHighlighted = highlightedPath.contains(section),
-                            onClick = { onSectionClick(section) },
-                            modifier = Modifier
-                                .weight(1f)
-                                .aspectRatio(1f)
-                                .padding(2.dp)
-                        )
-                    } else {
-                        // Invisible spacer to maintain grid structure
-                        Spacer(
-                            modifier = Modifier
-                                .weight(1f)
-                                .aspectRatio(1f)
+                            color = MaterialTheme.colorScheme.onErrorContainer
                         )
                     }
                 }
@@ -372,241 +197,210 @@ fun CompactStoreFloorPlan(
 }
 
 @Composable
-fun SectionTile(
-    section: MapSection,
-    isSelected: Boolean,
-    isHighlighted: Boolean,
-    onClick: () -> Unit,
+fun StoreFloorPlan(
+    layout: StoreLayout,
+    highlightedSection: MapSection?,
+    pathToDisplay: List<PathNode> = emptyList(),
     modifier: Modifier = Modifier
 ) {
-    val animatedScale by animateFloatAsState(
-        targetValue = if (isSelected) 1.1f else 1.0f,
-        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy)
-    )
+    val density = LocalDensity.current
+    val fontFamilyResolver = LocalFontFamilyResolver.current
+    val layoutDirection = LayoutDirection.Ltr
 
-    val pulseAnimation = rememberInfiniteTransition()
-    val pulseAlpha by pulseAnimation.animateFloat(
-        initialValue = 0.7f,
-        targetValue = 1.0f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1000),
-            repeatMode = RepeatMode.Reverse
+    val textMeasurer = remember {
+        TextMeasurer(
+            defaultDensity = density,
+            defaultFontFamilyResolver = fontFamilyResolver,
+            defaultLayoutDirection = layoutDirection
         )
-    )
+    }
 
-    Card(
-        modifier = modifier
-            .scale(animatedScale)
-            .clickable { onClick() },
-        colors = CardDefaults.cardColors(
-            containerColor = if (isHighlighted) {
-                Color.parseColor(section.color).copy(alpha = pulseAlpha)
-            } else {
-                Color.parseColor(section.color)
-            }
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = if (isSelected) 12.dp else 4.dp
-        ),
-        shape = RoundedCornerShape(12.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            // Icon
-            Icon(
-                imageVector = getIconForNodeType(section.type),
-                contentDescription = section.name,
-                tint = Color.White,
-                modifier = Modifier.size(24.dp)
-            )
+    Canvas(modifier = modifier) {
+        val cellSize = minOf(size.width / layout.gridWidth, size.height / layout.gridHeight)
+        val totalWidth = layout.gridWidth * cellSize
+        val totalHeight = layout.gridHeight * cellSize
+        val offsetX = (size.width - totalWidth) / 2
+        val offsetY = (size.height - totalHeight) / 2
 
-            Spacer(modifier = Modifier.height(4.dp))
+        translate(offsetX, offsetY) {
+            // Draw grid background
+            drawGridBackground(layout, cellSize)
 
-            // Emoji if available
-            if (section.emoji.isNotEmpty()) {
-                Text(
-                    text = section.emoji,
-                    fontSize = 16.sp
-                )
+            // Draw path visualization BEFORE sections so sections appear on top
+            if (pathToDisplay.isNotEmpty()) {
+                drawPath(pathToDisplay, cellSize)
             }
 
-            Spacer(modifier = Modifier.height(4.dp))
-
-            // Name
-            Text(
-                text = section.name,
-                style = MaterialTheme.typography.labelSmall,
-                color = Color.White,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                fontSize = 10.sp
-            )
+            // Draw all sections
+            layout.sections.forEach { section ->
+                val isHighlighted = section.id == highlightedSection?.id
+                drawSection(section, cellSize, isHighlighted, textMeasurer)
+            }
         }
     }
 }
 
-@Composable
-fun PathwayTile(
-    isHighlighted: Boolean,
-    modifier: Modifier = Modifier
-) {
-    val backgroundColor = if (isHighlighted) {
-        MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
-    } else {
-        MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+private fun DrawScope.drawGridBackground(layout: StoreLayout, cellSize: Float) {
+    // Draw light grid lines
+    val gridColor = Color.Gray.copy(alpha = 0.1f)
+
+    // Vertical lines
+    for (x in 0..layout.gridWidth) {
+        drawLine(
+            color = gridColor,
+            start = Offset(x * cellSize, 0f),
+            end = Offset(x * cellSize, layout.gridHeight * cellSize),
+            strokeWidth = 1.dp.toPx()
+        )
     }
 
-    Box(
-        modifier = modifier
-            .background(
-                backgroundColor,
-                RoundedCornerShape(4.dp)
-            ),
-        contentAlignment = Alignment.Center
-    ) {
-        if (isHighlighted) {
-            Icon(
-                imageVector = Icons.Default.ArrowForward,
-                contentDescription = "Path",
-                tint = MaterialTheme.colorScheme.onPrimary,
-                modifier = Modifier.size(16.dp)
-            )
-        } else {
-            // Show subtle pathway indicators for normal paths
-            Box(
-                modifier = Modifier
-                    .size(4.dp)
-                    .background(
-                        MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
-                        RoundedCornerShape(2.dp)
-                    )
-            )
-        }
+    // Horizontal lines
+    for (y in 0..layout.gridHeight) {
+        drawLine(
+            color = gridColor,
+            start = Offset(0f, y * cellSize),
+            end = Offset(layout.gridWidth * cellSize, y * cellSize),
+            strokeWidth = 1.dp.toPx()
+        )
     }
 }
 
-@Composable
-fun EmptySpaceTile(
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .background(
-                MaterialTheme.colorScheme.background,
-                RoundedCornerShape(4.dp)
-            )
-    )
+private fun DrawScope.drawPath(pathNodes: List<PathNode>, cellSize: Float) {
+    if (pathNodes.isEmpty()) return
+
+    val pathColor = Color(0xFF2196F3) // Blue color for path
+    val pathWidth = 4.dp.toPx()
+
+    // Draw path lines
+    for (i in 0 until pathNodes.size - 1) {
+        val current = pathNodes[i]
+        val next = pathNodes[i + 1]
+
+        val startX = (current.x * cellSize) + cellSize / 2
+        val startY = (current.y * cellSize) + cellSize / 2
+        val endX = (next.x * cellSize) + cellSize / 2
+        val endY = (next.y * cellSize) + cellSize / 2
+
+        drawLine(
+            color = pathColor,
+            start = Offset(startX, startY),
+            end = Offset(endX, endY),
+            strokeWidth = pathWidth
+        )
+    }
+
+    // Draw path nodes as small circles
+    pathNodes.forEach { node ->
+        val centerX = (node.x * cellSize) + cellSize / 2
+        val centerY = (node.y * cellSize) + cellSize / 2
+
+        drawCircle(
+            color = pathColor,
+            radius = 3.dp.toPx(),
+            center = Offset(centerX, centerY)
+        )
+    }
+
+    // Draw start marker (entrance)
+    if (pathNodes.isNotEmpty()) {
+        val startNode = pathNodes.first()
+        val startX = (startNode.x * cellSize) + cellSize / 2
+        val startY = (startNode.y * cellSize) + cellSize / 2
+
+        drawCircle(
+            color = Color(0xFF4CAF50), // Green for start
+            radius = 6.dp.toPx(),
+            center = Offset(startX, startY)
+        )
+    }
+
+    // Draw end marker (target)
+    if (pathNodes.size > 1) {
+        val endNode = pathNodes.last()
+        val endX = (endNode.x * cellSize) + cellSize / 2
+        val endY = (endNode.y * cellSize) + cellSize / 2
+
+        drawCircle(
+            color = Color(0xFFFF5722), // Red-orange for target
+            radius = 6.dp.toPx(),
+            center = Offset(endX, endY)
+        )
+    }
 }
 
-@Composable
-fun SectionInfoCard(
+private fun DrawScope.drawSection(
     section: MapSection,
-    searchTerm: String,
-    onDismiss: () -> Unit
+    cellSize: Float,
+    isHighlighted: Boolean,
+    textMeasurer: TextMeasurer
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                if (searchTerm.isNotEmpty()) {
-                    Text(
-                        "Found '$searchTerm' in:",
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                }
+    val x = section.x * cellSize
+    val y = section.y * cellSize
+    val width = section.width * cellSize
+    val height = section.height * cellSize
 
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    if (section.emoji.isNotEmpty()) {
-                        Text(
-                            text = section.emoji,
-                            fontSize = 20.sp,
-                            modifier = Modifier.padding(end = 8.dp)
-                        )
-                    }
-                    Text(
-                        section.name,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                }
-
-                if (section.products.isNotEmpty()) {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        "Products: ${section.products.joinToString(", ")}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
-                    )
-                }
-            }
-
-            IconButton(onClick = onDismiss) {
-                Icon(
-                    Icons.Default.Close,
-                    contentDescription = "Close",
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun getIconForNodeType(type: NodeType): ImageVector {
-    return when (type) {
-        NodeType.ENTRANCE -> Icons.Default.Home
-        NodeType.SECTION -> Icons.Default.ShoppingCart
-        NodeType.CHECKOUT -> Icons.Default.ShoppingCart
-        NodeType.RESTROOM -> Icons.Default.ShoppingCart
-        NodeType.CUSTOMER_SERVICE -> Icons.Default.Info
-        NodeType.PATHWAY -> Icons.Default.ShoppingCart
-    }
-}
-
-// Extension function to parse color strings - Multiplatform compatible
-private fun Color.Companion.parseColor(colorString: String): Color {
-    return try {
-        if (colorString.startsWith("#")) {
-            val hex = colorString.substring(1)
-            when (hex.length) {
-                6 -> {
-                    val r = hex.substring(0, 2).toInt(16) / 255f
-                    val g = hex.substring(2, 4).toInt(16) / 255f
-                    val b = hex.substring(4, 6).toInt(16) / 255f
-                    Color(r, g, b)
-                }
-                8 -> {
-                    val a = hex.substring(0, 2).toInt(16) / 255f
-                    val r = hex.substring(2, 4).toInt(16) / 255f
-                    val g = hex.substring(4, 6).toInt(16) / 255f
-                    val b = hex.substring(6, 8).toInt(16) / 255f
-                    Color(r, g, b, a)
-                }
-                else -> Color.Gray
-            }
-        } else {
-            Color.Gray
-        }
+    // Parse color from hex string
+    val baseColor = try {
+        val colorInt = section.color.removePrefix("#").toLong(16).toInt() or 0xFF000000.toInt()
+        Color(colorInt)
     } catch (e: Exception) {
-        Color.Gray
+        when (section.type) {
+            NodeType.ENTRANCE -> Color(0xFF4CAF50)
+            NodeType.PATHWAY -> Color(0xFFEEEEEE)
+            NodeType.SECTION -> Color(0xFF2196F3)
+            NodeType.CHECKOUT -> Color(0xFFFF9800)
+            NodeType.RESTROOM -> Color(0xFF9C27B0)
+            NodeType.CUSTOMER_SERVICE -> Color(0xFF607D8B)
+        }
+    }
+
+    val sectionColor = if (isHighlighted) {
+        baseColor.copy(alpha = 1f)
+    } else {
+        baseColor.copy(alpha = 0.8f)
+    }
+
+    // Draw section background
+    drawRoundRect(
+        color = sectionColor,
+        topLeft = Offset(x, y),
+        size = Size(width, height),
+        cornerRadius = CornerRadius(4.dp.toPx())
+    )
+
+    // Draw border
+    val borderColor = if (isHighlighted) Color.Black else Color.Gray
+    val borderWidth = if (isHighlighted) 3.dp.toPx() else 1.dp.toPx()
+
+    drawRoundRect(
+        color = borderColor,
+        topLeft = Offset(x, y),
+        size = Size(width, height),
+        cornerRadius = CornerRadius(4.dp.toPx()),
+        style = Stroke(width = borderWidth)
+    )
+
+    // Draw section text
+    if (section.type != NodeType.PATHWAY) {
+        val fontSize = min(cellSize * 0.15f, 12f)
+        val textStyle = TextStyle(
+            fontSize = fontSize.sp,
+            fontWeight = if (isHighlighted) FontWeight.Bold else FontWeight.Normal,
+            textAlign = TextAlign.Center,
+            color = Color.White
+        )
+
+        val text = "${section.emoji}\n${section.name}"
+        val textLayoutResult = textMeasurer.measure(text, textStyle)
+
+        val textX = x + (width - textLayoutResult.size.width) / 2
+        val textY = y + (height - textLayoutResult.size.height) / 2
+
+        drawText(
+            textMeasurer = textMeasurer,
+            text = text,
+            topLeft = Offset(textX, textY),
+            style = textStyle
+        )
     }
 }
