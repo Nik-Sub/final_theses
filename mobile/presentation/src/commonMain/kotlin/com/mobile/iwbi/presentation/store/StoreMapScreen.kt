@@ -36,6 +36,7 @@ import com.mobile.iwbi.domain.map.PathfindingService.PathNode
 import com.mobile.iwbi.domain.store.Store
 import kotlinx.serialization.json.Json
 import kotlin.math.min
+import kotlin.math.max
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -216,7 +217,31 @@ fun StoreFloorPlan(
     }
 
     Canvas(modifier = modifier) {
-        val cellSize = minOf(size.width / layout.gridWidth, size.height / layout.gridHeight)
+        // More conservative zoom calculation to prevent errors
+        val availableWidth = size.width
+        val availableHeight = size.height
+
+        // Ensure we have positive dimensions
+        if (availableWidth <= 0 || availableHeight <= 0) return@Canvas
+
+        // Calculate maximum cell size that fits within screen bounds with extra safety margin
+        val maxCellSizeForWidth = (availableWidth * 0.8f) / layout.gridWidth
+        val maxCellSizeForHeight = (availableHeight * 0.8f) / layout.gridHeight
+        val maxAllowedCellSize = minOf(maxCellSizeForWidth, maxCellSizeForHeight)
+
+        // Set reasonable minimum and maximum bounds
+        val minCellSize = 40.dp.toPx() // Reduced minimum
+        val maxCellSize = 100.dp.toPx() // Reduced maximum
+
+        // Calculate optimal cell size with bounds checking
+        val cellSize = maxOf(
+            minCellSize,
+            minOf(maxCellSize, maxAllowedCellSize)
+        )
+
+        // Ensure cellSize is positive
+        if (cellSize <= 0) return@Canvas
+
         val totalWidth = layout.gridWidth * cellSize
         val totalHeight = layout.gridHeight * cellSize
         val offsetX = (size.width - totalWidth) / 2
@@ -228,13 +253,13 @@ fun StoreFloorPlan(
 
             // Draw path visualization BEFORE sections so sections appear on top
             if (pathToDisplay.isNotEmpty()) {
-                drawPath(pathToDisplay, cellSize)
+                drawPath(pathToDisplay, cellSize, layout)
             }
 
             // Draw all sections
             layout.sections.forEach { section ->
                 val isHighlighted = section.id == highlightedSection?.id
-                drawSection(section, cellSize, isHighlighted, textMeasurer)
+                drawSection(section, cellSize, isHighlighted, textMeasurer, layout)
             }
         }
     }
@@ -265,16 +290,24 @@ private fun DrawScope.drawGridBackground(layout: StoreLayout, cellSize: Float) {
     }
 }
 
-private fun DrawScope.drawPath(pathNodes: List<PathNode>, cellSize: Float) {
+private fun DrawScope.drawPath(pathNodes: List<PathNode>, cellSize: Float, layout: StoreLayout) {
     if (pathNodes.isEmpty()) return
 
     val pathColor = Color(0xFF2196F3) // Blue color for path
     val pathWidth = 4.dp.toPx()
 
-    // Draw path lines
-    for (i in 0 until pathNodes.size - 1) {
-        val current = pathNodes[i]
-        val next = pathNodes[i + 1]
+    // Filter out invalid path nodes
+    val validPathNodes = pathNodes.filter { node ->
+        node.x >= 0 && node.y >= 0 &&
+        node.x < layout.gridWidth && node.y < layout.gridHeight
+    }
+
+    if (validPathNodes.isEmpty()) return
+
+    // Draw path lines with bounds checking
+    for (i in 0 until validPathNodes.size - 1) {
+        val current = validPathNodes[i]
+        val next = validPathNodes[i + 1]
 
         val startX = (current.x * cellSize) + cellSize / 2
         val startY = (current.y * cellSize) + cellSize / 2
@@ -290,7 +323,7 @@ private fun DrawScope.drawPath(pathNodes: List<PathNode>, cellSize: Float) {
     }
 
     // Draw path nodes as small circles
-    pathNodes.forEach { node ->
+    validPathNodes.forEach { node ->
         val centerX = (node.x * cellSize) + cellSize / 2
         val centerY = (node.y * cellSize) + cellSize / 2
 
@@ -302,8 +335,8 @@ private fun DrawScope.drawPath(pathNodes: List<PathNode>, cellSize: Float) {
     }
 
     // Draw start marker (entrance)
-    if (pathNodes.isNotEmpty()) {
-        val startNode = pathNodes.first()
+    if (validPathNodes.isNotEmpty()) {
+        val startNode = validPathNodes.first()
         val startX = (startNode.x * cellSize) + cellSize / 2
         val startY = (startNode.y * cellSize) + cellSize / 2
 
@@ -315,8 +348,8 @@ private fun DrawScope.drawPath(pathNodes: List<PathNode>, cellSize: Float) {
     }
 
     // Draw end marker (target)
-    if (pathNodes.size > 1) {
-        val endNode = pathNodes.last()
+    if (validPathNodes.size > 1) {
+        val endNode = validPathNodes.last()
         val endX = (endNode.x * cellSize) + cellSize / 2
         val endY = (endNode.y * cellSize) + cellSize / 2
 
@@ -332,12 +365,23 @@ private fun DrawScope.drawSection(
     section: MapSection,
     cellSize: Float,
     isHighlighted: Boolean,
-    textMeasurer: TextMeasurer
+    textMeasurer: TextMeasurer,
+    layout: StoreLayout
 ) {
+    // Validate section coordinates
+    if (section.x < 0 || section.y < 0 ||
+        section.x >= layout.gridWidth || section.y >= layout.gridHeight ||
+        section.width <= 0 || section.height <= 0) {
+        return // Skip invalid sections
+    }
+
     val x = section.x * cellSize
     val y = section.y * cellSize
     val width = section.width * cellSize
     val height = section.height * cellSize
+
+    // Ensure positive dimensions
+    if (width <= 0 || height <= 0) return
 
     // Parse color from hex string
     val baseColor = try {
@@ -380,9 +424,9 @@ private fun DrawScope.drawSection(
         style = Stroke(width = borderWidth)
     )
 
-    // Draw section text
-    if (section.type != NodeType.PATHWAY) {
-        val fontSize = min(cellSize * 0.15f, 12f)
+    // Draw section text with safe sizing
+    if (section.type != NodeType.PATHWAY && width > 20 && height > 20) {
+        val fontSize = max(8f, min(cellSize * 0.15f, 14f)) // Safe font size bounds
         val textStyle = TextStyle(
             fontSize = fontSize.sp,
             fontWeight = if (isHighlighted) FontWeight.Bold else FontWeight.Normal,
@@ -391,16 +435,24 @@ private fun DrawScope.drawSection(
         )
 
         val text = "${section.emoji}\n${section.name}"
-        val textLayoutResult = textMeasurer.measure(text, textStyle)
 
-        val textX = x + (width - textLayoutResult.size.width) / 2
-        val textY = y + (height - textLayoutResult.size.height) / 2
+        try {
+            val textLayoutResult = textMeasurer.measure(text, textStyle)
 
-        drawText(
-            textMeasurer = textMeasurer,
-            text = text,
-            topLeft = Offset(textX, textY),
-            style = textStyle
-        )
+            // Only draw text if it fits within the section
+            if (textLayoutResult.size.width <= width && textLayoutResult.size.height <= height) {
+                val textX = x + (width - textLayoutResult.size.width) / 2
+                val textY = y + (height - textLayoutResult.size.height) / 2
+
+                drawText(
+                    textMeasurer = textMeasurer,
+                    text = text,
+                    topLeft = Offset(textX, textY),
+                    style = textStyle
+                )
+            }
+        } catch (e: Exception) {
+            // Skip text rendering if there's an error
+        }
     }
 }

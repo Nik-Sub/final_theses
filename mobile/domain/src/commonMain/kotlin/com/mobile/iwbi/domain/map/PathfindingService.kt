@@ -1,6 +1,8 @@
 package com.mobile.iwbi.domain.map
 
 import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.sqrt
 
 class PathfindingService {
@@ -49,7 +51,7 @@ class PathfindingService {
         val entranceSection = layout.sections.find { it.type == NodeType.ENTRANCE }
 
         if (entranceSection != null) {
-            // Calculate path from entrance to target
+            // Calculate path from entrance to target with proper bounds checking
             val path = findPath(layout, entranceSection, targetSection)
 
             return PathResult(
@@ -70,14 +72,14 @@ class PathfindingService {
         start: MapSection,
         target: MapSection
     ): List<PathNode> {
-        val startNode = Node(
-            x = start.x + start.width / 2,
-            y = start.y + start.height / 2
-        )
-        val targetNode = Node(
-            x = target.x + target.width / 2,
-            y = target.y + target.height / 2
-        )
+        // Ensure coordinates are within valid bounds
+        val startX = max(0, min(layout.gridWidth - 1, start.x + start.width / 2))
+        val startY = max(0, min(layout.gridHeight - 1, start.y + start.height / 2))
+        val targetX = max(0, min(layout.gridWidth - 1, target.x + target.width / 2))
+        val targetY = max(0, min(layout.gridHeight - 1, target.y + target.height / 2))
+
+        val startNode = Node(x = startX, y = startY)
+        val targetNode = Node(x = targetX, y = targetY)
 
         val openSet = mutableListOf(startNode)
         val closedSet = mutableSetOf<Pair<Int, Int>>()
@@ -101,7 +103,7 @@ class PathfindingService {
                     val neighborX = currentNode.x + dx
                     val neighborY = currentNode.y + dy
 
-                    // Check bounds
+                    // Strict bounds checking to prevent out-of-bounds access
                     if (neighborX < 0 || neighborX >= layout.gridWidth ||
                         neighborY < 0 || neighborY >= layout.gridHeight) {
                         continue
@@ -144,11 +146,16 @@ class PathfindingService {
             }
         }
 
-        // No path found, return direct line
-        return createDirectPath(startNode, targetNode)
+        // No path found, return simple path with bounds checking
+        return createDirectPath(startNode, targetNode, layout)
     }
 
     private fun isWalkable(layout: StoreLayout, x: Int, y: Int, target: MapSection): Boolean {
+        // Double-check bounds to prevent array access errors
+        if (x < 0 || x >= layout.gridWidth || y < 0 || y >= layout.gridHeight) {
+            return false
+        }
+
         // Check if this position is in a pathway or is the target section
         val sectionAtPosition = layout.sections.find { section ->
             x >= section.x && x < section.x + section.width &&
@@ -180,17 +187,27 @@ class PathfindingService {
         return path
     }
 
-    private fun createDirectPath(start: Node, target: Node): List<PathNode> {
+    private fun createDirectPath(start: Node, target: Node, layout: StoreLayout): List<PathNode> {
         val path = mutableListOf<PathNode>()
-        val steps = maxOf(abs(target.x - start.x), abs(target.y - start.y))
+        val steps = max(abs(target.x - start.x), abs(target.y - start.y))
 
-        if (steps == 0) return listOf(PathNode(start.x, start.y))
+        if (steps == 0) {
+            // Ensure even single point is within bounds
+            val safeX = max(0, min(layout.gridWidth - 1, start.x))
+            val safeY = max(0, min(layout.gridHeight - 1, start.y))
+            return listOf(PathNode(safeX, safeY))
+        }
 
         for (i in 0..steps) {
             val progress = i.toDouble() / steps
             val x = (start.x + (target.x - start.x) * progress).toInt()
             val y = (start.y + (target.y - start.y) * progress).toInt()
-            path.add(PathNode(x, y))
+
+            // Ensure all path points are within valid grid bounds
+            val safeX = max(0, min(layout.gridWidth - 1, x))
+            val safeY = max(0, min(layout.gridHeight - 1, y))
+
+            path.add(PathNode(safeX, safeY))
         }
 
         return path
