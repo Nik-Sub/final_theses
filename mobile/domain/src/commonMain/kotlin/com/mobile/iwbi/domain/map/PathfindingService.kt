@@ -95,59 +95,62 @@ class PathfindingService {
                 return reconstructPath(currentNode)
             }
 
-            // Check all neighbors
-            for (dx in -1..1) {
-                for (dy in -1..1) {
-                    if (dx == 0 && dy == 0) continue
+            // Check only 4 directions (90-degree movement only)
+            val directions = listOf(
+                Pair(0, -1), // Up
+                Pair(0, 1),  // Down
+                Pair(-1, 0), // Left
+                Pair(1, 0)   // Right
+            )
 
-                    val neighborX = currentNode.x + dx
-                    val neighborY = currentNode.y + dy
+            for ((dx, dy) in directions) {
+                val neighborX = currentNode.x + dx
+                val neighborY = currentNode.y + dy
 
-                    // Strict bounds checking to prevent out-of-bounds access
-                    if (neighborX < 0 || neighborX >= layout.gridWidth ||
-                        neighborY < 0 || neighborY >= layout.gridHeight) {
-                        continue
-                    }
+                // Strict bounds checking to prevent out-of-bounds access
+                if (neighborX < 0 || neighborX >= layout.gridWidth ||
+                    neighborY < 0 || neighborY >= layout.gridHeight) {
+                    continue
+                }
 
-                    // Skip if already processed
-                    if (closedSet.contains(Pair(neighborX, neighborY))) continue
+                // Skip if already processed
+                if (closedSet.contains(Pair(neighborX, neighborY))) continue
 
-                    // Check if the cell is walkable (pathway or target section)
-                    if (!isWalkable(layout, neighborX, neighborY, target)) continue
+                // Check if the cell is walkable (pathway or target section)
+                if (!isWalkable(layout, neighborX, neighborY, target)) continue
 
-                    val gCost = currentNode.gCost + if (dx != 0 && dy != 0) sqrt(2.0) else 1.0
-                    val hCost = manhattanDistance(neighborX, neighborY, targetNode.x, targetNode.y)
+                val gCost = currentNode.gCost + 1.0 // Always 1.0 for 90-degree moves
+                val hCost = manhattanDistance(neighborX, neighborY, targetNode.x, targetNode.y)
 
-                    val existingNode = openSet.find { it.x == neighborX && it.y == neighborY }
+                val existingNode = openSet.find { it.x == neighborX && it.y == neighborY }
 
-                    if (existingNode == null) {
-                        openSet.add(
-                            Node(
-                                x = neighborX,
-                                y = neighborY,
-                                gCost = gCost,
-                                hCost = hCost,
-                                parent = currentNode
-                            )
+                if (existingNode == null) {
+                    openSet.add(
+                        Node(
+                            x = neighborX,
+                            y = neighborY,
+                            gCost = gCost,
+                            hCost = hCost,
+                            parent = currentNode
                         )
-                    } else if (gCost < existingNode.gCost) {
-                        openSet.remove(existingNode)
-                        openSet.add(
-                            Node(
-                                x = neighborX,
-                                y = neighborY,
-                                gCost = gCost,
-                                hCost = hCost,
-                                parent = currentNode
-                            )
+                    )
+                } else if (gCost < existingNode.gCost) {
+                    openSet.remove(existingNode)
+                    openSet.add(
+                        Node(
+                            x = neighborX,
+                            y = neighborY,
+                            gCost = gCost,
+                            hCost = hCost,
+                            parent = currentNode
                         )
-                    }
+                    )
                 }
             }
         }
 
-        // No path found, return simple path with bounds checking
-        return createDirectPath(startNode, targetNode, layout)
+        // No path found, return simple 90-degree path with bounds checking
+        return createManhattanPath(startNode, targetNode, layout)
     }
 
     private fun isWalkable(layout: StoreLayout, x: Int, y: Int, target: MapSection): Boolean {
@@ -187,26 +190,37 @@ class PathfindingService {
         return path
     }
 
-    private fun createDirectPath(start: Node, target: Node, layout: StoreLayout): List<PathNode> {
+    private fun createManhattanPath(start: Node, target: Node, layout: StoreLayout): List<PathNode> {
         val path = mutableListOf<PathNode>()
-        val steps = max(abs(target.x - start.x), abs(target.y - start.y))
 
-        if (steps == 0) {
-            // Ensure even single point is within bounds
+        if (start.x == target.x && start.y == target.y) {
+            // Same position - return single point
             val safeX = max(0, min(layout.gridWidth - 1, start.x))
             val safeY = max(0, min(layout.gridHeight - 1, start.y))
             return listOf(PathNode(safeX, safeY))
         }
 
-        for (i in 0..steps) {
-            val progress = i.toDouble() / steps
-            val x = (start.x + (target.x - start.x) * progress).toInt()
-            val y = (start.y + (target.y - start.y) * progress).toInt()
+        var currentX = start.x
+        var currentY = start.y
 
-            // Ensure all path points are within valid grid bounds
-            val safeX = max(0, min(layout.gridWidth - 1, x))
-            val safeY = max(0, min(layout.gridHeight - 1, y))
+        // Add starting point
+        path.add(PathNode(currentX, currentY))
 
+        // Move horizontally first (left or right)
+        while (currentX != target.x) {
+            currentX += if (target.x > currentX) 1 else -1
+            // Ensure bounds
+            val safeX = max(0, min(layout.gridWidth - 1, currentX))
+            val safeY = max(0, min(layout.gridHeight - 1, currentY))
+            path.add(PathNode(safeX, safeY))
+        }
+
+        // Then move vertically (up or down)
+        while (currentY != target.y) {
+            currentY += if (target.y > currentY) 1 else -1
+            // Ensure bounds
+            val safeX = max(0, min(layout.gridWidth - 1, currentX))
+            val safeY = max(0, min(layout.gridHeight - 1, currentY))
             path.add(PathNode(safeX, safeY))
         }
 
