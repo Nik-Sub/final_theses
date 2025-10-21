@@ -85,14 +85,94 @@ object StoreDataProvider {
                 MapSection("restroom", "Restrooms", "M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H5C3.9 1 3 1.9 3 3V7H21V9H3V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V9Z", 10, 9, 2, 1, NodeType.RESTROOM, "#9C27B0")
             ),
             productLocations = mapOf(
+                // Produce sections - fruits and vegetables
+                "apples" to listOf("produce1", "produce2", "produce3"),
+                "bananas" to listOf("produce1", "produce2", "produce3"),
+                "fruits" to listOf("produce1", "produce2", "produce3"),
+                "carrots" to listOf("produce1", "produce2", "produce3"),
+                "lettuce" to listOf("produce1", "produce2", "produce3"),
+                "vegetables" to listOf("produce1", "produce2", "produce3"),
+                "tomatoes" to listOf("produce1", "produce2", "produce3"),
+                "organic" to listOf("produce1", "produce2", "produce3"),
+                "onions" to listOf("produce1", "produce2", "produce3"),
+                "potatoes" to listOf("produce1", "produce2", "produce3"),
+                "spinach" to listOf("produce1", "produce2", "produce3"),
+                "cucumbers" to listOf("produce1", "produce2", "produce3"),
+
+                // Bakery sections - bread and baked goods
+                "bread" to listOf("bakery1", "bakery2", "bakery3"),
+                "croissants" to listOf("bakery1", "bakery2", "bakery3"),
+                "muffins" to listOf("bakery1", "bakery2", "bakery3"),
+                "cakes" to listOf("bakery1", "bakery2", "bakery3"),
+                "pastries" to listOf("bakery1", "bakery2", "bakery3"),
+                "donuts" to listOf("bakery1", "bakery2", "bakery3"),
+                "bagels" to listOf("bakery1", "bakery2", "bakery3"),
+                "rolls" to listOf("bakery1", "bakery2", "bakery3"),
+                "cookies" to listOf("bakery1", "bakery2", "bakery3"),
+
+                // Meat & Deli sections - proteins
+                "chicken" to listOf("meat1", "meat2", "meat3"),
+                "beef" to listOf("meat1", "meat2", "meat3"),
+                "ham" to listOf("meat1", "meat2", "meat3"),
+                "turkey" to listOf("meat1", "meat2", "meat3"),
+                "bacon" to listOf("meat1", "meat2", "meat3"),
+                "sausage" to listOf("meat1", "meat2", "meat3"),
+                "pork" to listOf("meat1", "meat2", "meat3"),
+                "fish" to listOf("meat1", "meat2", "meat3"),
+                "salmon" to listOf("meat1", "meat2", "meat3"),
+                "deli" to listOf("meat1", "meat2", "meat3"),
+                "salami" to listOf("meat1", "meat2", "meat3"),
+
+                // Dairy sections - milk products
+                "milk" to listOf("dairy1", "dairy2", "dairy3"),
+                "cheese" to listOf("dairy1", "dairy2", "dairy3"),
+                "yogurt" to listOf("dairy1", "dairy2", "dairy3"),
+                "butter" to listOf("dairy1", "dairy2", "dairy3"),
+                "cream" to listOf("dairy1", "dairy2", "dairy3"),
+                "eggs" to listOf("dairy1", "dairy2", "dairy3"),
+                "sour cream" to listOf("dairy1", "dairy2", "dairy3"),
+                "cottage cheese" to listOf("dairy1", "dairy2", "dairy3"),
+
+                // Frozen sections - frozen foods
+                "ice cream" to listOf("frozen1", "frozen2"),
+                "frozen pizza" to listOf("frozen1", "frozen2"),
+                "frozen vegetables" to listOf("frozen1", "frozen2"),
+                "frozen meals" to listOf("frozen1", "frozen2"),
+                "frozen chicken" to listOf("frozen1", "frozen2"),
+                "frozen fruit" to listOf("frozen1", "frozen2"),
+                "ice" to listOf("frozen1", "frozen2"),
+                "frozen dinners" to listOf("frozen1", "frozen2"),
+
+                // Candy & Snacks sections - treats and snacks
                 "chocolate" to listOf("candy1", "candy2", "candy3"),
                 "candy" to listOf("candy1", "candy2", "candy3"),
-                "milk" to listOf("dairy1", "dairy2", "dairy3"),
-                "bread" to listOf("bakery1", "bakery2", "bakery3"),
-                "apples" to listOf("produce1", "produce2", "produce3"),
-                "ice cream" to listOf("frozen1", "frozen2"),
-                "chicken" to listOf("meat1", "meat2", "meat3"),
-                "soda" to listOf("beverages1", "beverages2", "beverages3")
+                "chips" to listOf("candy1", "candy2", "candy3"),
+                "cookies" to listOf("candy1", "candy2", "candy3"),
+                "snacks" to listOf("candy1", "candy2", "candy3"),
+                "gum" to listOf("candy1", "candy2", "candy3"),
+                "crackers" to listOf("candy1", "candy2", "candy3"),
+                "nuts" to listOf("candy1", "candy2", "candy3"),
+                "granola bars" to listOf("candy1", "candy2", "candy3"),
+                "popcorn" to listOf("candy1", "candy2", "candy3"),
+
+                // Beverages sections - drinks
+                "soda" to listOf("beverages1", "beverages2", "beverages3"),
+                "juice" to listOf("beverages1", "beverages2", "beverages3"),
+                "water" to listOf("beverages1", "beverages2", "beverages3"),
+                "coffee" to listOf("beverages1", "beverages2", "beverages3"),
+                "tea" to listOf("beverages1", "beverages2", "beverages3"),
+                "energy drinks" to listOf("beverages1", "beverages2", "beverages3"),
+                "beer" to listOf("beverages1", "beverages2", "beverages3"),
+                "wine" to listOf("beverages1", "beverages2", "beverages3"),
+                "sports drinks" to listOf("beverages1", "beverages2", "beverages3"),
+
+                // Service areas
+                "checkout" to listOf("checkout1", "checkout2", "checkout3", "checkout4"),
+                "self checkout" to listOf("checkout4"),
+                "customer service" to listOf("customer_service"),
+                "help" to listOf("customer_service"),
+                "restroom" to listOf("restroom"),
+                "bathroom" to listOf("restroom")
             )
         )
 
