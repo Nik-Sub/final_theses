@@ -95,6 +95,7 @@ fun StoreMapScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .height(88.dp)
                         .padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -107,14 +108,20 @@ fun StoreMapScreen(
                         value = searchText,
                         onValueChange = { searchText = it },
                         modifier = Modifier.weight(1f),
+                        textStyle = LocalTextStyle.current.copy(fontSize = 20.sp),
                         decorationBox = { innerTextField ->
-                            if (searchText.isEmpty()) {
-                                Text(
-                                    "Search for products (e.g., chocolate, bread, milk)",
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
+                            Box(
+                                Modifier.fillMaxHeight(), // Ensures placeholder and text are vertically centered
+                                contentAlignment = Alignment.CenterStart
+                            ) {
+                                if (searchText.isEmpty()) {
+                                    Text(
+                                        "Search for products (e.g., chocolate, bread, milk)",
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                innerTextField()
                             }
-                            innerTextField()
                         }
                     )
                 }
