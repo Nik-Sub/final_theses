@@ -145,35 +145,6 @@ fun StoreMapScreen(
                         )
                     }
                 }
-
-                // Search result information
-                highlightedSection?.let { section ->
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-                    ) {
-                        Column(modifier = Modifier.padding(12.dp)) {
-                            Text(
-                                "Found '$searchText' in:",
-                                style = MaterialTheme.typography.titleSmall,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                "${section.emoji} ${section.name}",
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontWeight = FontWeight.Medium
-                            )
-                            if (pathToDisplay.isNotEmpty()) {
-                                Text(
-                                    "🔷 Path highlighted from entrance (${pathToDisplay.size} steps)",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                            }
-                        }
-                    }
-                }
             } else {
                 Card(
                     modifier = Modifier
