@@ -1,4 +1,4 @@
-package com.mobile.iwbi.presentation.store
+package com.mobile.iwbi.presentation.components.store
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background

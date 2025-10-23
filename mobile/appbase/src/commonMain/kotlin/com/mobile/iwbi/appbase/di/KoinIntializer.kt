@@ -1,6 +1,6 @@
 package com.mobile.iwbi.appbase.di
 
-import com.mobile.iwbi.di.presentationModule
+import com.mobile.iwbi.presentation.presentationModule
 import com.mobile.iwbi.application.createApplicationLayer
 import com.mobile.iwbi.infrastructure.InfrastructureConfig
 import com.mobile.iwbi.infrastructure.createInfrastructureLayer

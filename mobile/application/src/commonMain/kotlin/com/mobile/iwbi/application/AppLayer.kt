@@ -5,6 +5,7 @@ import com.mobile.iwbi.application.authentication.di.authenticationModule
 import com.mobile.iwbi.application.di.inputPortsModule
 import com.mobile.iwbi.application.di.outputPortsModule
 import com.mobile.iwbi.application.helloworld.di.helloWorldModule
+import com.mobile.iwbi.application.shoppingnotes.di.shoppingNotesModule
 import org.koin.core.component.inject
 import org.koin.dsl.koinApplication
 import org.koin.dsl.module
@@ -26,6 +27,7 @@ fun createApplicationLayer(
 
         modules(authenticationModule)
         modules(helloWorldModule)
+        modules(shoppingNotesModule)
     }
     override val inputPorts by inject<InputPorts>()
 }

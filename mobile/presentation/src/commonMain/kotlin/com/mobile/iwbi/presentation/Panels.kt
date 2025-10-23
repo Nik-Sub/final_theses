@@ -1,4 +1,4 @@
-package com.mobile.iwbi.presentation.navigation
+package com.mobile.iwbi.presentation
 
 import com.mobile.iwbi.domain.store.Store
 import kotlinx.serialization.Serializable
@@ -18,4 +18,14 @@ sealed interface Panel {
     data class StoreMapScreen(
         val store: Store
     ) : Panel
+
+    // Additional panels for the new structure
+    @Serializable
+    data object ProfilePanel : Panel
+}
+
+enum class MainPanel(val screen: Panel) {
+    HOME(Panel.HomePanel),
+    STORES(Panel.StorePanel),
+    PROFILE(Panel.ProfilePanel)
 }

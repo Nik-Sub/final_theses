@@ -1,13 +1,10 @@
-package com.mobile.iwbi.presentation.navigation
+package com.mobile.iwbi.presentation
 
 import androidx.core.bundle.Bundle
 import androidx.navigation.NavType
 import com.mobile.iwbi.domain.store.Store
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import androidx.compose.ui.text.input.KeyboardType.Companion.Uri
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
 
 object CustomNavType {
     val storeNavType = object : NavType<Store>(isNullableAllowed = false) {

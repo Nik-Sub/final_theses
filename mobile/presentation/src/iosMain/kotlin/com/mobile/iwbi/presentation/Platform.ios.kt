@@ -1,6 +1,5 @@
 package com.mobile.iwbi.presentation
 
-import com.mobile.iwbi.presentation.Platform
 import platform.UIKit.UIDevice
 
 class IOSPlatform: Platform {

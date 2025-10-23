@@ -1,9 +1,9 @@
-package com.mobile.iwbi.presentation.login
+package com.mobile.iwbi.presentation.components.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mobile.iwbi.application.authentication.input.AuthenticationServicePort
-import com.mobile.iwbi.presentation.uistate.LoginPanelUiState
+import com.mobile.iwbi.presentation.LoginPanelUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

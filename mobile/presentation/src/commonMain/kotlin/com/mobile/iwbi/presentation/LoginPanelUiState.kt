@@ -1,4 +1,4 @@
-package com.mobile.iwbi.presentation.uistate
+package com.mobile.iwbi.presentation
 
 data class LoginPanelUiState(
     val email: String = "",
