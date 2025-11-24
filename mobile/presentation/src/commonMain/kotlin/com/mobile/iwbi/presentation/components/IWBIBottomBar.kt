@@ -19,7 +19,7 @@ fun IWBIBottomBar(
     BottomAppBar {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = { onClick(MainPanel.HOME) }) {
@@ -34,6 +34,13 @@ fun IWBIBottomBar(
                     Icons.Filled.ShoppingCart,
                     contentDescription = "Stores",
                     tint = if (isSelected(MainPanel.STORES)) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            IconButton(onClick = { onClick(MainPanel.FRIENDS) }) {
+                Icon(
+                    Icons.Filled.Person,
+                    contentDescription = "Friends",
+                    tint = if (isSelected(MainPanel.FRIENDS)) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             IconButton(onClick = { onClick(MainPanel.PROFILE) }) {

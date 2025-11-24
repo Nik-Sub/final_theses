@@ -6,6 +6,7 @@ plugins {
 dependencies {
     api(projects.modules.common)
     api(projects.server.backend.application)
+    implementation(projects.ktorUtils.firebaseAuth)
 
     implementation(libs.koin.ktor)
     implementation(libs.ktor.server.core)

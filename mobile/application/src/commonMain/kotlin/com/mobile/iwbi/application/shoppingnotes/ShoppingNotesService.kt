@@ -3,21 +3,32 @@ package com.mobile.iwbi.application.shoppingnotes
 import com.benasher44.uuid.uuid4
 import com.iwbi.domain.shopping.ShoppingItem
 import com.iwbi.domain.shopping.ShoppingNote
+import com.mobile.iwbi.application.authentication.input.AuthenticationServicePort
 import com.mobile.iwbi.application.shoppingnotes.input.ShoppingNotesServicePort
 import com.mobile.iwbi.application.shoppingnotes.output.ShoppingNotesRepositoryPort
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.datetime.Clock
 
 class ShoppingNotesService(
-    private val shoppingNotesRepositoryPort: ShoppingNotesRepositoryPort
+    private val shoppingNotesRepositoryPort: ShoppingNotesRepositoryPort,
+    private val authenticationServicePort: AuthenticationServicePort
 ) : ShoppingNotesServicePort {
 
-    override fun observeShoppingNotes(userId: String): Flow<List<ShoppingNote>> {
-        return shoppingNotesRepositoryPort.observeShoppingNotes(userId)
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+    override fun observeShoppingNotes(): StateFlow<List<ShoppingNote>> {
+        return shoppingNotesRepositoryPort.observeShoppingNotes()
     }
 
-    override fun observeShoppingNote(noteId: String, userId: String): Flow<ShoppingNote?> {
-        return shoppingNotesRepositoryPort.observeShoppingNote(noteId, userId)
+    override fun observeShoppingNote(noteId: String): StateFlow<ShoppingNote?> {
+        return shoppingNotesRepositoryPort.observeShoppingNote(noteId)
     }
 
     override suspend fun createShoppingNote(title: String, createdBy: String, userIds: List<String>): ShoppingNote {
@@ -32,12 +43,12 @@ class ShoppingNotesService(
         return shoppingNotesRepositoryPort.saveShoppingNote(newNote)
     }
 
-    override suspend fun updateShoppingNote(note: ShoppingNote, userId: String) {
+    override suspend fun updateShoppingNote(note: ShoppingNote) {
         val updatedNote = note.copy(lastModified = Clock.System.now().toEpochMilliseconds())
         shoppingNotesRepositoryPort.updateShoppingNote(updatedNote)
     }
 
-    override suspend fun toggleItem(noteId: String, itemIndex: Int, userId: String) {
+    override suspend fun toggleItem(noteId: String, itemIndex: Int) {
         val note = shoppingNotesRepositoryPort.getShoppingNote(noteId) ?: return
         val updatedItems = note.items.toMutableList()
         if (itemIndex < updatedItems.size) {
@@ -52,7 +63,7 @@ class ShoppingNotesService(
         }
     }
 
-    override suspend fun addItem(noteId: String, item: ShoppingItem, userId: String) {
+    override suspend fun addItem(noteId: String, item: ShoppingItem) {
         val note = shoppingNotesRepositoryPort.getShoppingNote(noteId) ?: return
         val updatedNote = note.copy(
             items = note.items + item,
@@ -61,7 +72,7 @@ class ShoppingNotesService(
         shoppingNotesRepositoryPort.updateShoppingNote(updatedNote)
     }
 
-    override suspend fun removeItem(noteId: String, itemIndex: Int, userId: String) {
+    override suspend fun removeItem(noteId: String, itemIndex: Int) {
         val note = shoppingNotesRepositoryPort.getShoppingNote(noteId) ?: return
         if (itemIndex < note.items.size) {
             val updatedItems = note.items.toMutableList()
@@ -74,7 +85,7 @@ class ShoppingNotesService(
         }
     }
 
-    override suspend fun shareNoteWithUser(noteId: String, newUserId: String, userId: String) {
+    override suspend fun shareNoteWithUser(noteId: String, newUserId: String) {
         val note = shoppingNotesRepositoryPort.getShoppingNote(noteId) ?: return
         if (!note.sharedWith.contains(newUserId)) {
             val updatedNote = note.copy(
@@ -85,7 +96,53 @@ class ShoppingNotesService(
         }
     }
 
-    override suspend fun deleteShoppingNote(noteId: String, userId: String) {
+    override suspend fun shareNoteWithFriends(noteId: String, friendIds: List<String>): Result<Unit> {
+        return try {
+            val note = shoppingNotesRepositoryPort.getShoppingNote(noteId) ?: return Result.failure(Exception("Note not found"))
+            val updatedNote = note.copy(
+                sharedWith = (note.sharedWith + friendIds).distinct(),
+                lastModified = Clock.System.now().toEpochMilliseconds()
+            )
+            shoppingNotesRepositoryPort.updateShoppingNote(updatedNote)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override fun observeShareableNotes(): StateFlow<List<ShoppingNote>> {
+        // Return notes created by the current user that can be shared
+        return combine(
+            shoppingNotesRepositoryPort.observeShoppingNotes(),
+            authenticationServicePort.observeCurrentUser()
+        ) { notes, currentUser ->
+            notes.filter { note ->
+                note.createdBy == currentUser?.uid
+            }
+        }.stateIn(
+            scope = scope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
+    }
+
+    override fun observeNotesSharedWithMe(): StateFlow<List<ShoppingNote>> {
+        // Return notes shared with the current user
+        return combine(
+            shoppingNotesRepositoryPort.observeShoppingNotes(),
+            authenticationServicePort.observeCurrentUser()
+        ) { notes, currentUser ->
+            notes.filter { note ->
+                note.sharedWith.contains(currentUser?.uid)
+            }
+        }.stateIn(
+            scope = scope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
+    }
+
+    override suspend fun deleteShoppingNote(noteId: String) {
         shoppingNotesRepositoryPort.deleteShoppingNote(noteId)
     }
 }

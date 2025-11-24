@@ -9,10 +9,12 @@ import io.ktor.server.routing.route
 
 fun Route.apiRoutes() {
     route("/api") {
+        friendRoutes()
+        shoppingNotesRoutes()
+
         get("/hello-world") {
             call.respond(HttpStatusCode.OK, "Hello, World!")
         }
-
 
         get("/{...}") {
             call.respond(HttpStatusCode.NotFound)

@@ -2,6 +2,13 @@
   "webServer": {
     "host": "0.0.0.0",
     "port": 8080,
-    "baseUrl": "http://localhost:8080/api"
+    "baseUrl": "http://localhost:8080",
+    "authentication": {
+      "adminFile": "config/IWBIAdminConfig.json",
+      "webFilePath": "config/firebase-web-config.json",
+      "sessionDirectory": "sessions",
+      "sessionEncryptSecret": "51a8d3e90b13365179b10e9c1211912e",
+      "sessionSignSecret": "274186e0a9a921cfff2d2396da495c01"
+    }
   }
 }

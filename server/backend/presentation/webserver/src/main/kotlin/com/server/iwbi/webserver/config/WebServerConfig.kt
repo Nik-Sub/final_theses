@@ -7,5 +7,5 @@ data class WebServerConfig(
     val host: String,
     val port: Int,
     val baseUrl: String,
-    //val authentication: AuthenticationConfig? = null,
+    val authentication: AuthenticationConfig,
 )

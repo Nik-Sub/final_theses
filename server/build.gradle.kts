@@ -16,6 +16,13 @@ val localProperties = project.rootProject.file("local.properties").asProperties(
 tasks.run.configure {
     args(file("config.json").takeIf { it.exists() } ?: file("server_config.json"))
 
+    environment("FIREBASE_ADMIN_FILE", file("config/IWBIAdminConfig.json").absolutePath)
+
+    environment("DB_URL", localProperties.getProperty("DB_URL") ?: error("DB_URL not set"))
+    environment("DB_USER", localProperties.getProperty("DB_USER") ?: error("DB_USER not set"))
+    environment("DB_PASSWORD", localProperties.getProperty("DB_PASSWORD") ?: error("DB_PASSWORD not set"))
+
+
     java {
         toolchain.languageVersion.set(JavaLanguageVersion.of(17))
     }

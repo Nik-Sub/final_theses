@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 
 import com.mobile.iwbi.presentation.App
+import com.mobile.iwbi.presentation.components.login.LoginScreen
 
 class MainActivity : ComponentActivity() {
     //private lateinit var auth: FirebaseAuth
@@ -22,7 +23,6 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     App()
-                    //LoginScreen()
                 }
             }
         }

@@ -5,7 +5,7 @@ plugins {
 dependencies {
     implementation(projects.modules.common)
     implementation(projects.server.backend.application)
-    implementation(libs.gitlive.firebase.auth)
+    implementation(projects.server.backend.infrastructure.persistence)
     api(libs.kotlinx.coroutines.core)
     api(libs.kotlin.logging)
 }

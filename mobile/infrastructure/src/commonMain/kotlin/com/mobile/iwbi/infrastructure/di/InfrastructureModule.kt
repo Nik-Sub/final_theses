@@ -2,10 +2,12 @@ package com.mobile.iwbi.infrastructure.di
 
 import com.mobile.iwbi.application.OutputPorts
 import com.mobile.iwbi.application.authentication.output.AuthenticationProviderPort
+import com.mobile.iwbi.application.friends.output.FriendRepositoryPort
 import com.mobile.iwbi.application.helloworld.output.HelloWorldRepositoryPort
 import com.mobile.iwbi.application.shoppingnotes.output.ShoppingNotesRepositoryPort
 import com.mobile.iwbi.infrastructure.InfrastructureConfig
 import com.mobile.iwbi.infrastructure.authentication.AuthenticationProvider
+import com.mobile.iwbi.infrastructure.friends.FriendRepository
 import com.mobile.iwbi.infrastructure.helloworld.HelloWorldRepository
 import com.mobile.iwbi.infrastructure.shoppingnotes.ShoppingNotesRepository
 import io.ktor.client.HttpClient
@@ -37,12 +39,21 @@ val infrastructureModule = module {
         )
     }
 
+    single<FriendRepositoryPort> {
+        FriendRepository(
+            get(qualifier = TypeQualifier(BackendHttpClient::class)),
+        )
+    }
+
     single<ShoppingNotesRepositoryPort> {
-        ShoppingNotesRepository()
+        ShoppingNotesRepository(
+            get(qualifier = TypeQualifier(BackendHttpClient::class)),
+        )
     }
 
     single(TypeQualifier(BackendHttpClient::class)) {
         val config: InfrastructureConfig = get()
+        val authProvider: AuthenticationProviderPort = get()
 
         HttpClient {
             install(ContentNegotiation) {
@@ -50,6 +61,21 @@ val infrastructureModule = module {
             }
             install(Logging) {
                 level = LogLevel.INFO
+            }
+            install(Auth) {
+                bearer {
+                    loadTokens {
+                        val token = authProvider.getIdToken()
+                        println("🔐 Mobile: Loading token: ${token?.take(20)}...")
+                        token?.let { BearerTokens(it, "") }
+                    }
+                    refreshTokens {
+                        val token = authProvider.getIdToken()
+                        println("🔄 Mobile: Refreshing token: ${token?.take(20)}...")
+                        token?.let { BearerTokens(it, "") }
+                    }
+                    sendWithoutRequest { true }
+                }
             }
             install(HttpTimeout) {
                 requestTimeoutMillis = 30.seconds.inWholeMilliseconds
@@ -65,6 +91,7 @@ val infrastructureModule = module {
 
 internal class OutputPortsImpl(
     override val authenticationProviderPort: AuthenticationProviderPort,
+    override val friendRepositoryPort: FriendRepositoryPort,
     override val helloWorldRepositoryPort: HelloWorldRepositoryPort,
     override val shoppingNotesRepositoryPort: ShoppingNotesRepositoryPort
 ) : OutputPorts

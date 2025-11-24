@@ -19,6 +19,21 @@ sealed interface Panel {
         val store: Store
     ) : Panel
 
+    // Friend management panels
+    @Serializable
+    data object FriendsPanel : Panel
+
+    @Serializable
+    data object FriendRequestsPanel : Panel
+
+    @Serializable
+    data object AddFriendPanel : Panel
+
+    @Serializable
+    data class ShareNotePanel(
+        val noteId: String
+    ) : Panel
+
     // Additional panels for the new structure
     @Serializable
     data object ProfilePanel : Panel
@@ -27,5 +42,6 @@ sealed interface Panel {
 enum class MainPanel(val screen: Panel) {
     HOME(Panel.HomePanel),
     STORES(Panel.StorePanel),
+    FRIENDS(Panel.FriendsPanel),
     PROFILE(Panel.ProfilePanel)
 }

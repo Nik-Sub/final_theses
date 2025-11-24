@@ -22,9 +22,7 @@ class App(
     fun start() {
         logger.info { "[>] Starting..." }
 
-        val infrastructureLayer = createInfrastructureLayer(
-            //config.database,
-        )
+        val infrastructureLayer = createInfrastructureLayer()
         val appLayer = createApplicationLayer(infrastructureLayer.outputPorts)
         val presentationLayer = createPresentationLayer(appLayer.inputPorts, config.webServer)
 

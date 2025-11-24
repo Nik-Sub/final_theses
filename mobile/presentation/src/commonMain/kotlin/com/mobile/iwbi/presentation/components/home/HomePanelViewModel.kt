@@ -3,16 +3,17 @@ package com.mobile.iwbi.presentation.components.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.iwbi.domain.shopping.ShoppingItem
+import com.mobile.iwbi.application.authentication.input.AuthenticationServicePort
 import com.mobile.iwbi.application.shoppingnotes.input.ShoppingNotesServicePort
-import com.mobile.iwbi.presentation.HomePanelUiState
+import com.mobile.iwbi.presentation.uistate.HomePanelUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
 class HomePanelViewModel(
-    private val shoppingNotesServicePort: ShoppingNotesServicePort
+    private val shoppingNotesServicePort: ShoppingNotesServicePort,
+    private val authenticationServicePort: AuthenticationServicePort
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(HomePanelUiState())
     val uiState: StateFlow<HomePanelUiState> = _uiState.asStateFlow()
@@ -25,10 +26,7 @@ class HomePanelViewModel(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
 
-            shoppingNotesServicePort.observeShoppingNotes(_uiState.value.currentUserId)
-                .catch {
-                    _uiState.value = _uiState.value.copy(isLoading = false)
-                }
+            shoppingNotesServicePort.observeShoppingNotes()
                 .collect { notes ->
                     _uiState.value = _uiState.value.copy(
                         shoppingNotes = notes,
@@ -40,19 +38,44 @@ class HomePanelViewModel(
 
     fun selectNote(noteId: String) {
         val note = _uiState.value.shoppingNotes.find { it.id == noteId }
-        _uiState.value = _uiState.value.copy(selectedNote = note)
+        _uiState.value = _uiState.value.copy(
+            selectedNote = note,
+            isEditingNote = note != null
+        )
     }
 
-    fun createNewNote(title: String, shareWithUserIds: List<String> = emptyList()) {
+    fun exitEditMode() {
+        _uiState.value = _uiState.value.copy(
+            selectedNote = null,
+            isEditingNote = false,
+            newItemText = ""
+        )
+    }
+
+    fun updateNewItemText(text: String) {
+        _uiState.value = _uiState.value.copy(newItemText = text)
+    }
+
+    fun addItemToSelectedNote() {
+        val selectedNote = _uiState.value.selectedNote
+        val itemText = _uiState.value.newItemText.trim()
+
+        if (selectedNote != null && itemText.isNotEmpty()) {
+            addItemToNote(selectedNote.id, itemText)
+            _uiState.value = _uiState.value.copy(newItemText = "")
+        }
+    }
+
+    fun createNewNote(title: String, sharedWith: List<String>) {
         viewModelScope.launch {
             try {
                 shoppingNotesServicePort.createShoppingNote(
                     title = title,
-                    createdBy = _uiState.value.currentUserId,
-                    userIds = shareWithUserIds
+                    createdBy = authenticationServicePort.observeCurrentUser().value?.uid ?: "",
+                    userIds = sharedWith
                 )
             } catch (e: Exception) {
-                // Handle error - could add error state to UI
+                // Handle error
             }
         }
     }
@@ -63,7 +86,6 @@ class HomePanelViewModel(
                 shoppingNotesServicePort.toggleItem(
                     noteId = noteId,
                     itemIndex = itemIndex,
-                    userId = _uiState.value.currentUserId
                 )
             } catch (e: Exception) {
                 // Handle error
@@ -78,7 +100,6 @@ class HomePanelViewModel(
                 shoppingNotesServicePort.addItem(
                     noteId = noteId,
                     item = newItem,
-                    userId = _uiState.value.currentUserId
                 )
             } catch (e: Exception) {
                 // Handle error
@@ -92,7 +113,6 @@ class HomePanelViewModel(
                 shoppingNotesServicePort.removeItem(
                     noteId = noteId,
                     itemIndex = itemIndex,
-                    userId = _uiState.value.currentUserId
                 )
             } catch (e: Exception) {
                 // Handle error
@@ -106,7 +126,6 @@ class HomePanelViewModel(
                 shoppingNotesServicePort.shareNoteWithUser(
                     noteId = noteId,
                     newUserId = userId,
-                    userId = _uiState.value.currentUserId
                 )
             } catch (e: Exception) {
                 // Handle error
@@ -119,7 +138,6 @@ class HomePanelViewModel(
             try {
                 shoppingNotesServicePort.deleteShoppingNote(
                     noteId = noteId,
-                    userId = _uiState.value.currentUserId
                 )
             } catch (e: Exception) {
                 // Handle error
@@ -138,7 +156,7 @@ class HomePanelViewModel(
             try {
                 val note = shoppingNotesServicePort.createShoppingNote(
                     title = title,
-                    createdBy = _uiState.value.currentUserId,
+                    createdBy = authenticationServicePort.observeCurrentUser().value?.uid ?: "",
                     userIds = emptyList()
                 )
 
@@ -147,7 +165,6 @@ class HomePanelViewModel(
                     shoppingNotesServicePort.addItem(
                         noteId = note.id,
                         item = item,
-                        userId = _uiState.value.currentUserId
                     )
                 }
             } catch (e: Exception) {

@@ -17,9 +17,7 @@ import org.koin.core.annotation.KoinExperimentalAPI
 
 @OptIn(KoinExperimentalAPI::class)
 @Composable
-fun LoginScreen(
-    onLogin: () -> Unit
-) {
+fun LoginScreen() {
 
     val viewModel = koinViewModel<LoginPanelViewModel>()
     val uiState by viewModel.uiState.collectAsState()
@@ -69,7 +67,6 @@ fun LoginScreen(
             Button(
                 onClick = {
                     viewModel.onLoginClick()
-                    onLogin()
                 },
             ) {
                 Text("Login")

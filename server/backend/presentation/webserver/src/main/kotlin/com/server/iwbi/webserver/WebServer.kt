@@ -14,18 +14,19 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
 import io.ktor.server.application.install
+import io.ktor.server.auth.authenticate
 import io.ktor.server.engine.defaultExceptionStatusCode
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.http.content.singlePageApplication
 import io.ktor.server.netty.Netty
 import io.ktor.server.plugins.cors.routing.CORS
-import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.plugins.statuspages.StatusPagesConfig
 import io.ktor.server.request.path
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
+import ktorutils.firebase.FirebaseAuth
 import java.io.File
 import kotlin.time.Duration.Companion.seconds
 import org.koin.core.KoinApplication
@@ -37,11 +38,9 @@ class WebServer internal constructor(
 ) {
     private val logger = KotlinLogging.logger { }
 
-    private val authenticationDisabled = true//config.authentication == null
-
-    /*private val firebaseConfig by lazy {
+    private val firebaseConfig by lazy {
         requireNotNull(config.authentication).webFilePath.let { File(it).readText() }
-    }*/
+    }
 
     private val server = embeddedServer(Netty, host = config.host, port = config.port) {
         setKoinApplication(koinApplication)
@@ -54,33 +53,34 @@ class WebServer internal constructor(
                 }
             }
         }
-        // TODO: implement authentication on backend
-        /*if (config.authentication != null) {
-            install(FirebaseAuth) {
-                adminFile = config.authentication.adminFile
 
-                cookieName = "dispatcher"
-                sessionDirectory = File(config.authentication.sessionDirectory)
-                sessionEncryptSecret = config.authentication.sessionEncryptSecret
-                sessionSignSecret = config.authentication.sessionSignSecret
+        // Always install Firebase Auth to support both Bearer tokens and sessions
+        install(FirebaseAuth) {
+            adminFile = File(config.authentication.adminFile)
 
-                sessionLoginTokenValidator = { token ->
-                    token.roles.contains(Roles.DISPATCHER)
-                }
+            // Session configuration for web clients
+            cookieName = "iwbi"
+            sessionDirectory = File(config.authentication.sessionDirectory)
+            sessionEncryptSecret = config.authentication.sessionEncryptSecret
+            sessionSignSecret = config.authentication.sessionSignSecret
 
-                shouldRespondWith401 = {
-                    request.path().startsWith("/api")
-                }
-
-                loginUrl = "${config.baseUrl}/login"
-
-                this.statusPagesConfigurator = statusPagesConfigurator
+            // Allow any authenticated Firebase user (remove role checking for now)
+            sessionLoginTokenValidator = { token ->
+                this@WebServer.logger.info { "🔐 Server: Received Firebase token for user: ${token.uid}" }
+                true // Accept any valid Firebase token
             }
-        } else {*/
-            install(StatusPages) {
-                statusPagesConfigurator()
+
+            shouldRespondWith401 = {
+                val path = request.path()
+                val isApiPath = path.startsWith("/api")
+                this@WebServer.logger.info { "🔍 Server: Checking auth for path: $path, isAPI: $isApiPath" }
+                isApiPath
             }
-        //}
+
+            loginUrl = "${config.baseUrl}/login"
+
+            this.statusPagesConfigurator = statusPagesConfigurator
+        }
 
         configureCallLogging()
         configureCompression()
@@ -96,45 +96,29 @@ class WebServer internal constructor(
             allowMethod(HttpMethod.Put)
             anyHost()
             allowHeader(HttpHeaders.ContentType)
+            allowHeader(HttpHeaders.Authorization) // Allow Authorization header for Bearer tokens
         }
 
         routing {
-            if (authenticationDisabled) {
-                singlePageApplication {
-                    useResources = true
-                    filesPath = "public"
-                    defaultPage = "index.html"
-                }
+            get("/firebase-config") {
+                call.respondText(firebaseConfig, ContentType.Application.Json)
+            }
 
+            // All API routes are now protected and support both authentication methods
+            authenticate {
                 apiRoutes()
-            } else {
-                // TODO: implement authentication on backend
-                /*get("/firebase-config") {
-                    call.respondText(firebaseConfig, ContentType.Application.Json)
-                }
+            }
 
-
-                authenticate {
-                    apiRoutes()
-                }
-
-                singlePageApplication {
-                    useResources = true
-                    filesPath = "public"
-                    defaultPage = "index.html"
-                }*/
+            singlePageApplication {
+                useResources = true
+                filesPath = "public"
+                defaultPage = "index.html"
             }
         }
     }
 
     fun start() {
         logger.info { "[>] Starting..." }
-
-        // TODO: implement authentication on backend
-        /*if (config.authentication == null) {
-            logger.warn { "AUTHENTICATION DISABLED" }
-        }*/
-
         server.start(wait = false)
         logger.info { "[<] Started" }
     }
