@@ -74,4 +74,20 @@ class FriendService(
     override suspend fun getSentRequests(): List<FriendRequest> {
         return friendRepository.getSentRequests()
     }
+
+    override suspend fun refreshFriends() {
+        friendRepository.refreshFriends()
+    }
+
+    override suspend fun refreshPendingFriendRequests() {
+        friendRepository.refreshPendingRequests()
+    }
+
+    override suspend fun refreshSentFriendRequests() {
+        friendRepository.refreshSentRequests()
+    }
+
+    override suspend fun refreshAllFriendData() {
+        friendRepository.refreshAllData()
+    }
 }

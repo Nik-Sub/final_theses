@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -74,6 +75,21 @@ fun FriendRequestsPanel(
         }
     }
 
+    // Debug: Refresh sent requests when sent tab is selected
+    LaunchedEffect(selectedTabIndex) {
+        if (selectedTabIndex == 1) {
+            println("DEBUG: Sent tab selected, refreshing sent requests...")
+            viewModel.refreshSentRequests()
+        }
+    }
+
+    // Debug: Directly observe sent requests
+    LaunchedEffect(Unit) {
+        viewModel.uiState.collect { state ->
+            println("DEBUG: FriendRequestsPanel - UI State updated: sentRequests.size = ${state.sentRequests.size}")
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -84,6 +100,18 @@ fun FriendRequestsPanel(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = "Back"
                         )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { viewModel.refreshAllData() }) {
+                        Icon(
+                            imageVector = Icons.Default.Refresh,
+                            contentDescription = "Refresh"
+                        )
+                    }
+                    // Debug button
+                    IconButton(onClick = { viewModel.debugFetchSentRequests() }) {
+                        Text("DEBUG", style = MaterialTheme.typography.bodySmall)
                     }
                 }
             )
@@ -143,7 +171,10 @@ fun FriendRequestsPanel(
                     }
                 }
                 1 -> {
+                    println("DEBUG: FriendRequestsPanel - Sent tab selected, sentRequests.size = ${uiState.sentRequests.size}")
+                    println("DEBUG: FriendRequestsPanel - Sent requests content: ${uiState.sentRequests}")
                     if (uiState.sentRequests.isEmpty()) {
+                        println("DEBUG: FriendRequestsPanel - Showing empty state for sent requests")
                         EmptyRequestsState(
                             message = "No sent friend requests",
                             modifier = Modifier
@@ -151,6 +182,7 @@ fun FriendRequestsPanel(
                                 .padding(16.dp)
                         )
                     } else {
+                        println("DEBUG: FriendRequestsPanel - Showing ${uiState.sentRequests.size} sent requests")
                         LazyColumn(
                             modifier = Modifier
                                 .fillMaxSize()

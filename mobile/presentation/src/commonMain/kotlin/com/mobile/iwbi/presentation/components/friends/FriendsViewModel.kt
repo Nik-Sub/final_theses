@@ -2,8 +2,6 @@ package com.mobile.iwbi.presentation.components.friends
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.iwbi.domain.user.User
-import com.iwbi.domain.user.FriendRequest
 import com.mobile.iwbi.application.InputPorts
 import com.mobile.iwbi.presentation.uistate.FriendsUiState
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -31,13 +29,15 @@ class FriendsViewModel(
                 inputPorts.friendServicePort.observePendingFriendRequests(),
                 inputPorts.friendServicePort.observeSentFriendRequests()
             ) { friends, pendingRequests, sentRequests ->
+                println("DEBUG: ViewModel received - Friends: ${friends.size}, Pending: ${pendingRequests.size}, Sent: ${sentRequests.size}")
+                println("DEBUG: Sent requests details: $sentRequests")
                 _uiState.value = _uiState.value.copy(
                     friends = friends,
                     pendingRequests = pendingRequests,
                     sentRequests = sentRequests,
                     isLoading = false
                 )
-            }
+            }.collect { }
         }
     }
 
@@ -81,7 +81,6 @@ class FriendsViewModel(
                     _uiState.value = _uiState.value.copy(
                         errorMessage = null
                     )
-                    // Remove from search results after sending request
                     _uiState.value = _uiState.value.copy(
                         searchResults = _uiState.value.searchResults.filter { it.id != userId }
                     )
@@ -164,5 +163,53 @@ class FriendsViewModel(
             searchQuery = "",
             searchResults = emptyList()
         )
+    }
+
+    fun refreshAllData() {
+        viewModelScope.launch {
+            try {
+                _uiState.value = _uiState.value.copy(isLoading = true)
+                inputPorts.friendServicePort.refreshAllFriendData()
+                _uiState.value = _uiState.value.copy(isLoading = false, errorMessage = null)
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    errorMessage = "Failed to refresh data: ${e.message}"
+                )
+            }
+        }
+    }
+
+    fun refreshSentRequests() {
+        viewModelScope.launch {
+            try {
+                println("DEBUG: ViewModel.refreshSentRequests() called")
+                inputPorts.friendServicePort.refreshSentFriendRequests()
+                println("DEBUG: ViewModel.refreshSentRequests() completed")
+            } catch (e: Exception) {
+                println("ERROR: ViewModel.refreshSentRequests() failed: ${e.message}")
+                _uiState.value = _uiState.value.copy(
+                    errorMessage = "Failed to refresh sent requests: ${e.message}"
+                )
+            }
+        }
+    }
+
+    fun debugFetchSentRequests() {
+        viewModelScope.launch {
+            try {
+                println("DEBUG: Manual test - Fetching sent requests directly...")
+                val sentRequests = inputPorts.friendServicePort.getSentRequests()
+                println("DEBUG: Manual test - Got ${sentRequests.size} sent requests: $sentRequests")
+
+                _uiState.value = _uiState.value.copy(
+                    sentRequests = sentRequests
+                )
+                println("DEBUG: Manual test - Updated UI state with sent requests")
+            } catch (e: Exception) {
+                println("ERROR: Manual test failed: ${e.message}")
+                e.printStackTrace()
+            }
+        }
     }
 }

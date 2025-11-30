@@ -32,7 +32,12 @@ class FriendRepository(
     private val _sentRequests = MutableStateFlow<List<FriendRequest>>(emptyList())
 
     init {
-        refreshAll()
+        println("DEBUG: FriendRepository - Initializing...")
+        scope.launch {
+            println("DEBUG: FriendRepository - Starting initial data refresh...")
+            refreshAllData()
+            println("DEBUG: FriendRepository - Initial data refresh completed")
+        }
     }
 
     override fun observeFriends(): StateFlow<List<User>> = _friends.asStateFlow()
@@ -48,12 +53,14 @@ class FriendRepository(
     }
 
     override suspend fun sendFriendRequest(toUserId: String): FriendRequest {
+        println("DEBUG: Sending friend request to user: $toUserId")
         val request = SendFriendRequestRequest(toUserId)
         val friendRequest = httpClient.post("friends/requests") {
             contentType(ContentType.Application.Json)
             setBody(request)
         }.body<FriendRequest>()
 
+        println("DEBUG: Friend request sent successfully: $friendRequest")
         // Refresh sent requests to update UI
         refreshSentRequests()
         return friendRequest
@@ -62,17 +69,19 @@ class FriendRepository(
     override suspend fun acceptFriendRequest(requestId: String): Friendship {
         val friendship = httpClient.post("friends/requests/$requestId/accept").body<Friendship>()
 
-        // Refresh both friends and pending requests
+        // Refresh all relevant data since accepting creates friendship and removes from pending
         refreshFriends()
         refreshPendingRequests()
+        refreshSentRequests() // In case current user sent a request that was accepted
         return friendship
     }
 
     override suspend fun declineFriendRequest(requestId: String) {
         httpClient.post("friends/requests/$requestId/decline")
 
-        // Refresh pending requests
+        // Refresh both pending and sent requests
         refreshPendingRequests()
+        refreshSentRequests() // In case current user sent a request that was declined
     }
 
     override suspend fun removeFriend(friendId: String) {
@@ -91,22 +100,29 @@ class FriendRepository(
     }
 
     override suspend fun getSentRequests(): List<FriendRequest> {
-        return httpClient.get("friends/requests/sent").body<List<FriendRequest>>()
-    }
-
-    private fun refreshAll() {
-        scope.launch {
-            try {
-                refreshFriends()
-                refreshPendingRequests()
-                refreshSentRequests()
-            } catch (e: Exception) {
-                println("Error refreshing friend data: ${e.message}")
-            }
+        println("DEBUG: getSentRequests() called - Making HTTP request to friends/requests/sent")
+        try {
+            val result = httpClient.get("friends/requests/sent").body<List<FriendRequest>>()
+            println("DEBUG: getSentRequests() - HTTP request successful, received ${result.size} requests: $result")
+            return result
+        } catch (e: Exception) {
+            println("ERROR: getSentRequests() - HTTP request failed: ${e.message}")
+            e.printStackTrace()
+            throw e
         }
     }
 
-    private suspend fun refreshFriends() {
+    override suspend fun refreshAllData() {
+        try {
+            refreshFriends()
+            refreshPendingRequests()
+            refreshSentRequests()
+        } catch (e: Exception) {
+            println("Error refreshing friend data: ${e.message}")
+        }
+    }
+
+    override suspend fun refreshFriends() {
         try {
             val friends = getFriends()
             _friends.value = friends
@@ -115,7 +131,7 @@ class FriendRepository(
         }
     }
 
-    private suspend fun refreshPendingRequests() {
+    override suspend fun refreshPendingRequests() {
         try {
             val requests = getPendingRequests()
             _pendingRequests.value = requests
@@ -124,12 +140,18 @@ class FriendRepository(
         }
     }
 
-    private suspend fun refreshSentRequests() {
+    override suspend fun refreshSentRequests() {
         try {
-            val requests = httpClient.get("friends/requests/sent").body<List<FriendRequest>>()
+            println("DEBUG: Refreshing sent requests...")
+            val requests = getSentRequests()
+            println("DEBUG: Setting StateFlow with ${requests.size} sent requests")
+            val oldValue = _sentRequests.value
             _sentRequests.value = requests
+            println("DEBUG: StateFlow updated - old: ${oldValue.size}, new: ${_sentRequests.value.size}")
+            println("DEBUG: StateFlow now contains: ${_sentRequests.value}")
         } catch (e: Exception) {
             println("Error refreshing sent requests: ${e.message}")
+            e.printStackTrace()
         }
     }
 }

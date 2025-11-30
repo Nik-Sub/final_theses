@@ -19,4 +19,9 @@ interface FriendServicePort {
     suspend fun getFriendsList(): List<User>
     suspend fun getPendingRequests(): List<FriendRequest>
     suspend fun getSentRequests(): List<FriendRequest>
+
+    suspend fun refreshFriends()
+    suspend fun refreshPendingFriendRequests()
+    suspend fun refreshSentFriendRequests()
+    suspend fun refreshAllFriendData()
 }
