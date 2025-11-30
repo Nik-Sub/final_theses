@@ -10,6 +10,5 @@ local.properties
 xcuserdata
 .kotlin
 
-# Firebase/Google Cloud credentials
 server/config/IWBIAdminConfig.json
 server/config/firebase-web-config.json

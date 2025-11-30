@@ -29,8 +29,7 @@ class ShoppingNotesService(
             sharedWith = userIds,
             lastModified = Clock.System.now().toEpochMilliseconds()
         )
-
-        KotlinLogging.logger("NIK").info { "NIKOLAAA SERVICE" }
+        
         return shoppingNotesRepositoryPort.saveShoppingNote(newNote)
     }
 

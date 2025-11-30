@@ -64,10 +64,10 @@ class WebServer internal constructor(
             sessionEncryptSecret = config.authentication.sessionEncryptSecret
             sessionSignSecret = config.authentication.sessionSignSecret
 
-            // Allow any authenticated Firebase user (remove role checking for now)
+            // Allow any authenticated Firebase user and auto-create them in database
             sessionLoginTokenValidator = { token ->
                 this@WebServer.logger.info { "🔐 Server: Received Firebase token for user: ${token.uid}" }
-                true // Accept any valid Firebase token
+                true // Accept any valid Firebase token - user creation will happen in routes
             }
 
             shouldRespondWith401 = {

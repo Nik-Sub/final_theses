@@ -6,6 +6,7 @@ import com.iwbi.domain.user.User
 import com.iwbi.domain.user.FriendRequest
 import com.mobile.iwbi.application.InputPorts
 import com.mobile.iwbi.presentation.uistate.FriendsUiState
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -72,6 +73,7 @@ class FriendsViewModel(
     }
 
     fun sendFriendRequest(userId: String) {
+        KotlinLogging.logger("NIK").info { "sendFriendRequest to userId: $userId" }
         viewModelScope.launch {
             try {
                 val result = inputPorts.friendServicePort.sendFriendRequest(userId)

@@ -60,4 +60,8 @@ class FriendService(
     override suspend fun getUserByEmail(email: String): User? {
         return friendRepository.getUserByEmail(email)
     }
+
+    override suspend fun createUser(user: User): User {
+        return friendRepository.createUser(user)
+    }
 }

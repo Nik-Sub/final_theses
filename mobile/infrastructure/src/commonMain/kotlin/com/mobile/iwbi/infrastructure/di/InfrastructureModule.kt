@@ -5,11 +5,13 @@ import com.mobile.iwbi.application.authentication.output.AuthenticationProviderP
 import com.mobile.iwbi.application.friends.output.FriendRepositoryPort
 import com.mobile.iwbi.application.helloworld.output.HelloWorldRepositoryPort
 import com.mobile.iwbi.application.shoppingnotes.output.ShoppingNotesRepositoryPort
+import com.mobile.iwbi.application.user.output.UserRepositoryPort
 import com.mobile.iwbi.infrastructure.InfrastructureConfig
 import com.mobile.iwbi.infrastructure.authentication.AuthenticationProvider
 import com.mobile.iwbi.infrastructure.friends.FriendRepository
 import com.mobile.iwbi.infrastructure.helloworld.HelloWorldRepository
 import com.mobile.iwbi.infrastructure.shoppingnotes.ShoppingNotesRepository
+import com.mobile.iwbi.infrastructure.user.UserApi
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.auth.Auth
@@ -47,6 +49,12 @@ val infrastructureModule = module {
 
     single<ShoppingNotesRepositoryPort> {
         ShoppingNotesRepository(
+            get(qualifier = TypeQualifier(BackendHttpClient::class)),
+        )
+    }
+
+    single<UserRepositoryPort> {
+        UserApi(
             get(qualifier = TypeQualifier(BackendHttpClient::class)),
         )
     }
@@ -93,7 +101,8 @@ internal class OutputPortsImpl(
     override val authenticationProviderPort: AuthenticationProviderPort,
     override val friendRepositoryPort: FriendRepositoryPort,
     override val helloWorldRepositoryPort: HelloWorldRepositoryPort,
-    override val shoppingNotesRepositoryPort: ShoppingNotesRepositoryPort
+    override val shoppingNotesRepositoryPort: ShoppingNotesRepositoryPort,
+    override val userRepositoryPort: UserRepositoryPort
 ) : OutputPorts
 
 object BackendHttpClient

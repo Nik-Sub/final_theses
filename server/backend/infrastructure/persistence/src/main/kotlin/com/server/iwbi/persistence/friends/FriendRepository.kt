@@ -4,186 +4,182 @@ import com.benasher44.uuid.uuid4
 import com.iwbi.domain.user.User
 import com.iwbi.domain.user.FriendRequest
 import com.iwbi.domain.user.Friendship
-import com.iwbi.domain.user.FriendRequestStatus
 import com.server.iwbi.application.friends.output.FriendRepositoryPort
+import com.server.iwbi.persistence.database.DatabaseProvider
+import com.server.iwbi.persistence.friends.daos.*
+import com.server.iwbi.persistence.friends.tables.*
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.datetime.Clock
+import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.transactions.transaction
 
-class FriendRepository : FriendRepositoryPort {
+class FriendRepository(
+    databaseProvider: DatabaseProvider
+) : FriendRepositoryPort {
 
-    private val users = createMockUsers().toMutableList()
-    private val friendRequests = mutableListOf<FriendRequest>()
-    private val friendships = createMockFriendships().toMutableList()
+    private val database by databaseProvider
 
     override suspend fun searchUsers(query: String, excludeUserId: String): List<User> {
-        val us = users.filter { user ->
-            user.id != excludeUserId &&
-            (user.displayName.contains(query, ignoreCase = true) ||
-             user.email.contains(query, ignoreCase = true))
+        return transaction(database) {
+            val users = UserDAO.find {
+                (UsersTable.userId neq excludeUserId) and
+                ((UsersTable.displayName like "%$query%") or (UsersTable.email like "%$query%"))
+            }.map { it.toDomain() }
+
+            KotlinLogging.logger("NIKOLA").info { "searchUsers with query='$query' found ${users.size} users" }
+            users
         }
-
-        KotlinLogging.logger("NIKOLA").info { "searchUsers with query='$query' found ${us.size} users" }
-
-        return us
     }
 
     override suspend fun getFriends(userId: String): List<User> {
-        val friendIds = friendships
-            .filter { it.user1Id == userId || it.user2Id == userId }
-            .map { if (it.user1Id == userId) it.user2Id else it.user1Id }
+        return transaction(database) {
+            val friendIds = FriendshipDAO.find {
+                (FriendshipsTable.user1Id eq userId) or (FriendshipsTable.user2Id eq userId)
+            }.map { friendship ->
+                if (friendship.user1Id == userId) friendship.user2Id else friendship.user1Id
+            }
 
-        return users.filter { it.id in friendIds }
+            UserDAO.find { UsersTable.userId inList friendIds }.map { it.toDomain() }
+        }
     }
 
     override suspend fun getPendingRequests(userId: String): List<FriendRequest> {
-        return friendRequests.filter {
-            it.toUserId == userId && it.status == FriendRequestStatus.PENDING
+        return transaction(database) {
+            FriendRequestDAO.find {
+                (FriendRequestsTable.toUserId eq userId) and (FriendRequestsTable.status eq "PENDING")
+            }.map { it.toDomain() }
         }
     }
 
     override suspend fun getSentRequests(userId: String): List<FriendRequest> {
-        return friendRequests.filter {
-            it.fromUserId == userId && it.status == FriendRequestStatus.PENDING
+        return transaction(database) {
+            FriendRequestDAO.find {
+                (FriendRequestsTable.fromUserId eq userId) and (FriendRequestsTable.status eq "PENDING")
+            }.map { it.toDomain() }
         }
     }
 
     override suspend fun createFriendRequest(fromUserId: String, toUserId: String): FriendRequest {
-        val request = FriendRequest(
-            id = uuid4().toString(),
-            fromUserId = fromUserId,
-            toUserId = toUserId,
-            status = FriendRequestStatus.PENDING,
-            createdAt = Clock.System.now().toEpochMilliseconds()
-        )
-        friendRequests.add(request)
-        return request
+        return transaction(database) {
+            val requestId = uuid4().toString()
+            val currentTime = Clock.System.now().toEpochMilliseconds()
+
+            val requestDAO = FriendRequestDAO.new {
+                this.requestId = requestId
+                this.fromUserId = fromUserId
+                this.toUserId = toUserId
+                this.status = "PENDING"
+                this.createdAt = currentTime
+                this.respondedAt = null
+            }
+
+            requestDAO.toDomain()
+        }
     }
 
     override suspend fun acceptFriendRequest(requestId: String, userId: String): Friendship {
-        val request = friendRequests.find {
-            it.id == requestId && it.toUserId == userId && it.status == FriendRequestStatus.PENDING
-        } ?: throw IllegalArgumentException("Friend request not found or not authorized")
+        return transaction(database) {
+            val request = FriendRequestDAO.find {
+                (FriendRequestsTable.requestId eq requestId) and
+                (FriendRequestsTable.toUserId eq userId) and
+                (FriendRequestsTable.status eq "PENDING")
+            }.firstOrNull() ?: throw IllegalArgumentException("Friend request not found or not authorized")
 
-        // Update request status
-        val updatedRequest = request.copy(
-            status = FriendRequestStatus.ACCEPTED,
-            respondedAt = Clock.System.now().toEpochMilliseconds()
-        )
-        friendRequests.removeAll { it.id == requestId }
-        friendRequests.add(updatedRequest)
+            val currentTime = Clock.System.now().toEpochMilliseconds()
 
-        // Create friendship
-        val friendship = Friendship(
-            id = uuid4().toString(),
-            user1Id = request.fromUserId,
-            user2Id = request.toUserId,
-            createdAt = Clock.System.now().toEpochMilliseconds()
-        )
-        friendships.add(friendship)
-        return friendship
+            // Update request status
+            request.status = "ACCEPTED"
+            request.respondedAt = currentTime
+
+            // Create friendship
+            val friendshipId = uuid4().toString()
+            val friendshipDAO = FriendshipDAO.new {
+                this.friendshipId = friendshipId
+                this.user1Id = request.fromUserId
+                this.user2Id = request.toUserId
+                this.createdAt = currentTime
+            }
+
+            friendshipDAO.toDomain()
+        }
     }
 
     override suspend fun declineFriendRequest(requestId: String, userId: String) {
-        val request = friendRequests.find {
-            it.id == requestId && it.toUserId == userId && it.status == FriendRequestStatus.PENDING
-        } ?: throw IllegalArgumentException("Friend request not found or not authorized")
+        transaction(database) {
+            val request = FriendRequestDAO.find {
+                (FriendRequestsTable.requestId eq requestId) and
+                (FriendRequestsTable.toUserId eq userId) and
+                (FriendRequestsTable.status eq "PENDING")
+            }.firstOrNull() ?: throw IllegalArgumentException("Friend request not found or not authorized")
 
-        val updatedRequest = request.copy(
-            status = FriendRequestStatus.DECLINED,
-            respondedAt = Clock.System.now().toEpochMilliseconds()
-        )
-        friendRequests.removeAll { it.id == requestId }
-        friendRequests.add(updatedRequest)
+            request.status = "DECLINED"
+            request.respondedAt = Clock.System.now().toEpochMilliseconds()
+        }
     }
 
     override suspend fun removeFriend(userId: String, friendId: String) {
-        friendships.removeAll {
-            (it.user1Id == userId && it.user2Id == friendId) ||
-            (it.user1Id == friendId && it.user2Id == userId)
+        transaction(database) {
+            FriendshipDAO.find {
+                ((FriendshipsTable.user1Id eq userId) and (FriendshipsTable.user2Id eq friendId)) or
+                ((FriendshipsTable.user1Id eq friendId) and (FriendshipsTable.user2Id eq userId))
+            }.forEach { it.delete() }
         }
     }
 
     override suspend fun getUserById(userId: String): User? {
-        return users.find { it.id == userId }
+        return transaction(database) {
+            UserDAO.find { UsersTable.userId eq userId }.firstOrNull()?.toDomain()
+        }
     }
 
     override suspend fun getUserByEmail(email: String): User? {
-        return users.find { it.email == email }
+        return transaction(database) {
+            UserDAO.find { UsersTable.email eq email }.firstOrNull()?.toDomain()
+        }
     }
 
     override suspend fun createUser(user: User): User {
-        users.add(user)
-        return user
+        return transaction(database) {
+            val userDAO = UserDAO.new {
+                this.userId = user.id
+                this.email = user.email
+                this.displayName = user.displayName
+                this.profilePictureUrl = user.profilePictureUrl
+                this.createdAt = user.createdAt
+            }
+            userDAO.toDomain()
+        }
     }
 
     override suspend fun updateUser(user: User): User {
-        val index = users.indexOfFirst { it.id == user.id }
-        if (index != -1) {
-            users[index] = user
+        return transaction(database) {
+            val userDAO = UserDAO.find { UsersTable.userId eq user.id }.firstOrNull()
+                ?: throw IllegalArgumentException("User not found: ${user.id}")
+
+            userDAO.email = user.email
+            userDAO.displayName = user.displayName
+            userDAO.profilePictureUrl = user.profilePictureUrl
+
+            userDAO.toDomain()
         }
-        return user
     }
 
     override suspend fun areFriends(userId1: String, userId2: String): Boolean {
-        return friendships.any {
-            (it.user1Id == userId1 && it.user2Id == userId2) ||
-            (it.user1Id == userId2 && it.user2Id == userId1)
+        return transaction(database) {
+            FriendshipDAO.find {
+                ((FriendshipsTable.user1Id eq userId1) and (FriendshipsTable.user2Id eq userId2)) or
+                ((FriendshipsTable.user1Id eq userId2) and (FriendshipsTable.user2Id eq userId1))
+            }.any()
         }
     }
 
     override suspend fun hasPendingRequest(fromUserId: String, toUserId: String): Boolean {
-        return friendRequests.any {
-            it.fromUserId == fromUserId && it.toUserId == toUserId && it.status == FriendRequestStatus.PENDING
+        return transaction(database) {
+            FriendRequestDAO.find {
+                (FriendRequestsTable.fromUserId eq fromUserId) and
+                (FriendRequestsTable.toUserId eq toUserId) and
+                (FriendRequestsTable.status eq "PENDING")
+            }.any()
         }
-    }
-
-    private fun createMockUsers(): List<User> {
-        return listOf(
-            User(
-                id = "user1",
-                email = "john@example.com",
-                displayName = "John Doe",
-                profilePictureUrl = null
-            ),
-            User(
-                id = "user2",
-                email = "jane@example.com",
-                displayName = "Jane Smith",
-                profilePictureUrl = null
-            ),
-            User(
-                id = "user3",
-                email = "bob@example.com",
-                displayName = "Bob Johnson",
-                profilePictureUrl = null
-            ),
-            User(
-                id = "user4",
-                email = "alice@example.com",
-                displayName = "Alice Brown",
-                profilePictureUrl = null
-            ),
-            User(
-                id = "user5",
-                email = "charlie@example.com",
-                displayName = "Charlie Wilson",
-                profilePictureUrl = null
-            )
-        )
-    }
-
-    private fun createMockFriendships(): List<Friendship> {
-        return listOf(
-            Friendship(
-                id = "friendship1",
-                user1Id = "user1",
-                user2Id = "user2"
-            ),
-            Friendship(
-                id = "friendship2",
-                user1Id = "user1",
-                user2Id = "user3"
-            )
-        )
     }
 }

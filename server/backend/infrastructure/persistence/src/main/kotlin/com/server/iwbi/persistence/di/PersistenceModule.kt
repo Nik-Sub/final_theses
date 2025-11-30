@@ -23,5 +23,5 @@ val persistenceModule = module {
 
     single<ShoppingNotesRepositoryPort> { ShoppingNotesRepository(get()) }
 
-    single<FriendRepositoryPort> { FriendRepository() }
+    single<FriendRepositoryPort> { FriendRepository(get()) }
 }

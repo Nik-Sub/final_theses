@@ -48,7 +48,7 @@ fun Route.shoppingNotesRoutes() {
             val principal = requireNotNull(call.principal<FirebasePrincipal>())
             val userId = principal.token.uid
             val request = call.receive<CreateShoppingNoteRequest>()
-            KotlinLogging.logger("NIK").info { "NIKOLAAA ENDPOINT" }
+
             val note = shoppingNotesService.createShoppingNote(
                 title = request.title,
                 createdBy = userId, // Use authenticated user ID for security

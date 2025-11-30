@@ -2,11 +2,11 @@ package com.mobile.iwbi.application.di
 
 import com.iwbi.util.koin.ktx.singleUsing
 import com.mobile.iwbi.application.OutputPorts
-
 import com.mobile.iwbi.application.authentication.output.AuthenticationProviderPort
 import com.mobile.iwbi.application.friends.output.FriendRepositoryPort
 import com.mobile.iwbi.application.helloworld.output.HelloWorldRepositoryPort
 import com.mobile.iwbi.application.shoppingnotes.output.ShoppingNotesRepositoryPort
+import com.mobile.iwbi.application.user.output.UserRepositoryPort
 import org.koin.dsl.module
 
 val outputPortsModule = module {
@@ -14,4 +14,5 @@ val outputPortsModule = module {
     singleUsing<FriendRepositoryPort, OutputPorts> { it.friendRepositoryPort }
     singleUsing<HelloWorldRepositoryPort, OutputPorts> { it.helloWorldRepositoryPort }
     singleUsing<ShoppingNotesRepositoryPort, OutputPorts> { it.shoppingNotesRepositoryPort }
+    singleUsing<UserRepositoryPort, OutputPorts> { it.userRepositoryPort }
 }

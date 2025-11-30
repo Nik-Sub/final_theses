@@ -1,5 +1,6 @@
 plugins {
     id("mobile-config") version "1.0.0"
+    alias(libs.plugins.kotlinx.serialization)
 }
 
 android {

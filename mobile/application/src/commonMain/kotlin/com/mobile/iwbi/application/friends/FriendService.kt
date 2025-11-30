@@ -70,4 +70,8 @@ class FriendService(
     override suspend fun getPendingRequests(): List<FriendRequest> {
         return friendRepository.getPendingRequests()
     }
+
+    override suspend fun getSentRequests(): List<FriendRequest> {
+        return friendRepository.getSentRequests()
+    }
 }

@@ -17,4 +17,5 @@ interface FriendServicePort {
 
     suspend fun getUserById(userId: String): User?
     suspend fun getUserByEmail(email: String): User?
+    suspend fun createUser(user: User): User
 }

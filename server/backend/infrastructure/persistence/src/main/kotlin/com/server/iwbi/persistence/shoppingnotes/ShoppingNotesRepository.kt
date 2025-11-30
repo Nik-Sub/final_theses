@@ -75,7 +75,6 @@ class ShoppingNotesRepository(
 
     override suspend fun saveShoppingNote(note: ShoppingNote): ShoppingNote {
         return transaction(database) {
-            KotlinLogging.logger("NIK").info { "NIKOLAAA 1 $note" }
             val noteDAO = if (note.id.isNotEmpty()) {
                 val id = try {
                     note.id.toLong()
@@ -106,12 +105,10 @@ class ShoppingNotesRepository(
                 }
             }
 
-            KotlinLogging.logger("NIK").info { "NIKOLAAA 1,5" }
-
             // Delete existing items and shared entries
             ShoppingItemDAO.find { ShoppingItemsTable.noteId eq noteDAO.id }.forEach { it.delete() }
             SharedNoteDAO.find { SharedNotesTable.noteId eq noteDAO.id }.forEach { it.delete() }
-            KotlinLogging.logger("NIK").info { "NIKOLAAA 1,6" }
+
             // Create shopping items
             val itemDAOs = note.items.map { item ->
                 ShoppingItemDAO.new {
@@ -120,7 +117,6 @@ class ShoppingNotesRepository(
                     isChecked = item.isChecked
                 }
             }
-            KotlinLogging.logger("NIK").info { "NIKOLAAA 2" }
 
             // Create shared entries
             note.sharedWith.forEach { userId ->
@@ -129,8 +125,6 @@ class ShoppingNotesRepository(
                     this.userId = userId
                 }
             }
-
-            KotlinLogging.logger("NIK").info { "NIKOLAAA 3" }
 
             val items = itemDAOs.map { it.toDomain() }
             noteDAO.toDomain(items, note.sharedWith)

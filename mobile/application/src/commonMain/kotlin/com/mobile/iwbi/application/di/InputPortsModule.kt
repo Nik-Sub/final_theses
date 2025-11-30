@@ -5,6 +5,7 @@ import com.mobile.iwbi.application.authentication.input.AuthenticationServicePor
 import com.mobile.iwbi.application.friends.input.FriendServicePort
 import com.mobile.iwbi.application.helloworld.input.HelloWorldServicePort
 import com.mobile.iwbi.application.shoppingnotes.input.ShoppingNotesServicePort
+import com.mobile.iwbi.application.user.input.UserRegistrationServicePort
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -17,6 +18,6 @@ internal class InputPortsImpl(
     override val authenticationServicePort: AuthenticationServicePort,
     override val friendServicePort: FriendServicePort,
     override val helloWorldServicePort: HelloWorldServicePort,
-    override val shoppingNotesServicePort: ShoppingNotesServicePort
-
+    override val shoppingNotesServicePort: ShoppingNotesServicePort,
+    override val userRegistrationServicePort: UserRegistrationServicePort
 ) : InputPorts

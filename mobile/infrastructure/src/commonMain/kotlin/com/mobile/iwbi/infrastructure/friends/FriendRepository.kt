@@ -90,6 +90,10 @@ class FriendRepository(
         return httpClient.get("friends/requests/pending").body<List<FriendRequest>>()
     }
 
+    override suspend fun getSentRequests(): List<FriendRequest> {
+        return httpClient.get("friends/requests/sent").body<List<FriendRequest>>()
+    }
+
     private fun refreshAll() {
         scope.launch {
             try {
