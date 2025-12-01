@@ -26,8 +26,15 @@ internal class AuthenticationProvider(
 
     private val currentUserFlow: MutableStateFlow<User?> = MutableStateFlow(Firebase.auth.currentUser?.toUser())
 
-    override suspend fun getIdToken(): String? {
-        return Firebase.auth.currentUser?.getIdToken(false)
+    private var currentIdToken: String? = null
+
+    override suspend fun getIdToken(forceRefresh: Boolean): String? {
+        return Firebase.auth.currentUser?.getIdToken(forceRefresh).also {
+            if (currentIdToken != it) {
+                reload()
+            }
+            currentIdToken = it
+        }
     }
 
     override fun observeCurrentUser(): StateFlow<User?> = currentUserFlow.asStateFlow()
@@ -82,6 +89,8 @@ internal class AuthenticationProvider(
 
         Firebase.auth.signOut()
         currentUserFlow.value = null
+
+        currentIdToken = null
     }
 
     private suspend fun runWithErrorHandling(block: suspend () -> FirebaseAuthResult): AuthenticationResult = runCatching {

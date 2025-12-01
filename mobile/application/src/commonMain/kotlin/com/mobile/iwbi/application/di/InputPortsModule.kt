@@ -11,7 +11,16 @@ import org.koin.dsl.bind
 import org.koin.dsl.module
 
 val inputPortsModule = module {
-    singleOf(::InputPortsImpl) bind InputPorts::class
+    factory<InputPorts> {
+        println("🎯 Creating fresh InputPorts")
+        InputPortsImpl(
+            authenticationServicePort = get(),
+            friendServicePort = get(),
+            helloWorldServicePort = get(),
+            shoppingNotesServicePort = get(),
+            userRegistrationServicePort = get()
+        )
+    }
 }
 
 internal class InputPortsImpl(

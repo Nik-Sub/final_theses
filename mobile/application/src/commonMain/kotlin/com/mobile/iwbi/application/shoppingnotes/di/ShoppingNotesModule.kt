@@ -8,5 +8,8 @@ import org.koin.dsl.bind
 import org.koin.dsl.module
 
 val shoppingNotesModule = module {
-    singleOf(::ShoppingNotesService) bind ShoppingNotesServicePort::class
+    factory<ShoppingNotesServicePort> {
+        println("🔧 Creating fresh ShoppingNotesService")
+        ShoppingNotesService(get(), get())
+    }
 }

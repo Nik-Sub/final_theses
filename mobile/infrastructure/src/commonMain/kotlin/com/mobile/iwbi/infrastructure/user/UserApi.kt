@@ -9,7 +9,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 
 internal class UserApi(
-    private val httpClient: HttpClient
+    private val httpClientProvider: () -> HttpClient
 ) : UserRepositoryPort {
 
     private val logger = KotlinLogging.logger {}
@@ -17,7 +17,7 @@ internal class UserApi(
     override suspend fun registerUser(user: User) {
         logger.info { "Calling user registration API for user: ${user.uid}" }
 
-        httpClient.post("users/register") {
+        httpClientProvider().post("users/register") {
             contentType(ContentType.Application.Json)
             // No body needed - user data comes from Firebase token
         }

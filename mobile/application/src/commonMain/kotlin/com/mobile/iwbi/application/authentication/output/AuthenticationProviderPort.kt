@@ -5,7 +5,7 @@ import com.mobile.iwbi.domain.auth.User
 import kotlinx.coroutines.flow.StateFlow
 
 interface AuthenticationProviderPort {
-    suspend fun getIdToken(): String?
+    suspend fun getIdToken(forceRefresh: Boolean = false): String?
 
     fun observeCurrentUser(): StateFlow<User?>
 

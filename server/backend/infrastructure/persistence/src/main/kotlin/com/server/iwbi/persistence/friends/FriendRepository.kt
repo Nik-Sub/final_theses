@@ -64,6 +64,8 @@ class FriendRepository(
             val requestId = uuid4().toString()
             val currentTime = Clock.System.now().toEpochMilliseconds()
 
+            KotlinLogging.logger("DB_FRIEND_REQUEST").info { "Creating friend request: from=$fromUserId to=$toUserId requestId=$requestId" }
+
             val requestDAO = FriendRequestDAO.new {
                 this.requestId = requestId
                 this.fromUserId = fromUserId
@@ -73,7 +75,9 @@ class FriendRepository(
                 this.respondedAt = null
             }
 
-            requestDAO.toDomain()
+            val result = requestDAO.toDomain()
+            KotlinLogging.logger("DB_FRIEND_REQUEST").info { "Friend request created successfully in DB: $result" }
+            result
         }
     }
 

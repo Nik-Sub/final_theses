@@ -194,22 +194,4 @@ class FriendsViewModel(
             }
         }
     }
-
-    fun debugFetchSentRequests() {
-        viewModelScope.launch {
-            try {
-                println("DEBUG: Manual test - Fetching sent requests directly...")
-                val sentRequests = inputPorts.friendServicePort.getSentRequests()
-                println("DEBUG: Manual test - Got ${sentRequests.size} sent requests: $sentRequests")
-
-                _uiState.value = _uiState.value.copy(
-                    sentRequests = sentRequests
-                )
-                println("DEBUG: Manual test - Updated UI state with sent requests")
-            } catch (e: Exception) {
-                println("ERROR: Manual test failed: ${e.message}")
-                e.printStackTrace()
-            }
-        }
-    }
 }

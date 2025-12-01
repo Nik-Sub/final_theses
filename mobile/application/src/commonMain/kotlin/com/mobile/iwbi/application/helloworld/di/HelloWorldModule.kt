@@ -8,5 +8,8 @@ import org.koin.dsl.bind
 import org.koin.dsl.module
 
 val helloWorldModule = module {
-    singleOf(::HelloWorldService) bind HelloWorldServicePort::class
+    factory<HelloWorldServicePort> {
+        println("🔧 Creating fresh HelloWorldService")
+        HelloWorldService(get())
+    }
 }

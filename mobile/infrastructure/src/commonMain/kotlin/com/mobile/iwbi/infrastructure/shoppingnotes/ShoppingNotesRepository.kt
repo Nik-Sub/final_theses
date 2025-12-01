@@ -21,18 +21,35 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.launch
+import com.mobile.iwbi.application.authentication.output.AuthenticationProviderPort
 import kotlinx.serialization.Serializable
 
 class ShoppingNotesRepository(
-    private val httpClient: HttpClient,
+    private val httpClientProvider: () -> HttpClient,
+    private val authProvider: AuthenticationProviderPort,
 ) : ShoppingNotesRepositoryPort {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val _shoppingNotes = MutableStateFlow<List<ShoppingNote>>(emptyList())
 
+    private var currentUserId: String? = null
+
     init {
-        // Load initial data when repository is created
-        refresh() // No longer need to pass userId as it's handled server-side
+        // Observe user changes and clear state when user changes
+        scope.launch {
+            authProvider.observeCurrentUser().collect { user ->
+                if (currentUserId != user?.uid) {
+                    println("DEBUG: ShoppingNotesRepository - User changed from $currentUserId to ${user?.uid} - clearing state")
+                    _shoppingNotes.value = emptyList()
+                    currentUserId = user?.uid
+
+                    // Only refresh data if we have a user
+                    if (user != null) {
+                        refresh()
+                    }
+                }
+            }
+        }
     }
 
     override fun observeShoppingNotes(): StateFlow<List<ShoppingNote>> {
@@ -48,7 +65,7 @@ class ShoppingNotesRepository(
     fun refresh() {
         scope.launch {
             try {
-                val notes = httpClient.get("shopping-notes").body<List<ShoppingNote>>()
+                val notes = httpClientProvider().get("shopping-notes").body<List<ShoppingNote>>()
                 _shoppingNotes.value = notes
             } catch (e: Exception) {
                 // Keep existing state on error
@@ -78,7 +95,7 @@ class ShoppingNotesRepository(
             )
 
             println("Saving shopping note with request: $request")
-            val savedNote = httpClient.post("shopping-notes") {
+            val savedNote = httpClientProvider().post("shopping-notes") {
                 contentType(ContentType.Application.Json)
                 setBody(request)
             }.body<ShoppingNote>()
@@ -101,7 +118,7 @@ class ShoppingNotesRepository(
 
     override suspend fun updateShoppingNote(note: ShoppingNote) {
         try {
-            httpClient.put("shopping-notes/${note.id}") {
+            httpClientProvider().put("shopping-notes/${note.id}") {
                 contentType(ContentType.Application.Json)
                 setBody(note)
             }
@@ -127,7 +144,7 @@ class ShoppingNotesRepository(
 
     override suspend fun deleteShoppingNote(noteId: String) {
         try {
-            httpClient.delete("shopping-notes/$noteId")
+            httpClientProvider().delete("shopping-notes/$noteId")
 
             // Update local state immediately
             val currentNotes = _shoppingNotes.value.toMutableList()
@@ -144,7 +161,7 @@ class ShoppingNotesRepository(
 
     override suspend fun getShoppingNote(noteId: String): ShoppingNote? {
         return try {
-            httpClient.get("shopping-notes/$noteId").body<ShoppingNote?>()
+            httpClientProvider().get("shopping-notes/$noteId").body<ShoppingNote?>()
         } catch (e: Exception) {
             println("Error getting shopping note: ${e.message}")
             // Fallback to local cache

@@ -20,10 +20,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import com.mobile.iwbi.application.authentication.output.AuthenticationProviderPort
 import kotlinx.serialization.Serializable
 
 class FriendRepository(
-    private val httpClient: HttpClient,
+    private val httpClientProvider: () -> HttpClient,
+    private val authProvider: AuthenticationProviderPort,
 ) : FriendRepositoryPort {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
@@ -31,12 +33,26 @@ class FriendRepository(
     private val _pendingRequests = MutableStateFlow<List<FriendRequest>>(emptyList())
     private val _sentRequests = MutableStateFlow<List<FriendRequest>>(emptyList())
 
+    private var currentUserId: String? = null
+
     init {
         println("DEBUG: FriendRepository - Initializing...")
+
+        // Observe user changes and clear state when user changes
         scope.launch {
-            println("DEBUG: FriendRepository - Starting initial data refresh...")
-            refreshAllData()
-            println("DEBUG: FriendRepository - Initial data refresh completed")
+            authProvider.observeCurrentUser().collect { user ->
+                if (currentUserId != user?.uid) {
+                    println("DEBUG: User changed from $currentUserId to ${user?.uid} - clearing state")
+                    clearState()
+                    currentUserId = user?.uid
+
+                    // Only refresh data if we have a user
+                    if (user != null) {
+                        println("DEBUG: Starting refresh for new user: ${user.uid}")
+                        refreshAllData()
+                    }
+                }
+            }
         }
     }
 
@@ -47,7 +63,7 @@ class FriendRepository(
     override fun observeSentRequests(): StateFlow<List<FriendRequest>> = _sentRequests.asStateFlow()
 
     override suspend fun searchUsers(query: String): List<User> {
-        return httpClient.get("friends/search") {
+        return httpClientProvider().get("friends/search") {
             parameter("q", query)
         }.body<List<User>>()
     }
@@ -55,7 +71,7 @@ class FriendRepository(
     override suspend fun sendFriendRequest(toUserId: String): FriendRequest {
         println("DEBUG: Sending friend request to user: $toUserId")
         val request = SendFriendRequestRequest(toUserId)
-        val friendRequest = httpClient.post("friends/requests") {
+        val friendRequest = httpClientProvider().post("friends/requests") {
             contentType(ContentType.Application.Json)
             setBody(request)
         }.body<FriendRequest>()
@@ -67,7 +83,7 @@ class FriendRepository(
     }
 
     override suspend fun acceptFriendRequest(requestId: String): Friendship {
-        val friendship = httpClient.post("friends/requests/$requestId/accept").body<Friendship>()
+        val friendship = httpClientProvider().post("friends/requests/$requestId/accept").body<Friendship>()
 
         // Refresh all relevant data since accepting creates friendship and removes from pending
         refreshFriends()
@@ -77,7 +93,7 @@ class FriendRepository(
     }
 
     override suspend fun declineFriendRequest(requestId: String) {
-        httpClient.post("friends/requests/$requestId/decline")
+        httpClientProvider().post("friends/requests/$requestId/decline")
 
         // Refresh both pending and sent requests
         refreshPendingRequests()
@@ -85,24 +101,24 @@ class FriendRepository(
     }
 
     override suspend fun removeFriend(friendId: String) {
-        httpClient.delete("friends/$friendId")
+        httpClientProvider().delete("friends/$friendId")
 
         // Refresh friends list
         refreshFriends()
     }
 
     override suspend fun getFriends(): List<User> {
-        return httpClient.get("friends").body<List<User>>()
+        return httpClientProvider().get("friends").body<List<User>>()
     }
 
     override suspend fun getPendingRequests(): List<FriendRequest> {
-        return httpClient.get("friends/requests/pending").body<List<FriendRequest>>()
+        return httpClientProvider().get("friends/requests/pending").body<List<FriendRequest>>()
     }
 
     override suspend fun getSentRequests(): List<FriendRequest> {
         println("DEBUG: getSentRequests() called - Making HTTP request to friends/requests/sent")
         try {
-            val result = httpClient.get("friends/requests/sent").body<List<FriendRequest>>()
+            val result = httpClientProvider().get("friends/requests/sent").body<List<FriendRequest>>()
             println("DEBUG: getSentRequests() - HTTP request successful, received ${result.size} requests: $result")
             return result
         } catch (e: Exception) {
@@ -153,6 +169,13 @@ class FriendRepository(
             println("Error refreshing sent requests: ${e.message}")
             e.printStackTrace()
         }
+    }
+
+    private fun clearState() {
+        println("DEBUG: FriendRepository - Clearing all state")
+        _friends.value = emptyList()
+        _pendingRequests.value = emptyList()
+        _sentRequests.value = emptyList()
     }
 }
 

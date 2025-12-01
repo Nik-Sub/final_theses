@@ -109,10 +109,6 @@ fun FriendRequestsPanel(
                             contentDescription = "Refresh"
                         )
                     }
-                    // Debug button
-                    IconButton(onClick = { viewModel.debugFetchSentRequests() }) {
-                        Text("DEBUG", style = MaterialTheme.typography.bodySmall)
-                    }
                 }
             )
         },

@@ -7,5 +7,8 @@ import org.koin.dsl.bind
 import org.koin.dsl.module
 
 val userModule = module {
-    singleOf(::UserRegistrationService) bind UserRegistrationServicePort::class
+    factory<UserRegistrationServicePort> {
+        println("🔧 Creating fresh UserRegistrationService")
+        UserRegistrationService(get())
+    }
 }

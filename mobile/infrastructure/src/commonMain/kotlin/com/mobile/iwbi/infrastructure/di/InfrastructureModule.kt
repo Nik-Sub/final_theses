@@ -31,38 +31,55 @@ import org.koin.dsl.module
 import kotlin.time.Duration.Companion.seconds
 
 val infrastructureModule = module {
-    singleOf(::OutputPortsImpl) bind OutputPorts::class
+    factory<OutputPorts> {
+        println("🏭 Creating fresh OutputPorts")
+        OutputPortsImpl(
+            authenticationProviderPort = get(),
+            friendRepositoryPort = get(),
+            helloWorldRepositoryPort = get(),
+            shoppingNotesRepositoryPort = get(),
+            userRepositoryPort = get()
+        )
+    }
 
     singleOf(::AuthenticationProvider) bind AuthenticationProviderPort::class
 
-    single<HelloWorldRepositoryPort> {
+    factory<HelloWorldRepositoryPort> {
+        println("🏭 Creating fresh HelloWorldRepository")
         HelloWorldRepository(
-            get(qualifier = TypeQualifier(BackendHttpClient::class)),
+            httpClientProvider = { get(qualifier = TypeQualifier(BackendHttpClient::class)) }
         )
     }
 
-    single<FriendRepositoryPort> {
+    factory<FriendRepositoryPort> {
+        println("🏭 Creating fresh FriendRepository")
         FriendRepository(
-            get(qualifier = TypeQualifier(BackendHttpClient::class)),
+            httpClientProvider = { get(qualifier = TypeQualifier(BackendHttpClient::class)) },
+            authProvider = get()
         )
     }
 
-    single<ShoppingNotesRepositoryPort> {
+    factory<ShoppingNotesRepositoryPort> {
+        println("🏭 Creating fresh ShoppingNotesRepository")
         ShoppingNotesRepository(
-            get(qualifier = TypeQualifier(BackendHttpClient::class)),
+            httpClientProvider = { get(qualifier = TypeQualifier(BackendHttpClient::class)) },
+            authProvider = get()
         )
     }
 
-    single<UserRepositoryPort> {
+    factory<UserRepositoryPort> {
+        println("🏭 Creating fresh UserApi")
         UserApi(
-            get(qualifier = TypeQualifier(BackendHttpClient::class)),
+            httpClientProvider = { get(qualifier = TypeQualifier(BackendHttpClient::class)) }
         )
     }
 
-    single(TypeQualifier(BackendHttpClient::class)) {
+    // HttpClient as factory - gets fresh instance each time with current auth token
+    factory(TypeQualifier(BackendHttpClient::class)) {
         val config: InfrastructureConfig = get()
         val authProvider: AuthenticationProviderPort = get()
 
+        println("🔄 Mobile: Creating fresh HttpClient instance")
         HttpClient {
             install(ContentNegotiation) {
                 json()
@@ -78,7 +95,7 @@ val infrastructureModule = module {
                         token?.let { BearerTokens(it, "") }
                     }
                     refreshTokens {
-                        val token = authProvider.getIdToken()
+                        val token = authProvider.getIdToken(forceRefresh = true)
                         println("🔄 Mobile: Refreshing token: ${token?.take(20)}...")
                         token?.let { BearerTokens(it, "") }
                     }

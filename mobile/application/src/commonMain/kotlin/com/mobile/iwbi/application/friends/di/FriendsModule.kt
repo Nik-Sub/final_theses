@@ -7,5 +7,8 @@ import org.koin.dsl.bind
 import org.koin.dsl.module
 
 val friendsModule = module {
-    singleOf(::FriendService) bind FriendServicePort::class
+    factory<FriendServicePort> {
+        println("🔧 Creating fresh FriendService")
+        FriendService(get())
+    }
 }

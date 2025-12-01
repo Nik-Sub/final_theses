@@ -6,9 +6,9 @@ import io.ktor.client.call.body
 import io.ktor.client.request.get
 
 class HelloWorldRepository(
-    private val client: HttpClient
+    private val httpClientProvider: () -> HttpClient
 ): HelloWorldRepositoryPort {
     override suspend fun getHelloWorld(): String {
-        return client.get("hello-world").body()
+        return httpClientProvider().get("hello-world").body()
     }
 }
