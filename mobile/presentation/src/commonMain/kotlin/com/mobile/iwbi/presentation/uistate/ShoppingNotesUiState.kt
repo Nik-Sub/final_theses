@@ -19,5 +19,6 @@ data class ShoppingNotesUiState(
     val selectedFriends: Set<String> = emptySet(),
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
-    val editedNoteTitle: String = ""
+    val editedNoteTitle: String = "",
+    val currentUserId: String? = null
 )

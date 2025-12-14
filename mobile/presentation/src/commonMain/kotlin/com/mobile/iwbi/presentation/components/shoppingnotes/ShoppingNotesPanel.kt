@@ -96,6 +96,8 @@ fun ShoppingNotesPanel(
                         onSelectNote = viewModel::selectNote,
                         onToggleItem = viewModel::toggleItem,
                         onDeleteNote = viewModel::deleteNote,
+                        onShareNote = viewModel::startSharing,
+                        onCategoryChange = viewModel::selectCategory,
                         modifier = modifier
                     )
 

@@ -12,3 +12,4 @@ xcuserdata
 
 server/config/IWBIAdminConfig.json
 server/config/firebase-web-config.json
+server/logs

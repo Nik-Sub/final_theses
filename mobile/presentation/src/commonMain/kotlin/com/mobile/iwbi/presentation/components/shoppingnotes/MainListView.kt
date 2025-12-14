@@ -27,6 +27,8 @@ fun ImprovedMainListView(
     onSelectNote: (String) -> Unit,
     onToggleItem: (String, Int) -> Unit,
     onDeleteNote: (String) -> Unit,
+    onShareNote: (String) -> Unit = {},
+    onCategoryChange: (NoteCategory) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     // State to track which notes are expanded
@@ -61,7 +63,7 @@ fun ImprovedMainListView(
         // Category tabs
         NoteCategoriesHeader(
             selectedCategory = uiState.selectedCategory,
-            onCategoryChange = { /* Handle category change */ },
+            onCategoryChange = onCategoryChange,
             myNotesCount = uiState.myNotes.size,
             sharedNotesCount = uiState.sharedNotes.size
         )
@@ -90,7 +92,7 @@ fun ImprovedMainListView(
                 items(notesToShow) { note ->
                     ExpandableShoppingNoteCard(
                         note = note,
-                        isOwner = note.createdBy == getCurrentUserId(),
+                        isOwner = note.createdBy == uiState.currentUserId,
                         isExpanded = expandedNotes.contains(note.id),
                         onExpandToggle = {
                             expandedNotes = if (expandedNotes.contains(note.id)) {
@@ -102,7 +104,7 @@ fun ImprovedMainListView(
                         onNoteClick = { onSelectNote(it.id) },
                         onItemToggle = onToggleItem,
                         onDeleteNote = { onDeleteNote(it.id) },
-                        onShareNote = { /* Handle share */ }
+                        onShareNote = { onShareNote(it.id) }
                     )
                 }
 
@@ -315,8 +317,6 @@ fun EmptyNotesState(
     }
 }
 
-// Helper function to get current user ID - this would typically come from a user service
-fun getCurrentUserId(): String = "current_user_id"
 
 // Placeholder for UI state and enums that would be defined elsewhere
 enum class NoteCategory {

@@ -29,6 +29,7 @@ class ShoppingNotesViewModel(
     init {
         observeShoppingNotes()
         loadFriends()
+        observeCurrentUser()
     }
 
     private fun observeShoppingNotes() {
@@ -52,6 +53,14 @@ class ShoppingNotesViewModel(
         viewModelScope.launch {
             friendServicePort.observeFriends().collect { friends ->
                 _uiState.value = _uiState.value.copy(friends = friends)
+            }
+        }
+    }
+
+    private fun observeCurrentUser() {
+        viewModelScope.launch {
+            authenticationServicePort.observeCurrentUser().collect { user ->
+                _uiState.value = _uiState.value.copy(currentUserId = user?.uid)
             }
         }
     }
