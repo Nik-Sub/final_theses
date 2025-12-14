@@ -39,6 +39,7 @@ fun ImprovedNoteEditingView(
     onRemoveItem: (String, Int) -> Unit,
     onToggleItem: (String, Int) -> Unit,
     onDeleteNote: (String) -> Unit,
+    onSaveAsTemplate: (String) -> Unit = {},
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -119,6 +120,17 @@ fun ImprovedNoteEditingView(
                     )
                 }
 
+                // Save as template button
+                IconButton(
+                    onClick = { onSaveAsTemplate(note.id) }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Star,
+                        contentDescription = "Save as template",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+
                 // Delete note button with warning styling
                 IconButton(
                     onClick = { showDeleteNoteDialog = true }
@@ -134,7 +146,7 @@ fun ImprovedNoteEditingView(
 
         if (!isEditingTitle) {
             Text(
-                text = "Tap title to edit • Tap trash to delete entire note",
+                text = "Tap title to edit • Bookmark for template • Trash to delete",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(start = 48.dp, bottom = 8.dp)

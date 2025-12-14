@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.iwbi.domain.shopping.ShoppingItem
 import com.iwbi.domain.shopping.ShoppingNote
+import com.iwbi.domain.shopping.Template
 import com.iwbi.domain.user.User
 import com.mobile.iwbi.application.authentication.input.AuthenticationServicePort
 import com.mobile.iwbi.application.friends.input.FriendServicePort
@@ -30,6 +31,7 @@ class ShoppingNotesViewModel(
         observeShoppingNotes()
         loadFriends()
         observeCurrentUser()
+        loadPredefinedTemplates()
     }
 
     private fun observeShoppingNotes() {
@@ -181,7 +183,7 @@ class ShoppingNotesViewModel(
         }
     }
 
-    fun createNoteFromTemplate(template: List<ShoppingItem>, title: String) {
+    fun createNoteFromTemplate(template: Template) {
         viewModelScope.launch {
             try {
                 _uiState.value = _uiState.value.copy(isLoading = true)
@@ -189,14 +191,14 @@ class ShoppingNotesViewModel(
                 val currentUser = authenticationServicePort.observeCurrentUser().value
                 if (currentUser != null) {
                     val createdNote = shoppingNotesServicePort.createShoppingNote(
-                        title = title,
+                        title = template.name,
                         createdBy = currentUser.uid,
                         userIds = emptyList()
                     )
 
-                    // Add template items to the newly created note
-                    template.forEach { item ->
-                        shoppingNotesServicePort.addItem(createdNote.id, item)
+                    // Add template items to the newly created note (reset checked state)
+                    template.items.forEach { item ->
+                        shoppingNotesServicePort.addItem(createdNote.id, item.copy(isChecked = false))
                     }
 
                     _uiState.value = _uiState.value.copy(isLoading = false)
@@ -318,5 +320,120 @@ class ShoppingNotesViewModel(
 
     fun clearError() {
         _uiState.value = _uiState.value.copy(errorMessage = null)
+    }
+
+    // Template functionality
+    private fun loadPredefinedTemplates() {
+        val predefinedTemplates = listOf(
+            // Grocery Essentials
+            Template(
+                name = "Grocery Essentials",
+                items = listOf(
+                    ShoppingItem(name = "Bread"),
+                    ShoppingItem(name = "Milk"),
+                    ShoppingItem(name = "Eggs"),
+                    ShoppingItem(name = "Butter"),
+                    ShoppingItem(name = "Rice"),
+                    ShoppingItem(name = "Pasta"),
+                    ShoppingItem(name = "Chicken"),
+                    ShoppingItem(name = "Onions"),
+                    ShoppingItem(name = "Tomatoes"),
+                    ShoppingItem(name = "Cheese")
+                )
+            ),
+            // Weekly Shopping
+            Template(
+                name = "Weekly Shopping",
+                items = listOf(
+                    ShoppingItem(name = "Vegetables"),
+                    ShoppingItem(name = "Fruits"),
+                    ShoppingItem(name = "Meat"),
+                    ShoppingItem(name = "Fish"),
+                    ShoppingItem(name = "Yogurt"),
+                    ShoppingItem(name = "Cereal"),
+                    ShoppingItem(name = "Snacks"),
+                    ShoppingItem(name = "Cleaning supplies"),
+                    ShoppingItem(name = "Toilet paper"),
+                    ShoppingItem(name = "Shampoo")
+                )
+            ),
+            // Party Supplies
+            Template(
+                name = "Party Supplies",
+                items = listOf(
+                    ShoppingItem(name = "Chips"),
+                    ShoppingItem(name = "Drinks"),
+                    ShoppingItem(name = "Cake"),
+                    ShoppingItem(name = "Ice cream"),
+                    ShoppingItem(name = "Balloons"),
+                    ShoppingItem(name = "Plates"),
+                    ShoppingItem(name = "Cups"),
+                    ShoppingItem(name = "Napkins"),
+                    ShoppingItem(name = "Music playlist"),
+                    ShoppingItem(name = "Decorations")
+                )
+            ),
+            // Healthy Living
+            Template(
+                name = "Healthy Living",
+                items = listOf(
+                    ShoppingItem(name = "Spinach"),
+                    ShoppingItem(name = "Broccoli"),
+                    ShoppingItem(name = "Quinoa"),
+                    ShoppingItem(name = "Salmon"),
+                    ShoppingItem(name = "Avocado"),
+                    ShoppingItem(name = "Nuts"),
+                    ShoppingItem(name = "Greek yogurt"),
+                    ShoppingItem(name = "Berries"),
+                    ShoppingItem(name = "Olive oil"),
+                    ShoppingItem(name = "Green tea")
+                )
+            ),
+            // Office Supplies
+            Template(
+                name = "Office Supplies",
+                items = listOf(
+                    ShoppingItem(name = "Pens"),
+                    ShoppingItem(name = "Paper"),
+                    ShoppingItem(name = "Notebooks"),
+                    ShoppingItem(name = "Stapler"),
+                    ShoppingItem(name = "Paper clips"),
+                    ShoppingItem(name = "Highlighters"),
+                    ShoppingItem(name = "Post-it notes"),
+                    ShoppingItem(name = "Folders"),
+                    ShoppingItem(name = "Calculator"),
+                    ShoppingItem(name = "USB drive")
+                )
+            )
+        )
+
+        _uiState.value = _uiState.value.copy(templates = predefinedTemplates)
+    }
+
+    fun saveNoteAsTemplate(noteId: String) {
+        val note = _uiState.value.myNotes.find { it.id == noteId }
+            ?: _uiState.value.sharedNotes.find { it.id == noteId }
+            ?: return
+
+        if (note.items.isEmpty()) {
+            _uiState.value = _uiState.value.copy(
+                errorMessage = "Cannot save empty note as template"
+            )
+            return
+        }
+
+        val currentTemplates = _uiState.value.templates.toMutableList()
+
+        // Create new template with the note's actual title
+        val newTemplate = Template(
+            name = note.title,
+            items = note.items.map { it.copy(isChecked = false) } // Reset checked state for template
+        )
+        currentTemplates.add(newTemplate)
+
+        _uiState.value = _uiState.value.copy(
+            templates = currentTemplates,
+            errorMessage = "\"${note.title}\" saved as template successfully!"
+        )
     }
 }

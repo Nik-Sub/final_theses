@@ -12,12 +12,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.iwbi.domain.shopping.ShoppingItem
+import com.iwbi.domain.shopping.Template
 
 @Composable
 fun QuickTemplateSelection(
-    templates: List<List<ShoppingItem>>,
-    onTemplateSelected: (List<ShoppingItem>, String) -> Unit,
+    templates: List<Template>,
+    onTemplateSelected: (Template) -> Unit,
     onDismiss: () -> Unit
 ) {
     Column(
@@ -61,11 +61,10 @@ fun QuickTemplateSelection(
             verticalArrangement = Arrangement.spacedBy(12.dp),
             contentPadding = PaddingValues(bottom = 16.dp)
         ) {
-            items(templates.size) { index ->
+            items(templates) { template ->
                 LargeTemplateCard(
-                    template = templates[index],
-                    templateName = getTemplateName(index),
-                    onSelect = { onTemplateSelected(templates[index], getTemplateName(index)) }
+                    template = template,
+                    onSelect = { onTemplateSelected(template) }
                 )
             }
         }
@@ -74,8 +73,7 @@ fun QuickTemplateSelection(
 
 @Composable
 fun LargeTemplateCard(
-    template: List<ShoppingItem>,
-    templateName: String,
+    template: Template,
     onSelect: () -> Unit
 ) {
     Card(
@@ -106,14 +104,14 @@ fun LargeTemplateCard(
 
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = templateName,
+                        text = template.name,
                         fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "${template.size} items included",
+                        text = "${template.items.size} items included",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -126,7 +124,7 @@ fun LargeTemplateCard(
             Column(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                template.take(4).forEach { item ->
+                template.items.take(4).forEach { item ->
                     Text(
                         text = "• ${item.name}",
                         style = MaterialTheme.typography.bodyMedium,
@@ -134,9 +132,9 @@ fun LargeTemplateCard(
                         modifier = Modifier.padding(start = 8.dp)
                     )
                 }
-                if (template.size > 4) {
+                if (template.items.size > 4) {
                     Text(
-                        text = "... and ${template.size - 4} more",
+                        text = "... and ${template.items.size - 4} more",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Medium,
@@ -148,14 +146,3 @@ fun LargeTemplateCard(
     }
 }
 
-// Helper function to get template names
-fun getTemplateName(index: Int): String {
-    return when (index) {
-        0 -> "Grocery Essentials"
-        1 -> "Weekly Shopping"
-        2 -> "Party Supplies"
-        3 -> "Healthy Living"
-        4 -> "Office Supplies"
-        else -> "Template ${index + 1}"
-    }
-}

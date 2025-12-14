@@ -28,6 +28,7 @@ fun ImprovedMainListView(
     onToggleItem: (String, Int) -> Unit,
     onDeleteNote: (String) -> Unit,
     onShareNote: (String) -> Unit = {},
+    onSaveAsTemplate: (String) -> Unit = {},
     onCategoryChange: (NoteCategory) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
@@ -45,16 +46,27 @@ fun ImprovedMainListView(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                "Shopping Lists",
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.headlineMedium
-            )
+            Column {
+                Text(
+                    "Shopping Lists",
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.headlineMedium
+                )
+                if (uiState.templates.isNotEmpty()) {
+                    Text(
+                        "${uiState.templates.size} templates available",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
 
             Button(
                 onClick = { onCreateNote("New Shopping List", emptyList()) }
             ) {
-                Text("+ New Note")
+                Icon(Icons.Default.Add, contentDescription = null)
+                Spacer(modifier = Modifier.width(4.dp))
+                Text("New")
             }
         }
 
@@ -104,7 +116,8 @@ fun ImprovedMainListView(
                         onNoteClick = { onSelectNote(it.id) },
                         onItemToggle = onToggleItem,
                         onDeleteNote = { onDeleteNote(it.id) },
-                        onShareNote = { onShareNote(it.id) }
+                        onShareNote = { onShareNote(it.id) },
+                        onSaveAsTemplate = { onSaveAsTemplate(it.id) }
                     )
                 }
 
@@ -133,7 +146,8 @@ fun ExpandableShoppingNoteCard(
     onNoteClick: (ShoppingNote) -> Unit,
     onItemToggle: (String, Int) -> Unit,
     onDeleteNote: (ShoppingNote) -> Unit,
-    onShareNote: (ShoppingNote) -> Unit
+    onShareNote: (ShoppingNote) -> Unit,
+    onSaveAsTemplate: (ShoppingNote) -> Unit = {}
 ) {
     Card(
         modifier = Modifier
@@ -171,6 +185,15 @@ fun ExpandableShoppingNoteCard(
 
                 // Action buttons
                 Row {
+                    // Save as template button (available for all notes)
+                    IconButton(onClick = { onSaveAsTemplate(note) }) {
+                        Icon(
+                            imageVector = Icons.Default.Star,
+                            contentDescription = "Save as template",
+                            tint = MaterialTheme.colorScheme.secondary
+                        )
+                    }
+
                     if (isOwner) {
                         IconButton(onClick = { onShareNote(note) }) {
                             Icon(

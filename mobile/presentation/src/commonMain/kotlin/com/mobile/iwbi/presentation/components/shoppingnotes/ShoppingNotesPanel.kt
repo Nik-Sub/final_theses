@@ -1,11 +1,14 @@
 package com.mobile.iwbi.presentation.components.shoppingnotes
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -13,6 +16,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -25,7 +29,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.iwbi.domain.shopping.ShoppingItem
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -82,6 +85,7 @@ fun ShoppingNotesPanel(
                     onRemoveItem = viewModel::removeItemFromNote,
                     onToggleItem = viewModel::toggleItem,
                     onDeleteNote = viewModel::deleteNote,
+                    onSaveAsTemplate = viewModel::saveNoteAsTemplate,
                     onBack = viewModel::exitEditMode,
                     modifier = modifier
                 )
@@ -97,24 +101,27 @@ fun ShoppingNotesPanel(
                         onToggleItem = viewModel::toggleItem,
                         onDeleteNote = viewModel::deleteNote,
                         onShareNote = viewModel::startSharing,
+                        onSaveAsTemplate = viewModel::saveNoteAsTemplate,
                         onCategoryChange = viewModel::selectCategory,
                         modifier = modifier
                     )
 
                     // Floating Action Button for Templates
-                    if (uiState.selectedCategory == NoteCategory.MY_NOTES) {
-                        FloatingActionButton(
+                    if (uiState.selectedCategory == NoteCategory.MY_NOTES && uiState.templates.isNotEmpty()) {
+                        ExtendedFloatingActionButton(
                             onClick = { showTemplateSheet = true },
                             modifier = Modifier
                                 .align(Alignment.BottomEnd)
                                 .padding(16.dp),
-                            containerColor = MaterialTheme.colorScheme.primary
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
                         ) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.List,
-                                contentDescription = "Quick Templates",
-                                tint = MaterialTheme.colorScheme.onPrimary
+                                contentDescription = "Quick Templates"
                             )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Templates (${uiState.templates.size})")
                         }
                     }
                 }
@@ -133,8 +140,8 @@ fun ShoppingNotesPanel(
             ) {
                 QuickTemplateSelection(
                     templates = uiState.templates,
-                    onTemplateSelected = { template: List<ShoppingItem>, name: String ->
-                        viewModel.createNoteFromTemplate(template, name)
+                    onTemplateSelected = { template ->
+                        viewModel.createNoteFromTemplate(template)
                         scope.launch {
                             showTemplateSheet = false
                         }
