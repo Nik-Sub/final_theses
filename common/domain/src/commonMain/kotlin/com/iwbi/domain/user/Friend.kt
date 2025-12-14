@@ -13,8 +13,8 @@ enum class FriendRequestStatus {
 @Serializable
 data class FriendRequest(
     val id: String,
-    val fromUserId: String,
-    val toUserId: String,
+    val fromUser: User,
+    val toUser: User,
     val status: FriendRequestStatus = FriendRequestStatus.PENDING,
     val createdAt: Long = Clock.System.now().toEpochMilliseconds(),
     val respondedAt: Long? = null

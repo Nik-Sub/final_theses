@@ -45,17 +45,41 @@ class FriendRepository(
 
     override suspend fun getPendingRequests(userId: String): List<FriendRequest> {
         return transaction(database) {
-            FriendRequestDAO.find {
+            val pendingRequests = FriendRequestDAO.find {
                 (FriendRequestsTable.toUserId eq userId) and (FriendRequestsTable.status eq "PENDING")
-            }.map { it.toDomain() }
+            }
+
+            pendingRequests.map { requestDAO ->
+                // Fetch the from and to users
+                val fromUser = UserDAO.find { UsersTable.userId eq requestDAO.fromUserId }.firstOrNull()?.toDomain()
+                val toUser = UserDAO.find { UsersTable.userId eq requestDAO.toUserId }.firstOrNull()?.toDomain()
+
+                if (fromUser != null && toUser != null) {
+                    requestDAO.toDomainWithUsers(fromUser, toUser)
+                } else {
+                    throw IllegalStateException("Unable to find user information for friend request ${requestDAO.requestId}")
+                }
+            }
         }
     }
 
     override suspend fun getSentRequests(userId: String): List<FriendRequest> {
         return transaction(database) {
-            FriendRequestDAO.find {
+            val sentRequests = FriendRequestDAO.find {
                 (FriendRequestsTable.fromUserId eq userId) and (FriendRequestsTable.status eq "PENDING")
-            }.map { it.toDomain() }
+            }
+
+            sentRequests.map { requestDAO ->
+                // Fetch the from and to users
+                val fromUser = UserDAO.find { UsersTable.userId eq requestDAO.fromUserId }.firstOrNull()?.toDomain()
+                val toUser = UserDAO.find { UsersTable.userId eq requestDAO.toUserId }.firstOrNull()?.toDomain()
+
+                if (fromUser != null && toUser != null) {
+                    requestDAO.toDomainWithUsers(fromUser, toUser)
+                } else {
+                    throw IllegalStateException("Unable to find user information for friend request ${requestDAO.requestId}")
+                }
+            }
         }
     }
 
@@ -75,7 +99,16 @@ class FriendRepository(
                 this.respondedAt = null
             }
 
-            val result = requestDAO.toDomain()
+            // Fetch the from and to users to return enriched FriendRequest
+            val fromUser = UserDAO.find { UsersTable.userId eq fromUserId }.firstOrNull()?.toDomain()
+            val toUser = UserDAO.find { UsersTable.userId eq toUserId }.firstOrNull()?.toDomain()
+
+            val result = if (fromUser != null && toUser != null) {
+                requestDAO.toDomainWithUsers(fromUser, toUser)
+            } else {
+                throw IllegalStateException("Unable to find user information for friend request $requestId")
+            }
+
             KotlinLogging.logger("DB_FRIEND_REQUEST").info { "Friend request created successfully in DB: $result" }
             result
         }

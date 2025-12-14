@@ -68,6 +68,7 @@ class FriendRepository(
         }.body<List<User>>()
     }
 
+
     override suspend fun sendFriendRequest(toUserId: String): FriendRequest {
         println("DEBUG: Sending friend request to user: $toUserId")
         val request = SendFriendRequestRequest(toUserId)
@@ -128,6 +129,15 @@ class FriendRepository(
         }
     }
 
+    override suspend fun refreshFriends() {
+        try {
+            val friends = getFriends()
+            _friends.value = friends
+        } catch (e: Exception) {
+            println("Error refreshing friends: ${e.message}")
+        }
+    }
+
     override suspend fun refreshAllData() {
         try {
             refreshFriends()
@@ -138,19 +148,10 @@ class FriendRepository(
         }
     }
 
-    override suspend fun refreshFriends() {
-        try {
-            val friends = getFriends()
-            _friends.value = friends
-        } catch (e: Exception) {
-            println("Error refreshing friends: ${e.message}")
-        }
-    }
-
     override suspend fun refreshPendingRequests() {
         try {
-            val requests = getPendingRequests()
-            _pendingRequests.value = requests
+            val pendingRequests = getPendingRequests()
+            _pendingRequests.value = pendingRequests
         } catch (e: Exception) {
             println("Error refreshing pending requests: ${e.message}")
         }
@@ -158,13 +159,8 @@ class FriendRepository(
 
     override suspend fun refreshSentRequests() {
         try {
-            println("DEBUG: Refreshing sent requests...")
             val requests = getSentRequests()
-            println("DEBUG: Setting StateFlow with ${requests.size} sent requests")
-            val oldValue = _sentRequests.value
             _sentRequests.value = requests
-            println("DEBUG: StateFlow updated - old: ${oldValue.size}, new: ${_sentRequests.value.size}")
-            println("DEBUG: StateFlow now contains: ${_sentRequests.value}")
         } catch (e: Exception) {
             println("Error refreshing sent requests: ${e.message}")
             e.printStackTrace()

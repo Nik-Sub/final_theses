@@ -3,6 +3,7 @@ package com.mobile.iwbi.presentation.components.shoppingnotes
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -13,6 +14,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.iwbi.domain.shopping.ShoppingNote
 import com.iwbi.domain.user.User
+import com.mobile.iwbi.presentation.design.IWBIDesignTokens
+import com.mobile.iwbi.presentation.design.StandardPadding
 
 @Composable
 fun FriendSharingView(
@@ -26,7 +29,7 @@ fun FriendSharingView(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(StandardPadding)
     ) {
         // Header
         Row(
@@ -48,23 +51,26 @@ fun FriendSharingView(
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(IWBIDesignTokens.space_l))
 
-        // Note info
+        // Note info card with consistent styling
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
-            )
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = IWBIDesignTokens.elevation_card),
+            shape = RoundedCornerShape(IWBIDesignTokens.corner_radius_m)
         ) {
             Column(
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier.padding(StandardPadding)
             ) {
                 Text(
                     text = note.title,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
+                Spacer(modifier = Modifier.height(IWBIDesignTokens.space_xs))
                 Text(
                     text = "${note.items.size} items in this list",
                     style = MaterialTheme.typography.bodyMedium,
@@ -73,7 +79,7 @@ fun FriendSharingView(
             }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(IWBIDesignTokens.space_l))
 
         Text(
             text = "Select friends to share with:",
@@ -81,12 +87,12 @@ fun FriendSharingView(
             fontWeight = FontWeight.Medium
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(IWBIDesignTokens.space_m))
 
         // Friends list
         LazyColumn(
             modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(IWBIDesignTokens.space_s)
         ) {
             items(friends) { friend ->
                 FriendSelectionItem(
@@ -101,20 +107,21 @@ fun FriendSharingView(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(32.dp),
+                            .padding(IWBIDesignTokens.space_xl),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Icon(
                             imageVector = Icons.Default.Person,
                             contentDescription = null,
-                            modifier = Modifier.size(48.dp),
+                            modifier = Modifier.size(IWBIDesignTokens.icon_size_large),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
                         )
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(IWBIDesignTokens.space_m))
                         Text(
                             text = "No friends yet",
                             style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontWeight = FontWeight.Medium
                         )
                         Text(
                             text = "Add friends to share your shopping lists!",
@@ -126,32 +133,40 @@ fun FriendSharingView(
             }
         }
 
-        // Action buttons
+        Spacer(modifier = Modifier.height(IWBIDesignTokens.space_l))
+
+        // Action buttons with consistent styling
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(IWBIDesignTokens.space_m)
         ) {
             OutlinedButton(
                 onClick = onCancel,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f).height(IWBIDesignTokens.button_height),
+                shape = RoundedCornerShape(IWBIDesignTokens.corner_radius_m)
             ) {
-                Text("Cancel")
+                Text(
+                    text = "Cancel",
+                    style = MaterialTheme.typography.labelLarge
+                )
             }
 
             Button(
                 onClick = onShareWithSelected,
                 enabled = selectedFriends.isNotEmpty(),
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f).height(IWBIDesignTokens.button_height),
+                shape = RoundedCornerShape(IWBIDesignTokens.corner_radius_m)
             ) {
                 Icon(
                     imageVector = Icons.Default.Share,
                     contentDescription = null,
-                    modifier = Modifier.size(16.dp)
+                    modifier = Modifier.size(IWBIDesignTokens.icon_size_small)
                 )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text("Share (${selectedFriends.size})")
+                Spacer(modifier = Modifier.width(IWBIDesignTokens.space_xs))
+                Text(
+                    text = "Share (${selectedFriends.size})",
+                    style = MaterialTheme.typography.labelLarge
+                )
             }
         }
     }
@@ -171,12 +186,15 @@ private fun FriendSelectionItem(
             } else {
                 MaterialTheme.colorScheme.surface
             }
-        )
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = IWBIDesignTokens.elevation_card),
+        shape = RoundedCornerShape(IWBIDesignTokens.corner_radius_m),
+        onClick = onToggle
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(StandardPadding),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Checkbox(
@@ -184,7 +202,7 @@ private fun FriendSelectionItem(
                 onCheckedChange = { onToggle() }
             )
 
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(IWBIDesignTokens.space_m))
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(

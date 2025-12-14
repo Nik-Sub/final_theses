@@ -10,33 +10,25 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.PrimaryTabRow
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -48,8 +40,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
+import com.mobile.iwbi.presentation.components.layout.ButtonVariant
+import com.mobile.iwbi.presentation.components.layout.IWBIButton
+import com.mobile.iwbi.presentation.components.layout.IWBICard
+import com.mobile.iwbi.presentation.components.layout.IWBIContentContainer
+import com.mobile.iwbi.presentation.components.layout.IWBIEmptyState
+import com.mobile.iwbi.presentation.components.layout.IWBIScreen
+import com.mobile.iwbi.presentation.design.IWBIDesignTokens
 import com.iwbi.domain.user.FriendRequest
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -62,7 +59,9 @@ fun FriendRequestsPanel(
     val viewModel: FriendsViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
-    var selectedTabIndex by remember { mutableIntStateOf(0) }
+    var selectedTab by remember { mutableIntStateOf(0) }
+
+    val tabs = listOf("Received", "Sent")
 
     // Show error messages via snackbar
     LaunchedEffect(uiState.errorMessage) {
@@ -75,121 +74,58 @@ fun FriendRequestsPanel(
         }
     }
 
-    // Debug: Refresh sent requests when sent tab is selected
-    LaunchedEffect(selectedTabIndex) {
-        if (selectedTabIndex == 1) {
-            println("DEBUG: Sent tab selected, refreshing sent requests...")
-            viewModel.refreshSentRequests()
-        }
-    }
-
-    // Debug: Directly observe sent requests
-    LaunchedEffect(Unit) {
-        viewModel.uiState.collect { state ->
-            println("DEBUG: FriendRequestsPanel - UI State updated: sentRequests.size = ${state.sentRequests.size}")
-        }
-    }
-
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Friend Requests") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back"
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { viewModel.refreshAllData() }) {
-                        Icon(
-                            imageVector = Icons.Default.Refresh,
-                            contentDescription = "Refresh"
-                        )
-                    }
-                }
-            )
+    IWBIScreen(
+        title = "Friend Requests",
+        navigationIcon = Icons.AutoMirrored.Filled.ArrowBack,
+        onNavigationClick = onNavigateBack,
+        actions = {
+            IconButton(onClick = { viewModel.refreshAllData() }) {
+                Icon(
+                    imageVector = Icons.Default.Refresh,
+                    contentDescription = "Refresh"
+                )
+            }
         },
-        snackbarHost = { SnackbarHost(snackbarHostState) }
+        snackbarHostState = snackbarHostState,
+        modifier = modifier
     ) { paddingValues ->
         Column(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Tabs for incoming and outgoing requests
+            // Tab selector
             PrimaryTabRow(
-                selectedTabIndex = selectedTabIndex
+                selectedTabIndex = selectedTab,
+                containerColor = MaterialTheme.colorScheme.surface,
+                contentColor = MaterialTheme.colorScheme.onSurface
             ) {
-                Tab(
-                    selected = selectedTabIndex == 0,
-                    onClick = { selectedTabIndex = 0 },
-                    text = {
-                        Text("Received (${uiState.pendingRequests.size})")
-                    }
-                )
-                Tab(
-                    selected = selectedTabIndex == 1,
-                    onClick = { selectedTabIndex = 1 },
-                    text = {
-                        Text("Sent (${uiState.sentRequests.size})")
-                    }
-                )
+                tabs.forEachIndexed { index, title ->
+                    Tab(
+                        selected = selectedTab == index,
+                        onClick = { selectedTab = index },
+                        text = {
+                            Text(
+                                text = title,
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = if (selectedTab == index) FontWeight.Medium else FontWeight.Normal
+                            )
+                        }
+                    )
+                }
             }
 
-            // Tab content
-            when (selectedTabIndex) {
-                0 -> {
-                    if (uiState.pendingRequests.isEmpty()) {
-                        EmptyRequestsState(
-                            message = "No pending friend requests",
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(16.dp)
-                        )
-                    } else {
-                        LazyColumn(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            items(uiState.pendingRequests) { request ->
-                                IncomingRequestItem(
-                                    request = request,
-                                    onAccept = { viewModel.acceptFriendRequest(request.id) },
-                                    onDecline = { viewModel.declineFriendRequest(request.id) }
-                                )
-                            }
-                        }
-                    }
-                }
-                1 -> {
-                    println("DEBUG: FriendRequestsPanel - Sent tab selected, sentRequests.size = ${uiState.sentRequests.size}")
-                    println("DEBUG: FriendRequestsPanel - Sent requests content: ${uiState.sentRequests}")
-                    if (uiState.sentRequests.isEmpty()) {
-                        println("DEBUG: FriendRequestsPanel - Showing empty state for sent requests")
-                        EmptyRequestsState(
-                            message = "No sent friend requests",
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(16.dp)
-                        )
-                    } else {
-                        println("DEBUG: FriendRequestsPanel - Showing ${uiState.sentRequests.size} sent requests")
-                        LazyColumn(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            items(uiState.sentRequests) { request ->
-                                OutgoingRequestItem(request = request)
-                            }
-                        }
-                    }
+            // Content based on selected tab
+            IWBIContentContainer {
+                when (selectedTab) {
+                    0 -> ReceivedRequestsTab(
+                        requests = uiState.pendingRequests,
+                        onAccept = viewModel::acceptFriendRequest,
+                        onDecline = viewModel::declineFriendRequest
+                    )
+                    1 -> SentRequestsTab(
+                        requests = uiState.sentRequests
+                    )
                 }
             }
         }
@@ -197,180 +133,140 @@ fun FriendRequestsPanel(
 }
 
 @Composable
-private fun IncomingRequestItem(
+private fun ReceivedRequestsTab(
+    requests: List<FriendRequest>,
+    onAccept: (String) -> Unit,
+    onDecline: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    if (requests.isEmpty()) {
+        IWBIEmptyState(
+            icon = Icons.Default.Notifications,
+            title = "No pending requests",
+            subtitle = "You don't have any friend requests at the moment"
+        )
+    } else {
+        LazyColumn(
+            modifier = modifier,
+            verticalArrangement = Arrangement.spacedBy(IWBIDesignTokens.space_s)
+        ) {
+            items(requests) { request ->
+                FriendRequestItem(
+                    request = request,
+                    onAccept = { onAccept(request.id) },
+                    onDecline = { onDecline(request.id) },
+                    showActions = true,
+                    isReceived = true
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun SentRequestsTab(
+    requests: List<FriendRequest>,
+    modifier: Modifier = Modifier
+) {
+    if (requests.isEmpty()) {
+        IWBIEmptyState(
+            icon = Icons.Default.Notifications,
+            title = "No sent requests",
+            subtitle = "You haven't sent any friend requests yet"
+        )
+    } else {
+        LazyColumn(
+            modifier = modifier,
+            verticalArrangement = Arrangement.spacedBy(IWBIDesignTokens.space_s)
+        ) {
+            items(requests) { request ->
+                FriendRequestItem(
+                    request = request,
+                    onAccept = { },
+                    onDecline = { },
+                    showActions = false,
+                    isReceived = false
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun FriendRequestItem(
     request: FriendRequest,
     onAccept: () -> Unit,
     onDecline: () -> Unit,
+    showActions: Boolean,
+    isReceived: Boolean,
     modifier: Modifier = Modifier
 ) {
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Profile picture placeholder
-                Box(
-                    modifier = Modifier
-                        .size(48.dp)
-                        .clip(CircleShape)
-                        .padding(8.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = "Profile Picture",
-                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                // Request info
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = "Friend Request",
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Medium
-                    )
-                    Text(
-                        text = "From User ID: ${request.fromUserId}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Action buttons
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Button(
-                    onClick = onAccept,
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary
-                    )
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Check,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("Accept")
-                }
-
-                OutlinedButton(
-                    onClick = onDecline,
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("Decline")
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun OutgoingRequestItem(
-    request: FriendRequest,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    IWBICard(
+        modifier = modifier.fillMaxWidth()
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(IWBIDesignTokens.space_m)
         ) {
-            // Profile picture placeholder
+            // User avatar placeholder
             Box(
                 modifier = Modifier
-                    .size(48.dp)
-                    .clip(CircleShape)
-                    .padding(8.dp),
+                    .size(IWBIDesignTokens.icon_size_large)
+                    .clip(CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Default.Person,
-                    contentDescription = "Profile Picture",
-                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    contentDescription = "User avatar",
+                    modifier = Modifier.size(IWBIDesignTokens.icon_size_default),
+                    tint = MaterialTheme.colorScheme.primary
                 )
             }
 
-            Spacer(modifier = Modifier.width(16.dp))
+            // User information - Display email and status only
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                val displayUser = if (isReceived) request.fromUser else request.toUser
 
-            // Request info
-            Column(modifier = Modifier.weight(1f)) {
+                // Show email
                 Text(
-                    text = "Request Sent",
-                    style = MaterialTheme.typography.bodyLarge,
+                    text = displayUser.email,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Medium
                 )
+
+                Spacer(modifier = Modifier.height(IWBIDesignTokens.space_xs))
+
+                // Show status
                 Text(
-                    text = "To User ID: ${request.toUserId}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                )
-                Text(
-                    text = "Status: Pending",
+                    text = if (showActions) "Wants to be your friend" else "Request pending",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontWeight = FontWeight.Medium
                 )
             }
+
+            // Action buttons
+            if (showActions) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(IWBIDesignTokens.space_s)
+                ) {
+                    IWBIButton(
+                        text = "Accept",
+                        onClick = onAccept,
+                        icon = Icons.Default.Check,
+                        variant = ButtonVariant.SECONDARY
+                    )
+                    IWBIButton(
+                        text = "Decline",
+                        onClick = onDecline,
+                        icon = Icons.Default.Close,
+                        variant = ButtonVariant.OUTLINE
+                    )
+                }
+            }
         }
-    }
-}
-
-@Composable
-private fun EmptyRequestsState(
-    message: String,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Icon(
-            imageVector = Icons.Default.Person,
-            contentDescription = null,
-            modifier = Modifier.size(64.dp),
-            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = message,
-            style = MaterialTheme.typography.headlineSmall,
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-        )
     }
 }

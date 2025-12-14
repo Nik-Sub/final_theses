@@ -2,6 +2,7 @@ package com.server.iwbi.persistence.friends.daos
 
 import com.iwbi.domain.user.FriendRequest
 import com.iwbi.domain.user.FriendRequestStatus
+import com.iwbi.domain.user.User
 import com.server.iwbi.persistence.friends.tables.FriendRequestsTable
 import org.jetbrains.exposed.dao.LongEntity
 import org.jetbrains.exposed.dao.LongEntityClass
@@ -18,13 +19,14 @@ class FriendRequestDAO(id: EntityID<Long>) : LongEntity(id) {
     var respondedAt by FriendRequestsTable.respondedAt
 }
 
-fun FriendRequestDAO.toDomain(): FriendRequest {
+fun FriendRequestDAO.toDomainWithUsers(fromUser: User, toUser: User): FriendRequest {
     return FriendRequest(
         id = requestId,
-        fromUserId = fromUserId,
-        toUserId = toUserId,
+        fromUser = fromUser,
+        toUser = toUser,
         status = FriendRequestStatus.valueOf(status),
         createdAt = createdAt,
         respondedAt = respondedAt
     )
 }
+

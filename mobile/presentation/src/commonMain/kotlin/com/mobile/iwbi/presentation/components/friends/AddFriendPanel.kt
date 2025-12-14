@@ -5,39 +5,30 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -49,12 +40,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import com.iwbi.domain.user.User
+import com.mobile.iwbi.presentation.components.layout.ButtonVariant
+import com.mobile.iwbi.presentation.components.layout.IWBIButton
+import com.mobile.iwbi.presentation.components.layout.IWBICard
+import com.mobile.iwbi.presentation.components.layout.IWBIContentContainer
+import com.mobile.iwbi.presentation.components.layout.IWBIEmptyState
+import com.mobile.iwbi.presentation.components.layout.IWBIScreen
+import com.mobile.iwbi.presentation.design.IWBIDesignTokens
 import org.koin.compose.viewmodel.koinViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddFriendPanel(
     onNavigateBack: () -> Unit,
@@ -76,98 +71,150 @@ fun AddFriendPanel(
         }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Add Friends") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back"
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { viewModel.refreshAllData() }) {
-                        Icon(
-                            imageVector = Icons.Default.Refresh,
-                            contentDescription = "Refresh"
-                        )
-                    }
-                }
-            )
+    IWBIScreen(
+        title = "Add Friends",
+        navigationIcon = Icons.AutoMirrored.Filled.ArrowBack,
+        onNavigationClick = onNavigateBack,
+        actions = {
+            IconButton(onClick = { viewModel.refreshAllData() }) {
+                Icon(
+                    imageVector = Icons.Default.Refresh,
+                    contentDescription = "Refresh"
+                )
+            }
         },
-        snackbarHost = { SnackbarHost(snackbarHostState) }
+        snackbarHostState = snackbarHostState,
+        modifier = modifier
     ) { paddingValues ->
-        Column(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp)
+        IWBIContentContainer(
+            modifier = Modifier.padding(paddingValues)
         ) {
-            // Search field
+            // Search section
+            Text(
+                text = "Search for friends by email:",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Spacer(modifier = Modifier.height(IWBIDesignTokens.space_m))
+
             OutlinedTextField(
                 value = uiState.searchQuery,
-                onValueChange = viewModel::searchUsers,
-                label = { Text("Search by name or email") },
+                onValueChange = { query ->
+                    viewModel.updateSearchQuery(query)
+                },
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = {
+                    Text(
+                        text = "Enter email address...",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Search,
-                        contentDescription = "Search"
+                        contentDescription = "Search icon",
+                        tint = MaterialTheme.colorScheme.primary
                     )
                 },
                 trailingIcon = {
                     if (uiState.searchQuery.isNotEmpty()) {
-                        IconButton(
-                            onClick = {
-                                viewModel.clearSearchResults()
-                                keyboardController?.hide()
-                            }
-                        ) {
+                        IconButton(onClick = {
+                            viewModel.clearSearchResults()
+                        }) {
                             Icon(
                                 imageVector = Icons.Default.Clear,
-                                contentDescription = "Clear"
+                                contentDescription = "Clear search"
                             )
                         }
                     }
                 },
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 keyboardActions = KeyboardActions(
-                    onSearch = { keyboardController?.hide() }
+                    onSearch = {
+                        viewModel.searchUsers(uiState.searchQuery)
+                        keyboardController?.hide()
+                    }
                 ),
-                modifier = Modifier.fillMaxWidth()
+                singleLine = true
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(IWBIDesignTokens.space_m))
 
-            // Search results
+            IWBIButton(
+                text = "Search",
+                onClick = {
+                    viewModel.searchUsers(uiState.searchQuery)
+                    keyboardController?.hide()
+                },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = uiState.searchQuery.isNotEmpty() && !uiState.isLoading,
+                icon = Icons.Default.Search
+            )
+
+            Spacer(modifier = Modifier.height(IWBIDesignTokens.space_xl))
+
+            // Results section
             when {
-                uiState.searchQuery.isBlank() -> {
-                    SearchPrompt(modifier = Modifier.fillMaxSize())
-                }
-
                 uiState.isLoading -> {
                     Box(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxWidth(),
                         contentAlignment = Alignment.Center
                     ) {
-                        CircularProgressIndicator()
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(IWBIDesignTokens.space_m)
+                        ) {
+                            CircularProgressIndicator(
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Text(
+                                text = "Searching for users...",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
                 }
 
-                uiState.searchResults.isEmpty() -> {
-                    NoResultsState(
-                        searchQuery = uiState.searchQuery,
-                        modifier = Modifier.fillMaxSize()
+                uiState.searchResults.isNotEmpty() -> {
+                    Text(
+                        text = "Search Results:",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Medium
+                    )
+
+                    Spacer(modifier = Modifier.height(IWBIDesignTokens.space_m))
+
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(IWBIDesignTokens.space_s)
+                    ) {
+                        items(uiState.searchResults) { user ->
+                            UserSearchResultItem(
+                                user = user,
+                                isAlreadyFriend = uiState.friends.any { it.id == user.id },
+                                onSendFriendRequest = { viewModel.sendFriendRequest(user.id) }
+                            )
+                        }
+                    }
+                }
+
+                // Show "No users found" only if we have an empty query or search was performed
+                uiState.searchQuery.isNotEmpty() && uiState.searchResults.isEmpty() && !uiState.isLoading -> {
+                    IWBIEmptyState(
+                        icon = Icons.Default.Person,
+                        title = "No users found",
+                        subtitle = "Try searching with a different email address"
                     )
                 }
 
+                // Show initial state when no search query has been entered
                 else -> {
-                    SearchResults(
-                        users = uiState.searchResults,
-                        onSendFriendRequest = viewModel::sendFriendRequest,
-                        modifier = Modifier.fillMaxSize()
+                    IWBIEmptyState(
+                        icon = Icons.Default.Person,
+                        title = "Find Friends",
+                        subtitle = "Enter an email address above to search for friends to add"
                     )
                 }
             }
@@ -176,158 +223,66 @@ fun AddFriendPanel(
 }
 
 @Composable
-private fun SearchPrompt(
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Icon(
-            imageVector = Icons.Default.Search,
-            contentDescription = null,
-            modifier = Modifier.size(64.dp),
-            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = "Search for Friends",
-            style = MaterialTheme.typography.headlineSmall,
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
-            text = "Enter a name or email to find friends",
-            style = MaterialTheme.typography.bodyMedium,
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
-        )
-    }
-}
-
-@Composable
-private fun NoResultsState(
-    searchQuery: String,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Icon(
-            imageVector = Icons.Default.Person,
-            contentDescription = null,
-            modifier = Modifier.size(64.dp),
-            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = "No Users Found",
-            style = MaterialTheme.typography.headlineSmall,
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
-            text = "No users found for \"$searchQuery\"",
-            style = MaterialTheme.typography.bodyMedium,
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
-        )
-    }
-}
-
-@Composable
-private fun SearchResults(
-    users: List<User>,
-    onSendFriendRequest: (String) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    LazyColumn(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        items(users) { user ->
-            UserSearchItem(
-                user = user,
-                onSendFriendRequest = { onSendFriendRequest(user.id) }
-            )
-        }
-    }
-}
-
-@Composable
-private fun UserSearchItem(
+private fun UserSearchResultItem(
     user: User,
+    isAlreadyFriend: Boolean,
     onSendFriendRequest: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    IWBICard(
+        modifier = modifier.fillMaxWidth()
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(IWBIDesignTokens.space_m)
         ) {
-            // Profile picture placeholder
+            // User avatar placeholder
             Box(
                 modifier = Modifier
-                    .size(48.dp)
-                    .clip(CircleShape)
-                    .padding(8.dp),
+                    .size(IWBIDesignTokens.icon_size_large)
+                    .clip(CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Default.Person,
-                    contentDescription = "Profile Picture",
-                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    contentDescription = "User avatar",
+                    modifier = Modifier.size(IWBIDesignTokens.icon_size_default),
+                    tint = MaterialTheme.colorScheme.primary
                 )
             }
 
-            Spacer(modifier = Modifier.width(16.dp))
-
-            // User info
-            Column(modifier = Modifier.weight(1f)) {
+            // User information
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
                 Text(
                     text = user.displayName,
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Medium
                 )
                 Text(
                     text = user.email,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
-            // Add friend button
-            Button(
-                onClick = onSendFriendRequest
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = null,
-                    modifier = Modifier.size(16.dp)
+            // Action button
+            if (isAlreadyFriend) {
+                Text(
+                    text = "Already friends",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Medium
                 )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text("Add")
+            } else {
+                IWBIButton(
+                    text = "Add",
+                    onClick = onSendFriendRequest,
+                    icon = Icons.Default.Add,
+                    variant = ButtonVariant.SECONDARY
+                )
             }
         }
     }

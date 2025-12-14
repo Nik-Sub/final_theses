@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mobile.iwbi.application.InputPorts
 import com.mobile.iwbi.presentation.uistate.FriendsUiState
+import com.iwbi.domain.user.FriendRequest
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -30,7 +31,7 @@ class FriendsViewModel(
                 inputPorts.friendServicePort.observeSentFriendRequests()
             ) { friends, pendingRequests, sentRequests ->
                 println("DEBUG: ViewModel received - Friends: ${friends.size}, Pending: ${pendingRequests.size}, Sent: ${sentRequests.size}")
-                println("DEBUG: Sent requests details: $sentRequests")
+
                 _uiState.value = _uiState.value.copy(
                     friends = friends,
                     pendingRequests = pendingRequests,
@@ -40,6 +41,7 @@ class FriendsViewModel(
             }.collect { }
         }
     }
+
 
     fun searchUsers(query: String) {
         if (query.isBlank()) {
@@ -156,6 +158,14 @@ class FriendsViewModel(
 
     fun clearError() {
         _uiState.value = _uiState.value.copy(errorMessage = null)
+    }
+
+    fun updateSearchQuery(query: String) {
+        _uiState.value = _uiState.value.copy(searchQuery = query)
+        // Clear search results when query is cleared
+        if (query.isEmpty()) {
+            _uiState.value = _uiState.value.copy(searchResults = emptyList())
+        }
     }
 
     fun clearSearchResults() {

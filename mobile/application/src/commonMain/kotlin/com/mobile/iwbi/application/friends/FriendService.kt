@@ -27,6 +27,7 @@ class FriendService(
         return friendRepository.searchUsers(query)
     }
 
+
     override suspend fun sendFriendRequest(toUserId: String): Result<FriendRequest> {
         return try {
             val friendRequest = friendRepository.sendFriendRequest(toUserId)

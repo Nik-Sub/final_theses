@@ -10,7 +10,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mobile.iwbi.presentation.design.IWBIDesignTokens
+import com.mobile.iwbi.presentation.design.StandardPadding
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
 
@@ -18,7 +21,6 @@ import org.koin.core.annotation.KoinExperimentalAPI
 @OptIn(KoinExperimentalAPI::class)
 @Composable
 fun LoginScreen() {
-
     val viewModel = koinViewModel<LoginPanelViewModel>()
     val uiState by viewModel.uiState.collectAsState()
 
@@ -27,15 +29,18 @@ fun LoginScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(StandardPadding),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
             text = "Login",
-            style = MaterialTheme.typography.headlineMedium
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Bold
         )
-        Spacer(modifier = Modifier.height(24.dp))
+
+        Spacer(modifier = Modifier.height(IWBIDesignTokens.space_xl))
+
         OutlinedTextField(
             value = uiState.email,
             onValueChange = { viewModel.updateEmail(it) },
@@ -43,7 +48,9 @@ fun LoginScreen() {
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
-        Spacer(modifier = Modifier.height(16.dp))
+
+        Spacer(modifier = Modifier.height(IWBIDesignTokens.space_m))
+
         OutlinedTextField(
             value = uiState.password,
             onValueChange = { viewModel.updatePassword(it) },
@@ -59,22 +66,22 @@ fun LoginScreen() {
             },
             modifier = Modifier.fillMaxWidth()
         )
-        Spacer(modifier = Modifier.height(24.dp))
+
+        Spacer(modifier = Modifier.height(IWBIDesignTokens.space_xl))
+
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.spacedBy(IWBIDesignTokens.space_m)
         ) {
             Button(
-                onClick = {
-                    viewModel.onLoginClick()
-                },
+                onClick = { viewModel.onLoginClick() },
+                modifier = Modifier.weight(1f).height(IWBIDesignTokens.button_height)
             ) {
                 Text("Login")
             }
             Button(
-                onClick = {
-                    viewModel.onRegisterClick()
-                },
+                onClick = { viewModel.onRegisterClick() },
+                modifier = Modifier.weight(1f).height(IWBIDesignTokens.button_height)
             ) {
                 Text("Register")
             }

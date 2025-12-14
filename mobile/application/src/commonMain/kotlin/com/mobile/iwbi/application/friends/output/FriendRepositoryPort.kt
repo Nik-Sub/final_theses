@@ -17,7 +17,7 @@ interface FriendRepositoryPort {
     suspend fun removeFriend(friendId: String)
     suspend fun getFriends(): List<User>
     suspend fun getPendingRequests(): List<FriendRequest>
-    suspend fun  getSentRequests(): List<FriendRequest>
+    suspend fun getSentRequests(): List<FriendRequest>
 
     suspend fun refreshFriends()
     suspend fun refreshPendingRequests()

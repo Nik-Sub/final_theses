@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
@@ -43,6 +44,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.iwbi.domain.user.User
+import com.mobile.iwbi.presentation.design.IWBIDesignTokens
+import com.mobile.iwbi.presentation.design.StandardPadding
 import com.mobile.iwbi.presentation.uistate.FriendsUiState
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -70,22 +73,24 @@ fun FriendsPanel(
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
-            Column {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(IWBIDesignTokens.space_s)
+            ) {
                 // Friend requests FAB
                 FloatingActionButton(
                     onClick = onNavigateToFriendRequests,
-                    modifier = Modifier.padding(bottom = 8.dp)
+                    shape = RoundedCornerShape(IWBIDesignTokens.corner_radius_m)
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(horizontal = 8.dp)
+                        modifier = Modifier.padding(horizontal = IWBIDesignTokens.space_s)
                     ) {
                         Icon(
                             imageVector = Icons.Default.Notifications,
                             contentDescription = "Friend Requests"
                         )
                         if (uiState.pendingRequests.isNotEmpty()) {
-                            Spacer(modifier = Modifier.width(4.dp))
+                            Spacer(modifier = Modifier.width(IWBIDesignTokens.space_xs))
                             Text(
                                 text = uiState.pendingRequests.size.toString(),
                                 style = MaterialTheme.typography.labelSmall,
@@ -97,7 +102,8 @@ fun FriendsPanel(
 
                 // Add friend FAB
                 FloatingActionButton(
-                    onClick = onNavigateToAddFriend
+                    onClick = onNavigateToAddFriend,
+                    shape = RoundedCornerShape(IWBIDesignTokens.corner_radius_m)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Add,
@@ -111,14 +117,14 @@ fun FriendsPanel(
             modifier = modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp)
+                .padding(StandardPadding)
         ) {
             // Title
             Text(
                 text = "Friends",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 16.dp)
+                modifier = Modifier.padding(bottom = IWBIDesignTokens.space_l)
             )
 
             when {
@@ -158,7 +164,7 @@ private fun FriendsList(
 ) {
     LazyColumn(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(IWBIDesignTokens.space_s)
     ) {
         items(friends) { friend ->
             FriendItem(
@@ -180,43 +186,46 @@ private fun FriendItem(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = IWBIDesignTokens.elevation_card),
+        shape = RoundedCornerShape(IWBIDesignTokens.corner_radius_m)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(StandardPadding),
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Profile picture placeholder
             Box(
                 modifier = Modifier
-                    .size(48.dp)
-                    .clip(CircleShape)
-                    .padding(8.dp),
+                    .size(IWBIDesignTokens.icon_size_large)
+                    .clip(CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Default.Person,
                     contentDescription = "Profile Picture",
-                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    modifier = Modifier.size(IWBIDesignTokens.icon_size_default),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(IWBIDesignTokens.space_m))
 
             // Friend info
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = friend.displayName,
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Medium
                 )
-                Text(
-                    text = friend.email,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                )
+                if (friend.email.isNotEmpty()) {
+                    Text(
+                        text = friend.email,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
 
             // Remove friend button
@@ -244,20 +253,21 @@ private fun EmptyFriendsState(
         Icon(
             imageVector = Icons.Default.Person,
             contentDescription = null,
-            modifier = Modifier.size(64.dp),
+            modifier = Modifier.size(IWBIDesignTokens.icon_size_large * 1.5f),
             tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(IWBIDesignTokens.space_l))
 
         Text(
             text = "No Friends Yet",
             style = MaterialTheme.typography.headlineSmall,
             textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+            fontWeight = FontWeight.Medium
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(IWBIDesignTokens.space_s))
 
         Text(
             text = "Start by adding friends to share shopping lists",

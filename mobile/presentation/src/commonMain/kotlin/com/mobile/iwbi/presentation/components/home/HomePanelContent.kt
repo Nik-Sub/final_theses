@@ -3,23 +3,19 @@ package com.mobile.iwbi.presentation.components.home
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -34,9 +30,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.unit.dp
 import com.iwbi.domain.shopping.ShoppingItem
 import com.iwbi.domain.shopping.ShoppingNote
+import com.mobile.iwbi.presentation.components.layout.IWBIButton
+import com.mobile.iwbi.presentation.components.layout.IWBICard
+import com.mobile.iwbi.presentation.components.layout.IWBIContentContainer
+import com.mobile.iwbi.presentation.components.layout.IWBIEmptyState
+import com.mobile.iwbi.presentation.design.IWBIDesignTokens
+import com.mobile.iwbi.presentation.design.StandardCornerRadius
 import com.mobile.iwbi.presentation.uistate.HomePanelUiState
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
@@ -84,79 +85,93 @@ fun NoteEditingView(
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
+    IWBIContentContainer(
         modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp)
     ) {
         // Header with back button
         Row(
             modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(IWBIDesignTokens.space_s)
         ) {
             IconButton(onClick = onBack) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Back",
+                    tint = MaterialTheme.colorScheme.primary
+                )
             }
             Text(
                 text = note.title,
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                color = MaterialTheme.colorScheme.onSurface
             )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(IWBIDesignTokens.space_l))
 
         // Add item section
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            OutlinedTextField(
-                value = newItemText,
-                onValueChange = onNewItemTextChange,
-                placeholder = { Text("Enter new item...") },
-                modifier = Modifier.weight(1f)
+        IWBICard {
+            Text(
+                text = "Add New Item",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurface
             )
-            Spacer(modifier = Modifier.padding(8.dp))
-            Button(
-                onClick = onAddItem,
-                enabled = newItemText.trim().isNotEmpty()
+
+            Spacer(modifier = Modifier.height(IWBIDesignTokens.space_m))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(IWBIDesignTokens.space_m)
             ) {
-                Icon(Icons.Default.Add, contentDescription = null)
-                Text("Add")
+                OutlinedTextField(
+                    value = newItemText,
+                    onValueChange = onNewItemTextChange,
+                    placeholder = { Text("Enter new item...") },
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(StandardCornerRadius)
+                )
+                IWBIButton(
+                    text = "Add",
+                    onClick = onAddItem,
+                    enabled = newItemText.trim().isNotEmpty(),
+                    icon = Icons.Default.Add
+                )
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(IWBIDesignTokens.space_l))
 
-        // Items list
+        // Items list header
         Text(
             text = "Items (${note.items.size})",
             fontWeight = FontWeight.Medium,
-            style = MaterialTheme.typography.titleMedium
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(IWBIDesignTokens.space_m))
 
-        LazyColumn(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            items(note.items.size) { index ->
-                EditableShoppingListItem(
-                    item = note.items[index],
-                    onRemove = { onRemoveItem(note.id, index) }
-                )
-            }
-
-            if (note.items.isEmpty()) {
-                item {
-                    Text(
-                        text = "No items yet. Add your first item above!",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(16.dp)
+        // Items list
+        if (note.items.isEmpty()) {
+            IWBIEmptyState(
+                icon = Icons.Default.ShoppingCart,
+                title = "No items yet",
+                subtitle = "Add your first item above!"
+            )
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(IWBIDesignTokens.space_s)
+            ) {
+                items(note.items.size) { index ->
+                    EditableShoppingListItem(
+                        item = note.items[index],
+                        onRemove = { onRemoveItem(note.id, index) }
                     )
                 }
             }
@@ -169,20 +184,13 @@ fun EditableShoppingListItem(
     item: ShoppingItem,
     onRemove: () -> Unit
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = if (item.isChecked)
-                MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-            else
-                MaterialTheme.colorScheme.surface
-        )
+    IWBICard(
+        modifier = Modifier.fillMaxWidth()
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(IWBIDesignTokens.space_m)
         ) {
             Text(
                 text = "• ${item.name}",
@@ -190,7 +198,8 @@ fun EditableShoppingListItem(
                 color = if (item.isChecked) MaterialTheme.colorScheme.onSurfaceVariant
                 else MaterialTheme.colorScheme.onSurface,
                 textDecoration = if (item.isChecked) TextDecoration.LineThrough else null,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                style = MaterialTheme.typography.bodyLarge
             )
 
             IconButton(onClick = onRemove) {
@@ -214,41 +223,57 @@ fun MainListView(
     onCreateFromTemplate: (List<ShoppingItem>, String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
+    IWBIContentContainer(
         modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp)
     ) {
+        // Header with create button
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                "Shopping Notes",
+                text = "Shopping Notes",
                 fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.headlineMedium
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.onSurface
             )
 
-            Button(
-                onClick = { onCreateNote("New Shopping List", emptyList()) }
-            ) {
-                Text("+ New Note")
-            }
+            IWBIButton(
+                text = "New Note",
+                onClick = { onCreateNote("New Shopping List", emptyList()) },
+                icon = Icons.Default.Add
+            )
         }
+
+        Spacer(modifier = Modifier.height(IWBIDesignTokens.space_l))
 
         if (uiState.isLoading) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center
             ) {
-                CircularProgressIndicator()
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.primary
+                )
             }
+        } else if (uiState.shoppingNotes.isEmpty()) {
+            IWBIEmptyState(
+                icon = Icons.Default.ShoppingCart,
+                title = "No shopping notes yet",
+                subtitle = "Create your first shopping list to get started!",
+                action = {
+                    IWBIButton(
+                        text = "Create First Note",
+                        onClick = { onCreateNote("My First Shopping List", emptyList()) },
+                        icon = Icons.Default.Add
+                    )
+                }
+            )
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxWidth(),
-                contentPadding = PaddingValues(vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(IWBIDesignTokens.space_s)
             ) {
                 items(uiState.shoppingNotes.size) { index ->
                     ShoppingNoteCard(
@@ -261,29 +286,34 @@ fun MainListView(
             }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        // Templates section
+        if (uiState.templates.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(IWBIDesignTokens.space_xl))
 
-        Text(
-            "Templates",
-            fontWeight = FontWeight.Bold,
-            style = MaterialTheme.typography.headlineMedium
-        )
+            Text(
+                text = "Templates",
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
 
-        LazyColumn(
-            modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(uiState.templates.size) { index ->
-                TemplateItem(
-                    template = uiState.templates[index],
-                    onClick = {
-                        onCreateFromTemplate(
-                            uiState.templates[index],
-                            "From Template ${index + 1}"
-                        )
-                    }
-                )
+            Spacer(modifier = Modifier.height(IWBIDesignTokens.space_m))
+
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(IWBIDesignTokens.space_s)
+            ) {
+                items(uiState.templates.size) { index ->
+                    TemplateItem(
+                        template = uiState.templates[index],
+                        onClick = {
+                            onCreateFromTemplate(
+                                uiState.templates[index],
+                                "From Template ${index + 1}"
+                            )
+                        }
+                    )
+                }
             }
         }
     }
@@ -296,63 +326,65 @@ fun ShoppingNoteCard(
     onItemToggle: (String, Int) -> Unit,
     onDeleteNote: (ShoppingNote) -> Unit
 ) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onNoteClick(note) },
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    IWBICard(
+        onClick = { onNoteClick(note) },
+        modifier = Modifier.fillMaxWidth()
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            Text(
+                text = note.title,
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.weight(1f)
+            )
+
+            TextButton(
+                onClick = { onDeleteNote(note) }
             ) {
                 Text(
-                    text = note.title,
-                    fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.headlineSmall
+                    text = "Delete",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.labelMedium
                 )
-
-                TextButton(
-                    onClick = { onDeleteNote(note) }
-                ) {
-                    Text("Delete", color = MaterialTheme.colorScheme.error)
-                }
             }
+        }
 
+        Spacer(modifier = Modifier.height(IWBIDesignTokens.space_s))
+
+        Text(
+            text = "Created by: ${note.createdBy}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
+        if (note.sharedWith.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(IWBIDesignTokens.space_xs))
             Text(
-                text = "Created by: ${note.createdBy}",
+                text = "Shared with: ${note.sharedWith.joinToString(", ")}",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+        }
 
-            if (note.sharedWith.isNotEmpty()) {
-                Text(
-                    text = "Shared with: ${note.sharedWith.joinToString(", ")}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
+        Spacer(modifier = Modifier.height(IWBIDesignTokens.space_m))
 
-            Spacer(modifier = Modifier.height(8.dp))
-
+        if (note.items.isEmpty()) {
+            Text(
+                text = "No items yet - Click to add items!",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Medium
+            )
+        } else {
             note.items.forEachIndexed { index, item ->
                 ShoppingListItem(
                     item = item,
                     onClick = { onItemToggle(note.id, index) }
-                )
-            }
-
-            if (note.items.isEmpty()) {
-                Text(
-                    text = "No items yet - Click to add items!",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(8.dp)
                 )
             }
         }
@@ -364,14 +396,14 @@ fun ShoppingListItem(item: ShoppingItem, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp)
+            .padding(vertical = IWBIDesignTokens.space_xs)
             .background(
                 if (item.isChecked) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
                 else MaterialTheme.colorScheme.surface,
-                RoundedCornerShape(8.dp)
+                RoundedCornerShape(IWBIDesignTokens.corner_radius_s)
             )
             .clickable { onClick() }
-            .padding(12.dp),
+            .padding(IWBIDesignTokens.space_s),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
@@ -379,29 +411,35 @@ fun ShoppingListItem(item: ShoppingItem, onClick: () -> Unit) {
             fontWeight = if (item.isChecked) FontWeight.Light else FontWeight.Normal,
             color = if (item.isChecked) MaterialTheme.colorScheme.onSurfaceVariant
             else MaterialTheme.colorScheme.onSurface,
-            textDecoration = if (item.isChecked) TextDecoration.LineThrough else null
+            textDecoration = if (item.isChecked) TextDecoration.LineThrough else null,
+            style = MaterialTheme.typography.bodyMedium
         )
     }
 }
 
 @Composable
 fun TemplateItem(template: List<ShoppingItem>, onClick: () -> Unit) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() },
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f))
+    IWBICard(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth()
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(IWBIDesignTokens.space_m)
         ) {
+            Icon(
+                imageVector = Icons.Default.ShoppingCart,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.secondary,
+                modifier = Modifier.size(IWBIDesignTokens.icon_size_default)
+            )
+
             Text(
-                text = "📋 Template: ${template.joinToString(", ") { it.name }}",
+                text = "Template: ${template.joinToString(", ") { it.name }}",
                 fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.bodyLarge
             )
         }
     }
