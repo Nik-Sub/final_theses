@@ -40,6 +40,7 @@ fun ImprovedNoteEditingView(
     onToggleItem: (String, Int) -> Unit,
     onDeleteNote: (String) -> Unit,
     onSaveAsTemplate: (String) -> Unit = {},
+    isTemplateAlreadyExists: (String) -> Boolean = { false },
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -120,15 +121,17 @@ fun ImprovedNoteEditingView(
                     )
                 }
 
-                // Save as template button
-                IconButton(
-                    onClick = { onSaveAsTemplate(note.id) }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Star,
-                        contentDescription = "Save as template",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
+                // Save as template button (only show if template doesn't already exist)
+                if (!isTemplateAlreadyExists(note.title)) {
+                    IconButton(
+                        onClick = { onSaveAsTemplate(note.id) }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Star,
+                            contentDescription = "Save as template",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
                 }
 
                 // Delete note button with warning styling

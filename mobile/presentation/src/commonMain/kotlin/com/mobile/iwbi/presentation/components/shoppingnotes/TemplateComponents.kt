@@ -7,7 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -18,6 +18,8 @@ import com.iwbi.domain.shopping.Template
 fun QuickTemplateSelection(
     templates: List<Template>,
     onTemplateSelected: (Template) -> Unit,
+    onTemplateRemoved: (Template) -> Unit,
+    canRemoveTemplate: (Template) -> Boolean,
     onDismiss: () -> Unit
 ) {
     Column(
@@ -64,7 +66,9 @@ fun QuickTemplateSelection(
             items(templates) { template ->
                 LargeTemplateCard(
                     template = template,
-                    onSelect = { onTemplateSelected(template) }
+                    onSelect = { onTemplateSelected(template) },
+                    onRemove = { onTemplateRemoved(template) },
+                    canRemove = canRemoveTemplate(template)
                 )
             }
         }
@@ -74,8 +78,12 @@ fun QuickTemplateSelection(
 @Composable
 fun LargeTemplateCard(
     template: Template,
-    onSelect: () -> Unit
+    onSelect: () -> Unit,
+    onRemove: () -> Unit,
+    canRemove: Boolean
 ) {
+    var showDeleteConfirm by remember { mutableStateOf(false) }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -116,6 +124,20 @@ fun LargeTemplateCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
+
+                // Delete button for removable templates
+                if (canRemove) {
+                    IconButton(
+                        onClick = { showDeleteConfirm = true }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = "Remove template",
+                            tint = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -143,6 +165,36 @@ fun LargeTemplateCard(
                 }
             }
         }
+    }
+
+    // Delete confirmation dialog
+    if (showDeleteConfirm) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirm = false },
+            title = {
+                Text("Remove Template")
+            },
+            text = {
+                Text("Are you sure you want to remove the template \"${template.name}\"? This action cannot be undone.")
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteConfirm = false
+                        onRemove()
+                    }
+                ) {
+                    Text("Remove", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showDeleteConfirm = false }
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }
 

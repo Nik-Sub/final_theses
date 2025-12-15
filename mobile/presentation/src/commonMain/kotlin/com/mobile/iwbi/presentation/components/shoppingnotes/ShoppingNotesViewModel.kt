@@ -422,6 +422,14 @@ class ShoppingNotesViewModel(
             return
         }
 
+        // Check if template already exists
+        if (isTemplateAlreadyExists(note.title)) {
+            _uiState.value = _uiState.value.copy(
+                errorMessage = "Template \"${note.title}\" already exists!"
+            )
+            return
+        }
+
         val currentTemplates = _uiState.value.templates.toMutableList()
 
         // Create new template with the note's actual title
@@ -435,5 +443,31 @@ class ShoppingNotesViewModel(
             templates = currentTemplates,
             errorMessage = "\"${note.title}\" saved as template successfully!"
         )
+    }
+
+    fun removeTemplate(template: Template) {
+        val currentTemplates = _uiState.value.templates.toMutableList()
+        currentTemplates.remove(template)
+
+        _uiState.value = _uiState.value.copy(
+            templates = currentTemplates,
+            errorMessage = "Template \"${template.name}\" removed successfully!"
+        )
+    }
+
+    fun isTemplateAlreadyExists(noteTitle: String): Boolean {
+        return _uiState.value.templates.any { it.name.equals(noteTitle, ignoreCase = true) }
+    }
+
+    fun canRemoveTemplate(template: Template): Boolean {
+        // Allow removal of custom templates (not predefined ones)
+        val predefinedTemplateNames = setOf(
+            "Grocery Essentials",
+            "Weekly Shopping",
+            "Party Supplies",
+            "Healthy Living",
+            "Office Supplies"
+        )
+        return !predefinedTemplateNames.contains(template.name)
     }
 }

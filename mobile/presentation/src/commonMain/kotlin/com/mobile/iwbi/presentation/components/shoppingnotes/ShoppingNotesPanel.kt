@@ -86,6 +86,7 @@ fun ShoppingNotesPanel(
                     onToggleItem = viewModel::toggleItem,
                     onDeleteNote = viewModel::deleteNote,
                     onSaveAsTemplate = viewModel::saveNoteAsTemplate,
+                    isTemplateAlreadyExists = viewModel::isTemplateAlreadyExists,
                     onBack = viewModel::exitEditMode,
                     modifier = modifier
                 )
@@ -102,6 +103,7 @@ fun ShoppingNotesPanel(
                         onDeleteNote = viewModel::deleteNote,
                         onShareNote = viewModel::startSharing,
                         onSaveAsTemplate = viewModel::saveNoteAsTemplate,
+                        isTemplateAlreadyExists = viewModel::isTemplateAlreadyExists,
                         onCategoryChange = viewModel::selectCategory,
                         modifier = modifier
                     )
@@ -146,6 +148,10 @@ fun ShoppingNotesPanel(
                             showTemplateSheet = false
                         }
                     },
+                    onTemplateRemoved = { template ->
+                        viewModel.removeTemplate(template)
+                    },
+                    canRemoveTemplate = viewModel::canRemoveTemplate,
                     onDismiss = {
                         scope.launch {
                             showTemplateSheet = false

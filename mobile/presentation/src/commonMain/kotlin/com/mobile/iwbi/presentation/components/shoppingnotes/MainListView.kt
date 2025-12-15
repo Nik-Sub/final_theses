@@ -29,6 +29,7 @@ fun ImprovedMainListView(
     onDeleteNote: (String) -> Unit,
     onShareNote: (String) -> Unit = {},
     onSaveAsTemplate: (String) -> Unit = {},
+    isTemplateAlreadyExists: (String) -> Boolean = { false },
     onCategoryChange: (NoteCategory) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
@@ -104,7 +105,7 @@ fun ImprovedMainListView(
                 items(notesToShow) { note ->
                     ExpandableShoppingNoteCard(
                         note = note,
-                        isOwner = note.createdBy == uiState.currentUserId,
+                        isOwner = uiState.currentUserId == note.createdBy,
                         isExpanded = expandedNotes.contains(note.id),
                         onExpandToggle = {
                             expandedNotes = if (expandedNotes.contains(note.id)) {
@@ -113,11 +114,12 @@ fun ImprovedMainListView(
                                 expandedNotes + note.id
                             }
                         },
-                        onNoteClick = { onSelectNote(it.id) },
+                        onNoteClick = { onSelectNote(note.id) },
                         onItemToggle = onToggleItem,
-                        onDeleteNote = { onDeleteNote(it.id) },
-                        onShareNote = { onShareNote(it.id) },
-                        onSaveAsTemplate = { onSaveAsTemplate(it.id) }
+                        onDeleteNote = { onDeleteNote(note.id) },
+                        onShareNote = { onShareNote(note.id) },
+                        onSaveAsTemplate = { onSaveAsTemplate(note.id) },
+                        isTemplateAlreadyExists = isTemplateAlreadyExists
                     )
                 }
 
@@ -147,7 +149,8 @@ fun ExpandableShoppingNoteCard(
     onItemToggle: (String, Int) -> Unit,
     onDeleteNote: (ShoppingNote) -> Unit,
     onShareNote: (ShoppingNote) -> Unit,
-    onSaveAsTemplate: (ShoppingNote) -> Unit = {}
+    onSaveAsTemplate: (ShoppingNote) -> Unit = {},
+    isTemplateAlreadyExists: (String) -> Boolean = { false }
 ) {
     Card(
         modifier = Modifier
@@ -185,13 +188,15 @@ fun ExpandableShoppingNoteCard(
 
                 // Action buttons
                 Row {
-                    // Save as template button (available for all notes)
-                    IconButton(onClick = { onSaveAsTemplate(note) }) {
-                        Icon(
-                            imageVector = Icons.Default.Star,
-                            contentDescription = "Save as template",
-                            tint = MaterialTheme.colorScheme.secondary
-                        )
+                    // Save as template button (only show if template doesn't already exist)
+                    if (!isTemplateAlreadyExists(note.title)) {
+                        IconButton(onClick = { onSaveAsTemplate(note) }) {
+                            Icon(
+                                imageVector = Icons.Default.Star,
+                                contentDescription = "Save as template",
+                                tint = MaterialTheme.colorScheme.secondary
+                            )
+                        }
                     }
 
                     if (isOwner) {
