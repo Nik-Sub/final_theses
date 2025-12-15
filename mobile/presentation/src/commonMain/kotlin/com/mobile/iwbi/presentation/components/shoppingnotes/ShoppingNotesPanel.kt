@@ -151,7 +151,6 @@ fun ShoppingNotesPanel(
                     onTemplateRemoved = { template ->
                         viewModel.removeTemplate(template)
                     },
-                    canRemoveTemplate = viewModel::canRemoveTemplate,
                     onDismiss = {
                         scope.launch {
                             showTemplateSheet = false

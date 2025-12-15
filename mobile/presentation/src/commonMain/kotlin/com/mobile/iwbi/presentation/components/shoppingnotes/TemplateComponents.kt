@@ -19,7 +19,6 @@ fun QuickTemplateSelection(
     templates: List<Template>,
     onTemplateSelected: (Template) -> Unit,
     onTemplateRemoved: (Template) -> Unit,
-    canRemoveTemplate: (Template) -> Boolean,
     onDismiss: () -> Unit
 ) {
     Column(
@@ -67,8 +66,7 @@ fun QuickTemplateSelection(
                 LargeTemplateCard(
                     template = template,
                     onSelect = { onTemplateSelected(template) },
-                    onRemove = { onTemplateRemoved(template) },
-                    canRemove = canRemoveTemplate(template)
+                    onRemove = { onTemplateRemoved(template) }
                 )
             }
         }
@@ -79,8 +77,7 @@ fun QuickTemplateSelection(
 fun LargeTemplateCard(
     template: Template,
     onSelect: () -> Unit,
-    onRemove: () -> Unit,
-    canRemove: Boolean
+    onRemove: () -> Unit
 ) {
     var showDeleteConfirm by remember { mutableStateOf(false) }
 
@@ -125,18 +122,16 @@ fun LargeTemplateCard(
                     )
                 }
 
-                // Delete button for removable templates
-                if (canRemove) {
-                    IconButton(
-                        onClick = { showDeleteConfirm = true }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = "Remove template",
-                            tint = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
+                // Delete button - always show since all templates can be removed
+                IconButton(
+                    onClick = { showDeleteConfirm = true }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Remove template",
+                        tint = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.size(24.dp)
+                    )
                 }
             }
 

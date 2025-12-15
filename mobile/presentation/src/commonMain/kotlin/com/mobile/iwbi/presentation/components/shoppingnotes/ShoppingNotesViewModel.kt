@@ -31,7 +31,6 @@ class ShoppingNotesViewModel(
         observeShoppingNotes()
         loadFriends()
         observeCurrentUser()
-        loadPredefinedTemplates()
     }
 
     private fun observeShoppingNotes() {
@@ -322,94 +321,6 @@ class ShoppingNotesViewModel(
         _uiState.value = _uiState.value.copy(errorMessage = null)
     }
 
-    // Template functionality
-    private fun loadPredefinedTemplates() {
-        val predefinedTemplates = listOf(
-            // Grocery Essentials
-            Template(
-                name = "Grocery Essentials",
-                items = listOf(
-                    ShoppingItem(name = "Bread"),
-                    ShoppingItem(name = "Milk"),
-                    ShoppingItem(name = "Eggs"),
-                    ShoppingItem(name = "Butter"),
-                    ShoppingItem(name = "Rice"),
-                    ShoppingItem(name = "Pasta"),
-                    ShoppingItem(name = "Chicken"),
-                    ShoppingItem(name = "Onions"),
-                    ShoppingItem(name = "Tomatoes"),
-                    ShoppingItem(name = "Cheese")
-                )
-            ),
-            // Weekly Shopping
-            Template(
-                name = "Weekly Shopping",
-                items = listOf(
-                    ShoppingItem(name = "Vegetables"),
-                    ShoppingItem(name = "Fruits"),
-                    ShoppingItem(name = "Meat"),
-                    ShoppingItem(name = "Fish"),
-                    ShoppingItem(name = "Yogurt"),
-                    ShoppingItem(name = "Cereal"),
-                    ShoppingItem(name = "Snacks"),
-                    ShoppingItem(name = "Cleaning supplies"),
-                    ShoppingItem(name = "Toilet paper"),
-                    ShoppingItem(name = "Shampoo")
-                )
-            ),
-            // Party Supplies
-            Template(
-                name = "Party Supplies",
-                items = listOf(
-                    ShoppingItem(name = "Chips"),
-                    ShoppingItem(name = "Drinks"),
-                    ShoppingItem(name = "Cake"),
-                    ShoppingItem(name = "Ice cream"),
-                    ShoppingItem(name = "Balloons"),
-                    ShoppingItem(name = "Plates"),
-                    ShoppingItem(name = "Cups"),
-                    ShoppingItem(name = "Napkins"),
-                    ShoppingItem(name = "Music playlist"),
-                    ShoppingItem(name = "Decorations")
-                )
-            ),
-            // Healthy Living
-            Template(
-                name = "Healthy Living",
-                items = listOf(
-                    ShoppingItem(name = "Spinach"),
-                    ShoppingItem(name = "Broccoli"),
-                    ShoppingItem(name = "Quinoa"),
-                    ShoppingItem(name = "Salmon"),
-                    ShoppingItem(name = "Avocado"),
-                    ShoppingItem(name = "Nuts"),
-                    ShoppingItem(name = "Greek yogurt"),
-                    ShoppingItem(name = "Berries"),
-                    ShoppingItem(name = "Olive oil"),
-                    ShoppingItem(name = "Green tea")
-                )
-            ),
-            // Office Supplies
-            Template(
-                name = "Office Supplies",
-                items = listOf(
-                    ShoppingItem(name = "Pens"),
-                    ShoppingItem(name = "Paper"),
-                    ShoppingItem(name = "Notebooks"),
-                    ShoppingItem(name = "Stapler"),
-                    ShoppingItem(name = "Paper clips"),
-                    ShoppingItem(name = "Highlighters"),
-                    ShoppingItem(name = "Post-it notes"),
-                    ShoppingItem(name = "Folders"),
-                    ShoppingItem(name = "Calculator"),
-                    ShoppingItem(name = "USB drive")
-                )
-            )
-        )
-
-        _uiState.value = _uiState.value.copy(templates = predefinedTemplates)
-    }
-
     fun saveNoteAsTemplate(noteId: String) {
         val note = _uiState.value.myNotes.find { it.id == noteId }
             ?: _uiState.value.sharedNotes.find { it.id == noteId }
@@ -457,17 +368,5 @@ class ShoppingNotesViewModel(
 
     fun isTemplateAlreadyExists(noteTitle: String): Boolean {
         return _uiState.value.templates.any { it.name.equals(noteTitle, ignoreCase = true) }
-    }
-
-    fun canRemoveTemplate(template: Template): Boolean {
-        // Allow removal of custom templates (not predefined ones)
-        val predefinedTemplateNames = setOf(
-            "Grocery Essentials",
-            "Weekly Shopping",
-            "Party Supplies",
-            "Healthy Living",
-            "Office Supplies"
-        )
-        return !predefinedTemplateNames.contains(template.name)
     }
 }
