@@ -31,6 +31,7 @@ fun IWBITextField(
     leadingIcon: ImageVector? = null,
     trailingIcon: ImageVector? = null,
     onTrailingIconClick: (() -> Unit)? = null,
+    trailingContent: (@Composable () -> Unit)? = null,
     supportingText: String? = null,
     isError: Boolean = false,
     errorText: String? = null,
@@ -73,7 +74,9 @@ fun IWBITextField(
                     )
                 }
             } else null,
-            trailingIcon = if (trailingIcon != null) {
+            trailingIcon = if (trailingContent != null) {
+                trailingContent
+            } else if (trailingIcon != null) {
                 {
                     IconButton(
                         onClick = { onTrailingIconClick?.invoke() },

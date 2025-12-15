@@ -216,8 +216,8 @@ fun ImprovedNoteEditingView(
             // Items list with animations for add/remove
             LazyColumn(
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(vertical = 8.dp)
+                verticalArrangement = Arrangement.spacedBy(IWBIDesignTokens.space_m),
+                contentPadding = PaddingValues(vertical = IWBIDesignTokens.space_m)
             ) {
                 itemsIndexed(
                     items = note.items,

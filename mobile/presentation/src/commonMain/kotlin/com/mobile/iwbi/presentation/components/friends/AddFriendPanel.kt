@@ -48,6 +48,7 @@ import com.mobile.iwbi.presentation.components.layout.IWBIContentContainer
 import com.mobile.iwbi.presentation.components.layout.IWBIEmptyState
 import com.mobile.iwbi.presentation.components.layout.IWBIScreen
 import com.mobile.iwbi.presentation.design.IWBIDesignTokens
+import com.mobile.iwbi.presentation.design.components.IWBISearchField
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -99,45 +100,15 @@ fun AddFriendPanel(
 
             Spacer(modifier = Modifier.height(IWBIDesignTokens.space_m))
 
-            OutlinedTextField(
+            IWBISearchField(
                 value = uiState.searchQuery,
                 onValueChange = { query ->
                     viewModel.updateSearchQuery(query)
                 },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = {
-                    Text(
-                        text = "Enter email address...",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "Search icon",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                },
-                trailingIcon = {
-                    if (uiState.searchQuery.isNotEmpty()) {
-                        IconButton(onClick = {
-                            viewModel.clearSearchResults()
-                        }) {
-                            Icon(
-                                imageVector = Icons.Default.Clear,
-                                contentDescription = "Clear search"
-                            )
-                        }
-                    }
-                },
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                keyboardActions = KeyboardActions(
-                    onSearch = {
-                        viewModel.searchUsers(uiState.searchQuery)
-                        keyboardController?.hide()
-                    }
-                ),
-                singleLine = true
+                placeholder = "Enter email address...",
+                onClear = { viewModel.clearSearchResults() },
+                enabled = !uiState.isLoading
             )
 
             Spacer(modifier = Modifier.height(IWBIDesignTokens.space_m))

@@ -224,39 +224,44 @@ fun ExpandableShoppingNoteCard(
             if (isExpanded && note.items.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(IWBIDesignTokens.space_m))
 
-                note.items.take(5).forEachIndexed { index, item ->
-                    Text(
-                        text = item.name,
-                        style = MaterialTheme.typography.titleMedium, // Made text bigger (was bodyMedium)
-                        color = if (item.isChecked) {
-                            Color.White // White text on green background for better contrast
-                        } else {
-                            MaterialTheme.colorScheme.onSurface
-                        },
-                        textDecoration = if (item.isChecked) TextDecoration.LineThrough else null,
-                        fontWeight = if (item.isChecked) FontWeight.Normal else FontWeight.Medium,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(
-                                color = if (item.isChecked) {
-                                    IWBIDesignTokens.BrandColors.Success.copy(alpha = 0.8f) // Brand success color
-                                } else {
-                                    Color.Transparent
-                                },
-                                shape = RoundedCornerShape(IWBIDesignTokens.corner_radius_s)
-                            )
-                            .clickable { onItemToggle(note.id, index) }
-                            .padding(IWBIDesignTokens.space_m) // Increased padding for better touch target
-                    )
-                }
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(IWBIDesignTokens.space_s)
+                ) {
+                    note.items.take(5).forEachIndexed { index, item ->
+                        Text(
+                            text = item.name,
+                            style = MaterialTheme.typography.titleMedium, // Made text bigger (was bodyMedium)
+                            color = if (item.isChecked) {
+                                Color.White // White text on green background for better contrast
+                            } else {
+                                MaterialTheme.colorScheme.onSurface
+                            },
+                            textDecoration = if (item.isChecked) TextDecoration.LineThrough else null,
+                            fontWeight = if (item.isChecked) FontWeight.Normal else FontWeight.Medium,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(
+                                    color = if (item.isChecked) {
+                                        IWBIDesignTokens.BrandColors.Success.copy(alpha = 0.8f) // Brand success color
+                                    } else {
+                                        Color.Transparent
+                                    },
+                                    shape = RoundedCornerShape(IWBIDesignTokens.corner_radius_s)
+                                )
+                                .clickable { onItemToggle(note.id, index) }
+                                .padding(IWBIDesignTokens.space_m) // Increased padding for better touch target
+                        )
+                    }
 
-                if (note.items.size > 5) {
-                    Text(
-                        text = "... and ${note.items.size - 5} more items",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(start = IWBIDesignTokens.space_s, top = IWBIDesignTokens.space_xs)
-                    )
+                    if (note.items.size > 5) {
+                        Text(
+                            text = "... and ${note.items.size - 5} more items",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(start = IWBIDesignTokens.space_s, top = IWBIDesignTokens.space_xs)
+                        )
+                    }
                 }
             }
         }

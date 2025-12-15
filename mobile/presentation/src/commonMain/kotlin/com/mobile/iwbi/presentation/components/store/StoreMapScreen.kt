@@ -35,6 +35,10 @@ import com.mobile.iwbi.domain.map.PathfindingService
 import com.mobile.iwbi.domain.map.PathfindingService.PathNode
 import com.mobile.iwbi.domain.store.Store
 import com.mobile.iwbi.presentation.components.IWBITopAppBar
+import com.mobile.iwbi.presentation.design.IWBIDesignTokens
+import com.mobile.iwbi.presentation.design.components.IWBICard
+import com.mobile.iwbi.presentation.design.components.IWBICardStyle
+import com.mobile.iwbi.presentation.design.components.IWBISearchField
 import kotlinx.serialization.json.Json
 import kotlin.math.min
 import kotlin.math.max
@@ -88,89 +92,69 @@ fun StoreMapScreen(
             modifier = Modifier
                 .padding(padding)
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(IWBIDesignTokens.space_m)
         ) {
-            // Search bar
-            Card(
+            // Branded Search Field
+            IWBISearchField(
+                value = searchText,
+                onValueChange = { searchText = it },
                 modifier = Modifier.fillMaxWidth(),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(88.dp)
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "Search",
-                        modifier = Modifier.padding(end = 8.dp)
-                    )
-                    BasicTextField(
-                        value = searchText,
-                        onValueChange = { searchText = it },
-                        modifier = Modifier.weight(1f),
-                        textStyle = LocalTextStyle.current.copy(fontSize = 20.sp),
-                        decorationBox = { innerTextField ->
-                            Box(
-                                Modifier.fillMaxHeight(), // Ensures placeholder and text are vertically centered
-                                contentAlignment = Alignment.CenterStart
-                            ) {
-                                if (searchText.isEmpty()) {
-                                    Text(
-                                        "Search for products (e.g., chocolate, bread, milk)",
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                                innerTextField()
-                            }
-                        }
-                    )
-                }
-            }
+                placeholder = "Search for products (e.g., chocolate, bread, milk)",
+                onClear = { searchText = "" }
+            )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(IWBIDesignTokens.space_m))
 
             if (storeLayout != null) {
-                // Store Map taking remaining space
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                        .clip(MaterialTheme.shapes.medium),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(Color(0xFFF5F5F5))
-                            .padding(16.dp)
-                    ) {
-                        StoreFloorPlan(
-                            layout = storeLayout,
-                            highlightedSection = highlightedSection,
-                            pathToDisplay = pathToDisplay,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
-                }
-            } else {
-                Card(
+                // Store Map with branded card
+                IWBICard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer)
+                    style = IWBICardStyle.ELEVATED,
+                    padding = IWBIDesignTokens.space_l
+                ) {
+                    StoreFloorPlan(
+                        layout = storeLayout,
+                        highlightedSection = highlightedSection,
+                        pathToDisplay = pathToDisplay,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+            } else {
+                // Error state with branded card
+                IWBICard(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    style = IWBICardStyle.ERROR
                 ) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            "Invalid map data",
-                            style = MaterialTheme.typography.headlineSmall,
-                            color = MaterialTheme.colorScheme.onErrorContainer
-                        )
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(IWBIDesignTokens.space_s)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = null,
+                                modifier = Modifier.size(IWBIDesignTokens.IconSizes.XLarge),
+                                tint = MaterialTheme.colorScheme.error
+                            )
+                            Text(
+                                "Invalid map data",
+                                style = MaterialTheme.typography.headlineSmall,
+                                color = MaterialTheme.colorScheme.error,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                "Unable to load store map",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onErrorContainer
+                            )
+                        }
                     }
                 }
             }

@@ -48,6 +48,8 @@ import com.iwbi.domain.user.User
 import com.mobile.iwbi.presentation.components.IWBITopAppBar
 import com.mobile.iwbi.presentation.design.IWBIDesignTokens
 import com.mobile.iwbi.presentation.design.StandardPadding
+import com.mobile.iwbi.presentation.design.components.IWBIListItemCard
+import com.mobile.iwbi.presentation.design.components.IWBICardStyle
 import com.mobile.iwbi.presentation.uistate.FriendsUiState
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -182,63 +184,22 @@ private fun FriendItem(
     onRemoveFriend: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = IWBIDesignTokens.elevation_card),
-        shape = RoundedCornerShape(IWBIDesignTokens.corner_radius_m)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(StandardPadding),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Profile picture placeholder
-            Box(
-                modifier = Modifier
-                    .size(IWBIDesignTokens.icon_size_large)
-                    .clip(CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = "Profile Picture",
-                    modifier = Modifier.size(IWBIDesignTokens.icon_size_default),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
-            Spacer(modifier = Modifier.width(IWBIDesignTokens.space_m))
-
-            // Friend info
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = friend.displayName,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Medium
-                )
-                if (friend.email.isNotEmpty()) {
-                    Text(
-                        text = friend.email,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-
-            // Remove friend button
+    IWBIListItemCard(
+        title = friend.displayName,
+        subtitle = if (friend.email.isNotEmpty()) friend.email else null,
+        leadingIcon = Icons.Default.Person,
+        modifier = modifier,
+        style = IWBICardStyle.ELEVATED,
+        trailingContent = {
             IconButton(onClick = onRemoveFriend) {
                 Icon(
                     imageVector = Icons.Default.Delete,
                     contentDescription = "Remove Friend",
-                    tint = MaterialTheme.colorScheme.error
+                    tint = IWBIDesignTokens.BrandColors.Error
                 )
             }
         }
-    }
+    )
 }
 
 @Composable
