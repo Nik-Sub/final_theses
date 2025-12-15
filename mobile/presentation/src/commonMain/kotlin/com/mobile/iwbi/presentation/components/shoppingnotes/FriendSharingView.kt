@@ -22,7 +22,10 @@ fun FriendSharingView(
     note: ShoppingNote,
     friends: List<User>,
     selectedFriends: Set<String>,
+    searchQuery: String = "",
+    onSearchQueryChange: (String) -> Unit = {},
     onToggleFriend: (User) -> Unit,
+    onRemoveFriend: (User) -> Unit = {},
     onShareWithSelected: () -> Unit,
     onCancel: () -> Unit
 ) {
@@ -81,27 +84,107 @@ fun FriendSharingView(
 
         Spacer(modifier = Modifier.height(IWBIDesignTokens.space_l))
 
-        Text(
-            text = "Select friends to share with:",
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Medium
+        // Search field
+        OutlinedTextField(
+            value = searchQuery,
+            onValueChange = onSearchQueryChange,
+            modifier = Modifier.fillMaxWidth(),
+            placeholder = { Text("Search friends...") },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = "Search"
+                )
+            },
+            trailingIcon = {
+                if (searchQuery.isNotEmpty()) {
+                    IconButton(onClick = { onSearchQueryChange("") }) {
+                        Icon(
+                            imageVector = Icons.Default.Clear,
+                            contentDescription = "Clear search"
+                        )
+                    }
+                }
+            },
+            singleLine = true,
+            shape = RoundedCornerShape(IWBIDesignTokens.corner_radius_m)
         )
 
         Spacer(modifier = Modifier.height(IWBIDesignTokens.space_m))
 
-        // Friends list
+        // Filter friends based on search query
+        val filteredFriends = if (searchQuery.isBlank()) {
+            friends
+        } else {
+            friends.filter { friend ->
+                friend.displayName.contains(searchQuery, ignoreCase = true) ||
+                friend.email.contains(searchQuery, ignoreCase = true)
+            }
+        }
+
+        // Separate friends into two groups
+        val alreadySharedFriends = filteredFriends.filter { friend ->
+            note.sharedWith.contains(friend.id)
+        }
+        val availableFriends = filteredFriends.filter { friend ->
+            !note.sharedWith.contains(friend.id)
+        }
+
+        // Friends list with sections
         LazyColumn(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(IWBIDesignTokens.space_s)
         ) {
-            items(friends) { friend ->
-                FriendSelectionItem(
-                    friend = friend,
-                    isSelected = selectedFriends.contains(friend.id),
-                    onToggle = { onToggleFriend(friend) }
-                )
+            // Already Shared Section
+            if (alreadySharedFriends.isNotEmpty()) {
+                item {
+                    Text(
+                        text = "Already Shared (${alreadySharedFriends.size})",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(vertical = IWBIDesignTokens.space_xs)
+                    )
+                }
+
+                items(alreadySharedFriends) { friend ->
+                    FriendSelectionItem(
+                        friend = friend,
+                        isSelected = selectedFriends.contains(friend.id),
+                        onToggle = { onToggleFriend(friend) },
+                        onRemove = { onRemoveFriend(friend) },
+                        isAlreadyShared = true
+                    )
+                }
+
+                item {
+                    Spacer(modifier = Modifier.height(IWBIDesignTokens.space_m))
+                }
             }
 
+            // Available to Share Section
+            if (availableFriends.isNotEmpty()) {
+                item {
+                    Text(
+                        text = "Available to Share (${availableFriends.size})",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(vertical = IWBIDesignTokens.space_xs)
+                    )
+                }
+
+                items(availableFriends) { friend ->
+                    FriendSelectionItem(
+                        friend = friend,
+                        isSelected = selectedFriends.contains(friend.id),
+                        onToggle = { onToggleFriend(friend) },
+                        isAlreadyShared = false
+                    )
+                }
+            }
+
+            // Empty state
             if (friends.isEmpty()) {
                 item {
                     Column(
@@ -127,6 +210,50 @@ fun FriendSharingView(
                             text = "Add friends to share your shopping lists!",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                        )
+                    }
+                }
+            } else if (filteredFriends.isEmpty() && searchQuery.isNotBlank()) {
+                item {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(IWBIDesignTokens.space_xl),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = null,
+                            modifier = Modifier.size(IWBIDesignTokens.icon_size_large),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
+                        )
+                        Spacer(modifier = Modifier.height(IWBIDesignTokens.space_m))
+                        Text(
+                            text = "No friends found",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontWeight = FontWeight.Medium
+                        )
+                        Text(
+                            text = "Try a different search term",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                        )
+                    }
+                }
+            } else if (availableFriends.isEmpty() && alreadySharedFriends.isNotEmpty()) {
+                item {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(IWBIDesignTokens.space_l),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "All your friends already have access to this note!",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontWeight = FontWeight.Medium
                         )
                     }
                 }
@@ -176,20 +303,23 @@ fun FriendSharingView(
 private fun FriendSelectionItem(
     friend: User,
     isSelected: Boolean,
-    onToggle: () -> Unit
+    onToggle: () -> Unit,
+    onRemove: () -> Unit = {},
+    isAlreadyShared: Boolean = false
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) {
-                MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-            } else {
-                MaterialTheme.colorScheme.surface
+            containerColor = when {
+                isAlreadyShared && isSelected -> MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                isAlreadyShared -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                isSelected -> MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                else -> MaterialTheme.colorScheme.surface
             }
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = IWBIDesignTokens.elevation_card),
         shape = RoundedCornerShape(IWBIDesignTokens.corner_radius_m),
-        onClick = onToggle
+        onClick = if (isAlreadyShared) { {} } else onToggle
     ) {
         Row(
             modifier = Modifier
@@ -197,12 +327,14 @@ private fun FriendSelectionItem(
                 .padding(StandardPadding),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Checkbox(
-                checked = isSelected,
-                onCheckedChange = { onToggle() }
-            )
-
-            Spacer(modifier = Modifier.width(IWBIDesignTokens.space_m))
+            // Show checkbox only for non-shared friends
+            if (!isAlreadyShared) {
+                Checkbox(
+                    checked = isSelected,
+                    onCheckedChange = { onToggle() }
+                )
+                Spacer(modifier = Modifier.width(IWBIDesignTokens.space_m))
+            }
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
@@ -219,7 +351,48 @@ private fun FriendSelectionItem(
                 }
             }
 
-            if (isSelected) {
+            if (isAlreadyShared) {
+                Surface(
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                    shape = RoundedCornerShape(IWBIDesignTokens.corner_radius_s),
+                    modifier = Modifier.padding(end = IWBIDesignTokens.space_s)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(
+                            horizontal = IWBIDesignTokens.space_s,
+                            vertical = IWBIDesignTokens.space_xs
+                        ),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Share,
+                            contentDescription = "Already shared",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(14.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "Shared",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+
+                // Remove button for already shared friends
+                IconButton(
+                    onClick = onRemove,
+                    modifier = Modifier.size(40.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Remove access",
+                        tint = MaterialTheme.colorScheme.error
+                    )
+                }
+            }
+
+            if (isSelected && !isAlreadyShared) {
                 Icon(
                     imageVector = Icons.Default.Check,
                     contentDescription = "Selected",

@@ -17,6 +17,7 @@ interface ShoppingNotesServicePort {
 
     // Friend-based sharing methods
     suspend fun shareNoteWithFriends(noteId: String, friendIds: List<String>): Result<Unit>
+    suspend fun removeFriendFromNote(noteId: String, friendId: String): Result<Unit>
     fun observeShareableNotes(): StateFlow<List<ShoppingNote>>
     fun observeNotesSharedWithMe(): StateFlow<List<ShoppingNote>>
 }

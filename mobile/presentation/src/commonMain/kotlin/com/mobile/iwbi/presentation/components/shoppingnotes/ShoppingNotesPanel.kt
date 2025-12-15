@@ -67,7 +67,10 @@ fun ShoppingNotesPanel(
                     note = uiState.selectedNoteForSharing!!,
                     friends = uiState.friends,
                     selectedFriends = uiState.selectedFriends,
+                    searchQuery = uiState.friendSearchQuery,
+                    onSearchQueryChange = viewModel::updateFriendSearchQuery,
                     onToggleFriend = viewModel::toggleFriendSelection,
+                    onRemoveFriend = viewModel::removeFriendFromNote,
                     onShareWithSelected = viewModel::shareWithSelectedFriends,
                     onCancel = viewModel::cancelSharing
                 )

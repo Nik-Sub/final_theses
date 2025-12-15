@@ -266,7 +266,8 @@ class ShoppingNotesViewModel(
         _uiState.value = _uiState.value.copy(
             selectedNoteForSharing = note,
             isSharing = true,
-            selectedFriends = emptySet()
+            selectedFriends = emptySet(),
+            friendSearchQuery = ""
         )
     }
 
@@ -274,8 +275,13 @@ class ShoppingNotesViewModel(
         _uiState.value = _uiState.value.copy(
             selectedNoteForSharing = null,
             isSharing = false,
-            selectedFriends = emptySet()
+            selectedFriends = emptySet(),
+            friendSearchQuery = ""
         )
+    }
+
+    fun updateFriendSearchQuery(query: String) {
+        _uiState.value = _uiState.value.copy(friendSearchQuery = query)
     }
 
     fun toggleFriendSelection(friend: User) {
@@ -311,6 +317,34 @@ class ShoppingNotesViewModel(
                 } catch (e: Exception) {
                     _uiState.value = _uiState.value.copy(
                         errorMessage = "Failed to share note: ${e.message}"
+                    )
+                }
+            }
+        }
+    }
+
+    fun removeFriendFromNote(friend: User) {
+        val noteId = _uiState.value.selectedNoteForSharing?.id
+        if (noteId != null) {
+            viewModelScope.launch {
+                try {
+                    val result = shoppingNotesServicePort.removeFriendFromNote(noteId, friend.id)
+                    if (result.isSuccess) {
+                        // Update the selected note for sharing to reflect the change
+                        val updatedNote = _uiState.value.selectedNoteForSharing?.copy(
+                            sharedWith = _uiState.value.selectedNoteForSharing!!.sharedWith.filter { it != friend.id }
+                        )
+                        _uiState.value = _uiState.value.copy(
+                            selectedNoteForSharing = updatedNote
+                        )
+                    } else {
+                        _uiState.value = _uiState.value.copy(
+                            errorMessage = "Failed to remove friend: ${result.exceptionOrNull()?.message}"
+                        )
+                    }
+                } catch (e: Exception) {
+                    _uiState.value = _uiState.value.copy(
+                        errorMessage = "Failed to remove friend: ${e.message}"
                     )
                 }
             }

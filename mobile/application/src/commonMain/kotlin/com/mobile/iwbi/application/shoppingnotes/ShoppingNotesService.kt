@@ -110,6 +110,20 @@ class ShoppingNotesService(
         }
     }
 
+    override suspend fun removeFriendFromNote(noteId: String, friendId: String): Result<Unit> {
+        return try {
+            val note = shoppingNotesRepositoryPort.getShoppingNote(noteId) ?: return Result.failure(Exception("Note not found"))
+            val updatedNote = note.copy(
+                sharedWith = note.sharedWith.filter { it != friendId },
+                lastModified = Clock.System.now().toEpochMilliseconds()
+            )
+            shoppingNotesRepositoryPort.updateShoppingNote(updatedNote)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     override fun observeShareableNotes(): StateFlow<List<ShoppingNote>> {
         // Return notes created by the current user that can be shared
         return combine(

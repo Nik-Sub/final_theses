@@ -18,6 +18,7 @@ data class ShoppingNotesUiState(
     val selectedNoteForSharing: ShoppingNote? = null,
     val isSharing: Boolean = false,
     val selectedFriends: Set<String> = emptySet(),
+    val friendSearchQuery: String = "",
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     val editedNoteTitle: String = "",
