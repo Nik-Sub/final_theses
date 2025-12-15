@@ -1,1 +1,7 @@
 /build
+
+# Ignore all log files and the logs directory
+/logs/
+logs/
+*.log
+*.log.*
