@@ -204,66 +204,75 @@ private fun FriendRequestItem(
     IWBICard(
         modifier = modifier.fillMaxWidth()
     ) {
-        Row(
+        Column(
             modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(IWBIDesignTokens.space_m)
+            verticalArrangement = Arrangement.spacedBy(IWBIDesignTokens.space_m)
         ) {
-            // User avatar placeholder
-            Box(
-                modifier = Modifier
-                    .size(IWBIDesignTokens.icon_size_large)
-                    .clip(CircleShape),
-                contentAlignment = Alignment.Center
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(IWBIDesignTokens.space_m)
             ) {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = "User avatar",
-                    modifier = Modifier.size(IWBIDesignTokens.icon_size_default),
-                    tint = MaterialTheme.colorScheme.primary
-                )
+                // User avatar placeholder
+                Box(
+                    modifier = Modifier
+                        .size(IWBIDesignTokens.icon_size_large)
+                        .clip(CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = "User avatar",
+                        modifier = Modifier.size(IWBIDesignTokens.icon_size_default),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+
+                // User information - Display email and status only
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    val displayUser = if (isReceived) request.fromUser else request.toUser
+
+                    // Show email with ellipsis for long emails
+                    Text(
+                        text = displayUser.email,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Medium,
+                        maxLines = 1,
+                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                    )
+
+                    Spacer(modifier = Modifier.height(IWBIDesignTokens.space_xxs))
+
+                    // Show status
+                    Text(
+                        text = if (showActions) "Wants to be your friend" else "Request pending",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
 
-            // User information - Display email and status only
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                val displayUser = if (isReceived) request.fromUser else request.toUser
-
-                // Show email
-                Text(
-                    text = displayUser.email,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Medium
-                )
-
-                Spacer(modifier = Modifier.height(IWBIDesignTokens.space_xs))
-
-                // Show status
-                Text(
-                    text = if (showActions) "Wants to be your friend" else "Request pending",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontWeight = FontWeight.Medium
-                )
-            }
-
-            // Action buttons
+            // Action buttons - moved to separate row below for better layout
             if (showActions) {
                 Row(
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(IWBIDesignTokens.space_s)
                 ) {
                     IWBIButton(
                         text = "Accept",
                         onClick = onAccept,
                         icon = Icons.Default.Check,
-                        variant = ButtonVariant.SECONDARY
+                        variant = ButtonVariant.SECONDARY,
+                        modifier = Modifier.weight(1f)
                     )
                     IWBIButton(
                         text = "Decline",
                         onClick = onDecline,
                         icon = Icons.Default.Close,
-                        variant = ButtonVariant.OUTLINE
+                        variant = ButtonVariant.OUTLINE,
+                        modifier = Modifier.weight(1f)
                     )
                 }
             }
