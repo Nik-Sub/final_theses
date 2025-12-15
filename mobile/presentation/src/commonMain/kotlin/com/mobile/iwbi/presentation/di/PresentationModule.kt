@@ -10,7 +10,6 @@ import com.mobile.iwbi.application.shoppingnotes.input.ShoppingNotesServicePort
 import com.mobile.iwbi.presentation.AppViewModel
 import com.mobile.iwbi.presentation.components.friends.FriendsViewModel
 import com.mobile.iwbi.presentation.components.friends.ShareNoteViewModel
-import com.mobile.iwbi.presentation.components.home.HomePanelViewModel
 import com.mobile.iwbi.presentation.components.login.LoginPanelViewModel
 import com.mobile.iwbi.presentation.components.profile.ProfileViewModel
 import com.mobile.iwbi.presentation.components.shoppingnotes.ShoppingNotesViewModel
@@ -27,9 +26,7 @@ val presentationModule = module {
         LoginPanelViewModel(get())
     }
 
-    viewModel {
-        HomePanelViewModel(get(), get())
-    }
+    // HomePanelViewModel removed - not currently in use
 
     viewModel {
         FriendsViewModel(get())

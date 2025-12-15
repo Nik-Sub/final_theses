@@ -12,10 +12,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import com.mobile.iwbi.presentation.components.IWBITopAppBar
 import com.mobile.iwbi.presentation.design.IWBIDesignTokens
 import com.mobile.iwbi.presentation.design.StandardPadding
 import org.koin.compose.viewmodel.koinViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfilePanel(
     modifier: Modifier = Modifier,
@@ -23,21 +25,20 @@ fun ProfilePanel(
 ) {
     val currentUser by viewModel.currentUser.collectAsState()
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(StandardPadding),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(IWBIDesignTokens.space_m)
-    ) {
-        // Header
-        Text(
-            text = "Profile",
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold
-        )
-
-        Spacer(modifier = Modifier.height(IWBIDesignTokens.space_l))
+    Scaffold(
+        topBar = {
+            IWBITopAppBar(
+                headerTitle = "Profile"
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(StandardPadding),
+            verticalArrangement = Arrangement.spacedBy(IWBIDesignTokens.space_m)
+        ) {
 
         currentUser?.let { user ->
             // User info card
@@ -136,4 +137,5 @@ fun ProfilePanel(
             )
         }
     }
+}
 }

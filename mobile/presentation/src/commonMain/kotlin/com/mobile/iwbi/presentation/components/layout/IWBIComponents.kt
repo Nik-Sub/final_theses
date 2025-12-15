@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mobile.iwbi.presentation.components.IWBITopAppBar
 import com.mobile.iwbi.presentation.design.IWBIDesignTokens
 import com.mobile.iwbi.presentation.design.StandardPadding
 
@@ -32,28 +33,14 @@ fun IWBIScreen(
         modifier = modifier,
         topBar = if (showTopBar) {
             {
-                TopAppBar(
-                    title = {
-                        Text(
-                            text = title,
-                            fontWeight = FontWeight.Medium
-                        )
-                    },
-                    navigationIcon = {
-                        navigationIcon?.let { icon ->
-                            IconButton(onClick = onNavigationClick ?: {}) {
-                                Icon(
-                                    imageVector = icon,
-                                    contentDescription = "Navigation"
-                                )
-                            }
+                IWBITopAppBar(
+                    headerTitle = title,
+                    onLeadingIconClick = if (navigationIcon != null) onNavigationClick else null,
+                    actions = {
+                        Row {
+                            actions()
                         }
-                    },
-                    actions = actions,
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.surface,
-                        titleContentColor = MaterialTheme.colorScheme.onSurface
-                    )
+                    }
                 )
             }
         } else { {} },

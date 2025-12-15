@@ -119,6 +119,7 @@ fun App() {
                         StoreMapScreen(
                             store = args.store,
                             onSearchItem = { /* ... */ },
+                            onNavigateBack = { navController.popBackStack() },
                             routeToItem = "Route to ${args.store}"
                         )
                     }

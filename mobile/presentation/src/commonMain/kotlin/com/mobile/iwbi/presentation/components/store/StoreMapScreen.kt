@@ -34,6 +34,7 @@ import com.mobile.iwbi.domain.map.NodeType
 import com.mobile.iwbi.domain.map.PathfindingService
 import com.mobile.iwbi.domain.map.PathfindingService.PathNode
 import com.mobile.iwbi.domain.store.Store
+import com.mobile.iwbi.presentation.components.IWBITopAppBar
 import kotlinx.serialization.json.Json
 import kotlin.math.min
 import kotlin.math.max
@@ -43,6 +44,7 @@ import kotlin.math.max
 fun StoreMapScreen(
     store: Store,
     onSearchItem: (String) -> Unit,
+    onNavigateBack: () -> Unit,
     routeToItem: String? = null
 ) {
     var searchText by remember { mutableStateOf("") }
@@ -76,8 +78,9 @@ fun StoreMapScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Map of ${store.name}") }
+            IWBITopAppBar(
+                headerTitle = "Map of ${store.name}",
+                onLeadingIconClick = onNavigateBack
             )
         }
     ) { padding ->

@@ -16,6 +16,9 @@ import com.iwbi.domain.shopping.ShoppingNote
 import com.iwbi.domain.user.User
 import com.mobile.iwbi.presentation.design.IWBIDesignTokens
 import com.mobile.iwbi.presentation.design.StandardPadding
+import com.mobile.iwbi.presentation.design.components.IWBIButton
+import com.mobile.iwbi.presentation.design.components.IWBIButtonStyle
+import com.mobile.iwbi.presentation.design.components.IWBISearchField
 
 @Composable
 fun FriendSharingView(
@@ -85,29 +88,12 @@ fun FriendSharingView(
         Spacer(modifier = Modifier.height(IWBIDesignTokens.space_l))
 
         // Search field
-        OutlinedTextField(
+        IWBISearchField(
             value = searchQuery,
             onValueChange = onSearchQueryChange,
             modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text("Search friends...") },
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = "Search"
-                )
-            },
-            trailingIcon = {
-                if (searchQuery.isNotEmpty()) {
-                    IconButton(onClick = { onSearchQueryChange("") }) {
-                        Icon(
-                            imageVector = Icons.Default.Clear,
-                            contentDescription = "Clear search"
-                        )
-                    }
-                }
-            },
-            singleLine = true,
-            shape = RoundedCornerShape(IWBIDesignTokens.corner_radius_m)
+            placeholder = "Search friends...",
+            onClear = { onSearchQueryChange("") }
         )
 
         Spacer(modifier = Modifier.height(IWBIDesignTokens.space_m))
@@ -267,34 +253,21 @@ fun FriendSharingView(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(IWBIDesignTokens.space_m)
         ) {
-            OutlinedButton(
+            IWBIButton(
+                text = "Cancel",
                 onClick = onCancel,
-                modifier = Modifier.weight(1f).height(IWBIDesignTokens.button_height),
-                shape = RoundedCornerShape(IWBIDesignTokens.corner_radius_m)
-            ) {
-                Text(
-                    text = "Cancel",
-                    style = MaterialTheme.typography.labelLarge
-                )
-            }
+                modifier = Modifier.weight(1f),
+                style = IWBIButtonStyle.OUTLINED
+            )
 
-            Button(
+            IWBIButton(
+                text = "Share (${selectedFriends.size})",
                 onClick = onShareWithSelected,
                 enabled = selectedFriends.isNotEmpty(),
-                modifier = Modifier.weight(1f).height(IWBIDesignTokens.button_height),
-                shape = RoundedCornerShape(IWBIDesignTokens.corner_radius_m)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Share,
-                    contentDescription = null,
-                    modifier = Modifier.size(IWBIDesignTokens.icon_size_small)
-                )
-                Spacer(modifier = Modifier.width(IWBIDesignTokens.space_xs))
-                Text(
-                    text = "Share (${selectedFriends.size})",
-                    style = MaterialTheme.typography.labelLarge
-                )
-            }
+                modifier = Modifier.weight(1f),
+                style = IWBIButtonStyle.PRIMARY,
+                icon = Icons.Default.Share
+            )
         }
     }
 }

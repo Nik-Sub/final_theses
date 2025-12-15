@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -44,11 +45,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.iwbi.domain.user.User
+import com.mobile.iwbi.presentation.components.IWBITopAppBar
 import com.mobile.iwbi.presentation.design.IWBIDesignTokens
 import com.mobile.iwbi.presentation.design.StandardPadding
 import com.mobile.iwbi.presentation.uistate.FriendsUiState
 import org.koin.compose.viewmodel.koinViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FriendsPanel(
     onNavigateToAddFriend: () -> Unit,
@@ -71,6 +74,11 @@ fun FriendsPanel(
     }
 
     Scaffold(
+        topBar = {
+            IWBITopAppBar(
+                headerTitle = "Friends"
+            )
+        },
         snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
             Column(
@@ -119,13 +127,6 @@ fun FriendsPanel(
                 .padding(paddingValues)
                 .padding(StandardPadding)
         ) {
-            // Title
-            Text(
-                text = "Friends",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = IWBIDesignTokens.space_l)
-            )
 
             when {
                 uiState.isLoading -> {

@@ -48,6 +48,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.iwbi.domain.user.User
+import com.mobile.iwbi.presentation.components.IWBITopAppBar
 import com.mobile.iwbi.presentation.uistate.ShareNoteUiState
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -87,18 +88,9 @@ fun ShareNotePanel(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(uiState.note?.title?.let { "Share \"$it\"" } ?: "Share Note")
-                },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back"
-                        )
-                    }
-                },
+            IWBITopAppBar(
+                headerTitle = uiState.note?.title?.let { "Share \"$it\"" } ?: "Share Note",
+                onLeadingIconClick = onNavigateBack,
                 actions = {
                     if (uiState.selectedFriends.isNotEmpty() && !uiState.isSharing) {
                         IconButton(

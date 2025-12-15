@@ -18,8 +18,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.iwbi.domain.shopping.ShoppingNote
+import com.mobile.iwbi.presentation.components.IWBITopAppBar
+import com.mobile.iwbi.presentation.design.IWBIDesignTokens
+import com.mobile.iwbi.presentation.design.components.IWBIButton
+import com.mobile.iwbi.presentation.design.components.IWBIButtonSize
+import com.mobile.iwbi.presentation.design.components.IWBIButtonStyle
+import com.mobile.iwbi.presentation.design.components.IWBICard
+import com.mobile.iwbi.presentation.design.components.IWBICardStyle
+import com.mobile.iwbi.presentation.design.components.IWBIIconButton
 import com.mobile.iwbi.presentation.uistate.ShoppingNotesUiState
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ImprovedMainListView(
     uiState: ShoppingNotesUiState,
@@ -36,42 +45,28 @@ fun ImprovedMainListView(
     // State to track which notes are expanded
     var expandedNotes by remember { mutableStateOf(setOf<String>()) }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        // Header with create button
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column {
-                Text(
-                    "Shopping Lists",
-                    fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.headlineMedium
-                )
-                if (uiState.templates.isNotEmpty()) {
-                    Text(
-                        "${uiState.templates.size} templates available",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.primary
+    Scaffold(
+        topBar = {
+            IWBITopAppBar(
+                headerTitle = "Shopping Lists",
+                actions = {
+                    IWBIButton(
+                        text = "New",
+                        onClick = { onCreateNote("New Shopping List", emptyList()) },
+                        icon = Icons.Default.Add,
+                        style = IWBIButtonStyle.PRIMARY,
+                        size = IWBIButtonSize.SMALL
                     )
                 }
-            }
-
-            Button(
-                onClick = { onCreateNote("New Shopping List", emptyList()) }
-            ) {
-                Icon(Icons.Default.Add, contentDescription = null)
-                Spacer(modifier = Modifier.width(4.dp))
-                Text("New")
-            }
+            )
         }
-
-        Spacer(modifier = Modifier.height(16.dp))
+    ) { paddingValues ->
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(IWBIDesignTokens.space_m)
+        ) {
 
         // Category tabs
         NoteCategoriesHeader(
@@ -81,14 +76,14 @@ fun ImprovedMainListView(
             sharedNotesCount = uiState.sharedNotes.size
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(IWBIDesignTokens.space_m))
 
         if (uiState.isLoading) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
+            Box(
+                modifier = Modifier.fillMaxWidth().padding(IWBIDesignTokens.space_xl),
+                contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator()
+                CircularProgressIndicator(color = IWBIDesignTokens.BrandColors.Primary)
             }
         } else {
             // Notes list based on selected category
@@ -99,8 +94,8 @@ fun ImprovedMainListView(
 
             LazyColumn(
                 modifier = Modifier.weight(1f),
-                contentPadding = PaddingValues(bottom = 88.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                contentPadding = PaddingValues(bottom = IWBIDesignTokens.AppBarDimensions.BottomBarHeight + IWBIDesignTokens.space_m),
+                verticalArrangement = Arrangement.spacedBy(IWBIDesignTokens.space_m)
             ) {
                 items(notesToShow) { note ->
                     ExpandableShoppingNoteCard(
@@ -138,6 +133,7 @@ fun ImprovedMainListView(
         }
     }
 }
+}
 
 @Composable
 fun ExpandableShoppingNoteCard(
@@ -152,19 +148,12 @@ fun ExpandableShoppingNoteCard(
     onSaveAsTemplate: (ShoppingNote) -> Unit = {},
     isTemplateAlreadyExists: (String) -> Boolean = { false }
 ) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    IWBICard(
+        modifier = Modifier.fillMaxWidth(),
+        style = IWBICardStyle.ELEVATED,
+        padding = IWBIDesignTokens.space_l
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
+        Column {
             // FIX 1: Make whole header clickable for expansion
             Row(
                 modifier = Modifier
@@ -190,31 +179,28 @@ fun ExpandableShoppingNoteCard(
                 Row {
                     // Save as template button (only show if template doesn't already exist)
                     if (!isTemplateAlreadyExists(note.title)) {
-                        IconButton(onClick = { onSaveAsTemplate(note) }) {
-                            Icon(
-                                imageVector = Icons.Default.Star,
-                                contentDescription = "Save as template",
-                                tint = MaterialTheme.colorScheme.secondary
-                            )
-                        }
+                        IWBIIconButton(
+                            icon = Icons.Default.Star,
+                            contentDescription = "Save as template",
+                            onClick = { onSaveAsTemplate(note) },
+                            tint = IWBIDesignTokens.BrandColors.Secondary
+                        )
                     }
 
                     if (isOwner) {
-                        IconButton(onClick = { onShareNote(note) }) {
-                            Icon(
-                                imageVector = Icons.Default.Share,
-                                contentDescription = "Share note",
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        }
+                        IWBIIconButton(
+                            icon = Icons.Default.Share,
+                            contentDescription = "Share note",
+                            onClick = { onShareNote(note) },
+                            tint = IWBIDesignTokens.BrandColors.Primary
+                        )
 
-                        IconButton(onClick = { onDeleteNote(note) }) {
-                            Icon(
-                                imageVector = Icons.Default.Delete,
-                                contentDescription = "Delete note",
-                                tint = MaterialTheme.colorScheme.error
-                            )
-                        }
+                        IWBIIconButton(
+                            icon = Icons.Default.Delete,
+                            contentDescription = "Delete note",
+                            onClick = { onDeleteNote(note) },
+                            tint = IWBIDesignTokens.BrandColors.Error
+                        )
                     }
 
                     // Show arrow as visual indicator (header is clickable, not just this icon)
@@ -222,22 +208,21 @@ fun ExpandableShoppingNoteCard(
                         imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                         contentDescription = if (isExpanded) "Collapse" else "Expand",
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(12.dp)
+                        modifier = Modifier.padding(IWBIDesignTokens.space_m)
                     )
 
-                    IconButton(onClick = { onNoteClick(note) }) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = "Edit note",
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
+                    IWBIIconButton(
+                        icon = Icons.Default.Edit,
+                        contentDescription = "Edit note",
+                        onClick = { onNoteClick(note) },
+                        tint = IWBIDesignTokens.BrandColors.Primary
+                    )
                 }
             }
 
             // FIX 2: Expandable content with bigger text and green background for checked items
             if (isExpanded && note.items.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(IWBIDesignTokens.space_m))
 
                 note.items.take(5).forEachIndexed { index, item ->
                     Text(
@@ -254,14 +239,14 @@ fun ExpandableShoppingNoteCard(
                             .fillMaxWidth()
                             .background(
                                 color = if (item.isChecked) {
-                                    Color.Green.copy(alpha = 0.8f) // Green background when checked
+                                    IWBIDesignTokens.BrandColors.Success.copy(alpha = 0.8f) // Brand success color
                                 } else {
                                     Color.Transparent
                                 },
-                                shape = RoundedCornerShape(8.dp)
+                                shape = RoundedCornerShape(IWBIDesignTokens.corner_radius_s)
                             )
                             .clickable { onItemToggle(note.id, index) }
-                            .padding(start = 12.dp, top = 12.dp, bottom = 12.dp, end = 12.dp) // Increased padding for better touch target
+                            .padding(IWBIDesignTokens.space_m) // Increased padding for better touch target
                     )
                 }
 
@@ -270,7 +255,7 @@ fun ExpandableShoppingNoteCard(
                         text = "... and ${note.items.size - 5} more items",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(start = 8.dp, top = 4.dp)
+                        modifier = Modifier.padding(start = IWBIDesignTokens.space_s, top = IWBIDesignTokens.space_xs)
                     )
                 }
             }
