@@ -32,6 +32,7 @@ import com.mobile.iwbi.presentation.design.IWBIDesignTokens
 @Composable
 fun ImprovedNoteEditingView(
     note: ShoppingNote,
+    isCreatingNewNote: Boolean = false,
     newItemText: String,
     onNewItemTextChange: (String) -> Unit,
     onNoteTitleChange: (String) -> Unit,
@@ -42,6 +43,8 @@ fun ImprovedNoteEditingView(
     onDeleteNote: (String) -> Unit,
     onShareNote: (String) -> Unit = {},
     onSaveAsTemplate: (String) -> Unit = {},
+    onSaveNewNote: () -> Unit = {},
+    onDiscardNewNote: () -> Unit = {},
     isTemplateAlreadyExists: (String) -> Boolean = { false },
     onBack: () -> Unit,
     modifier: Modifier = Modifier
@@ -61,34 +64,90 @@ fun ImprovedNoteEditingView(
         topBar = {
             IWBITopAppBar(
                 headerTitle = note.title,
-                onLeadingIconClick = onBack,
+                onLeadingIconClick = if (isCreatingNewNote) onDiscardNewNote else onBack,
                 actions = {
-                    // Share button
-                    IconButton(onClick = { onShareNote(note.id) }) {
+                    // Edit title button (for both new and existing notes)
+                    IconButton(
+                        onClick = {
+                            titleText = note.title
+                            isEditingTitle = true
+                        }
+                    ) {
                         Icon(
-                            imageVector = Icons.Default.Share,
-                            contentDescription = "Share note",
-                            tint = IWBIDesignTokens.BrandColors.Primary
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Edit title"
                         )
                     }
 
-                    // Save as template button
-                    if (!isTemplateAlreadyExists(note.title)) {
-                        IconButton(onClick = { onSaveAsTemplate(note.id) }) {
+                    // Share button (for both new and existing notes)
+                    if (isCreatingNewNote) {
+                        // For new notes, share will be available after saving
+                        IconButton(
+                            onClick = { /* Will be enabled after save */ },
+                            enabled = false
+                        ) {
                             Icon(
-                                imageVector = Icons.Default.Star,
-                                contentDescription = "Save as template"
+                                imageVector = Icons.Default.Share,
+                                contentDescription = "Share note (save first)",
+                                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                            )
+                        }
+                    } else {
+                        IconButton(onClick = { onShareNote(note.id) }) {
+                            Icon(
+                                imageVector = Icons.Default.Share,
+                                contentDescription = "Share note",
+                                tint = IWBIDesignTokens.BrandColors.Primary
                             )
                         }
                     }
 
-                    // Delete note button
-                    IconButton(onClick = { showDeleteNoteDialog = true }) {
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = "Delete note",
-                            tint = MaterialTheme.colorScheme.error
-                        )
+                    // Save as template button (for both new and existing notes)
+                    if (!isTemplateAlreadyExists(note.title)) {
+                        if (isCreatingNewNote) {
+                            // For new notes, template will be available after saving
+                            IconButton(
+                                onClick = { /* Will be enabled after save */ },
+                                enabled = false
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Star,
+                                    contentDescription = "Save as template (save first)",
+                                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                                )
+                            }
+                        } else {
+                            IconButton(onClick = { onSaveAsTemplate(note.id) }) {
+                                Icon(
+                                    imageVector = Icons.Default.Star,
+                                    contentDescription = "Save as template"
+                                )
+                            }
+                        }
+                    }
+
+                    // Save/Delete button (Save for new notes, Delete for existing notes)
+                    if (isCreatingNewNote) {
+                        // Save button for new notes
+                        IconButton(
+                            onClick = onSaveNewNote,
+                            enabled = note.title.isNotBlank()
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Done,
+                                contentDescription = "Save note",
+                                tint = IWBIDesignTokens.BrandColors.Success
+                            )
+                        }
+                    } else {
+                        // Delete note button (only for existing notes)
+                        IconButton(onClick = { showDeleteNoteDialog = true }) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = "Delete note",
+                                tint = MaterialTheme.colorScheme.error
+                            )
+                        }
                     }
                 }
             )

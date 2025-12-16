@@ -12,6 +12,7 @@ data class ShoppingNotesUiState(
     val selectedCategory: NoteCategory = NoteCategory.MY_NOTES,
     val selectedNote: ShoppingNote? = null,
     val isEditingNote: Boolean = false,
+    val isCreatingNewNote: Boolean = false,
     val newItemText: String = "",
     val templates: List<Template> = emptyList(),
     val friends: List<User> = emptyList(),

@@ -80,6 +80,7 @@ fun ShoppingNotesPanel(
             uiState.isEditingNote && uiState.selectedNote != null -> {
                 ImprovedNoteEditingView(
                     note = uiState.selectedNote!!,
+                    isCreatingNewNote = uiState.isCreatingNewNote,
                     newItemText = uiState.newItemText,
                     onNewItemTextChange = viewModel::updateNewItemText,
                     onNoteTitleChange = viewModel::updateNoteTitleText,
@@ -90,6 +91,8 @@ fun ShoppingNotesPanel(
                     onDeleteNote = viewModel::deleteNote,
                     onShareNote = viewModel::startSharing,
                     onSaveAsTemplate = viewModel::saveNoteAsTemplate,
+                    onSaveNewNote = viewModel::saveNewNote,
+                    onDiscardNewNote = viewModel::discardNewNote,
                     isTemplateAlreadyExists = viewModel::isTemplateAlreadyExists,
                     onBack = viewModel::exitEditMode,
                     modifier = modifier

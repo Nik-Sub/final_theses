@@ -101,7 +101,9 @@ class ShoppingNotesViewModel(
         _uiState.value = _uiState.value.copy(
             selectedNote = null,
             isEditingNote = false,
+            isCreatingNewNote = false,
             newItemText = "",
+            editedNoteTitle = "",
             isSharing = false,
             selectedFriends = emptySet()
         )
@@ -120,18 +122,28 @@ class ShoppingNotesViewModel(
         val newTitle = _uiState.value.editedNoteTitle.trim()
 
         if (selectedNote != null && newTitle.isNotEmpty() && newTitle != selectedNote.title) {
-            viewModelScope.launch {
-                try {
-                    val updatedNote = selectedNote.copy(title = newTitle)
-                    shoppingNotesServicePort.updateShoppingNote(updatedNote)
-                    _uiState.value = _uiState.value.copy(
-                        selectedNote = updatedNote,
-                        editedNoteTitle = ""
-                    )
-                } catch (e: Exception) {
-                    _uiState.value = _uiState.value.copy(
-                        errorMessage = "Failed to update note title: ${e.message}"
-                    )
+            if (_uiState.value.isCreatingNewNote) {
+                // For draft notes, update locally
+                val updatedNote = selectedNote.copy(title = newTitle)
+                _uiState.value = _uiState.value.copy(
+                    selectedNote = updatedNote,
+                    editedNoteTitle = ""
+                )
+            } else {
+                // For existing notes, save to backend
+                viewModelScope.launch {
+                    try {
+                        val updatedNote = selectedNote.copy(title = newTitle)
+                        shoppingNotesServicePort.updateShoppingNote(updatedNote)
+                        _uiState.value = _uiState.value.copy(
+                            selectedNote = updatedNote,
+                            editedNoteTitle = ""
+                        )
+                    } catch (e: Exception) {
+                        _uiState.value = _uiState.value.copy(
+                            errorMessage = "Failed to update note title: ${e.message}"
+                        )
+                    }
                 }
             }
         }
@@ -142,44 +154,89 @@ class ShoppingNotesViewModel(
         val itemText = _uiState.value.newItemText.trim()
 
         if (selectedNote != null && itemText.isNotEmpty()) {
-            addItemToNote(selectedNote.id, itemText)
-            _uiState.value = _uiState.value.copy(newItemText = "")
+            if (_uiState.value.isCreatingNewNote) {
+                // For draft notes, add items locally
+                val newItem = ShoppingItem(name = itemText)
+                val updatedNote = selectedNote.copy(items = selectedNote.items + newItem)
+                _uiState.value = _uiState.value.copy(
+                    selectedNote = updatedNote,
+                    newItemText = ""
+                )
+            } else {
+                // For existing notes, save to backend
+                addItemToNote(selectedNote.id, itemText)
+                _uiState.value = _uiState.value.copy(newItemText = "")
+            }
         }
     }
 
     fun createNewNote(title: String, sharedWith: List<String> = emptyList()) {
-        viewModelScope.launch {
-            try {
-                _uiState.value = _uiState.value.copy(isLoading = true)
+        // Create a draft note that will be saved when user clicks save
+        val draftNote = ShoppingNote(
+            id = "", // Empty ID indicates unsaved note
+            title = title,
+            items = emptyList(),
+            createdBy = _uiState.value.currentUserId ?: "",
+            sharedWith = sharedWith
+        )
 
-                // Get current user from authentication service
-                val currentUser = authenticationServicePort.observeCurrentUser().value
-                println("Creating new shopping note for user: ${currentUser?.uid}")
-                if (currentUser != null) {
-                    // Wait for the note creation to complete
-                    val createdNote = shoppingNotesServicePort.createShoppingNote(
-                        title = title,
-                        createdBy = currentUser.uid,
-                        userIds = sharedWith
-                    )
-                    println("Successfully created note: ${createdNote.id}")
+        _uiState.value = _uiState.value.copy(
+            selectedNote = draftNote,
+            isEditingNote = true,
+            isCreatingNewNote = true,
+            editedNoteTitle = title
+        )
+    }
+
+    fun saveNewNote() {
+        val draftNote = _uiState.value.selectedNote
+
+        if (draftNote != null && _uiState.value.isCreatingNewNote) {
+            viewModelScope.launch {
+                try {
+                    _uiState.value = _uiState.value.copy(isLoading = true)
+
+                    val currentUser = authenticationServicePort.observeCurrentUser().value
+                    if (currentUser != null) {
+                        // Create the note with the current title
+                        val createdNote = shoppingNotesServicePort.createShoppingNote(
+                            title = draftNote.title,
+                            createdBy = currentUser.uid,
+                            userIds = draftNote.sharedWith
+                        )
+
+                        // Add all items that were added during creation
+                        draftNote.items.forEach { item ->
+                            shoppingNotesServicePort.addItem(createdNote.id, item)
+                        }
+
+                        _uiState.value = _uiState.value.copy(
+                            isLoading = false,
+                            isCreatingNewNote = false,
+                            isEditingNote = false,
+                            selectedNote = null,
+                            newItemText = "",
+                            editedNoteTitle = ""
+                        )
+                    }
+                } catch (e: Exception) {
                     _uiState.value = _uiState.value.copy(
-                        isLoading = false
-                    )
-                } else {
-                    _uiState.value = _uiState.value.copy(
-                        errorMessage = "Unable to create note: User not authenticated",
+                        errorMessage = "Failed to create note: ${e.message}",
                         isLoading = false
                     )
                 }
-            } catch (e: Exception) {
-                println("Failed to create note: ${e.message}")
-                _uiState.value = _uiState.value.copy(
-                    errorMessage = "Failed to create note: ${e.message}",
-                    isLoading = false
-                )
             }
         }
+    }
+
+    fun discardNewNote() {
+        _uiState.value = _uiState.value.copy(
+            selectedNote = null,
+            isEditingNote = false,
+            isCreatingNewNote = false,
+            newItemText = "",
+            editedNoteTitle = ""
+        )
     }
 
     fun createNoteFromTemplate(template: Template) {
@@ -212,13 +269,26 @@ class ShoppingNotesViewModel(
     }
 
     fun toggleItem(noteId: String, itemIndex: Int) {
-        viewModelScope.launch {
-            try {
-                shoppingNotesServicePort.toggleItem(noteId, itemIndex)
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    errorMessage = "Failed to toggle item: ${e.message}"
-                )
+        if (_uiState.value.isCreatingNewNote) {
+            // For draft notes, toggle items locally
+            val selectedNote = _uiState.value.selectedNote
+            if (selectedNote != null && itemIndex >= 0 && itemIndex < selectedNote.items.size) {
+                val updatedItems = selectedNote.items.toMutableList().apply {
+                    this[itemIndex] = this[itemIndex].copy(isChecked = !this[itemIndex].isChecked)
+                }
+                val updatedNote = selectedNote.copy(items = updatedItems)
+                _uiState.value = _uiState.value.copy(selectedNote = updatedNote)
+            }
+        } else {
+            // For existing notes, toggle on backend
+            viewModelScope.launch {
+                try {
+                    shoppingNotesServicePort.toggleItem(noteId, itemIndex)
+                } catch (e: Exception) {
+                    _uiState.value = _uiState.value.copy(
+                        errorMessage = "Failed to toggle item: ${e.message}"
+                    )
+                }
             }
         }
     }
@@ -237,13 +307,26 @@ class ShoppingNotesViewModel(
     }
 
     fun removeItemFromNote(noteId: String, itemIndex: Int) {
-        viewModelScope.launch {
-            try {
-                shoppingNotesServicePort.removeItem(noteId, itemIndex)
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    errorMessage = "Failed to remove item: ${e.message}"
-                )
+        if (_uiState.value.isCreatingNewNote) {
+            // For draft notes, remove items locally
+            val selectedNote = _uiState.value.selectedNote
+            if (selectedNote != null && itemIndex >= 0 && itemIndex < selectedNote.items.size) {
+                val updatedItems = selectedNote.items.toMutableList().apply {
+                    removeAt(itemIndex)
+                }
+                val updatedNote = selectedNote.copy(items = updatedItems)
+                _uiState.value = _uiState.value.copy(selectedNote = updatedNote)
+            }
+        } else {
+            // For existing notes, remove from backend
+            viewModelScope.launch {
+                try {
+                    shoppingNotesServicePort.removeItem(noteId, itemIndex)
+                } catch (e: Exception) {
+                    _uiState.value = _uiState.value.copy(
+                        errorMessage = "Failed to remove item: ${e.message}"
+                    )
+                }
             }
         }
     }
