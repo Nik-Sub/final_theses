@@ -4,8 +4,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
@@ -32,56 +34,67 @@ import kotlin.reflect.typeOf
 @Composable
 fun App() {
     IWBITheme {
-        val authNavController = rememberNavController()
         val viewModel: AppViewModel = koinViewModel<AppViewModel>()
         val state by viewModel.uiState.collectAsState()
         val currentUser by viewModel.currentUser.collectAsState()
 
-        if (currentUser == null) {
-            // Authentication navigation
-            NavHost(
-                navController = authNavController,
-                startDestination = Panel.LoginPanel
-            ) {
-                composable<Panel.LoginPanel> {
-                    LoginScreen(
-                        onNavigateToRegister = {
-                            authNavController.navigate(Panel.RegisterPanel)
-                        }
-                    )
-                }
-
-                composable<Panel.RegisterPanel> {
-                    RegisterScreen(
-                        onNavigateToLogin = {
-                            authNavController.popBackStack()
-                        }
-                    )
-                }
+        // Reset state when user logs out
+        LaunchedEffect(currentUser) {
+            if (currentUser == null) {
+                viewModel.resetState()
             }
-        } else {
-            val navController = rememberNavController()
-            Scaffold(
-                bottomBar = {
-                    IWBIBottomBar(
-                        isSelected = { mainScreen ->
-                            mainScreen.screen == state.currentMainScreen
-                        },
-                        onClick = { mainPanel: MainPanel ->
-                            val panel = mainPanel.screen
-                            navController.navigate(panel) {
-                                popUpTo(state.currentMainScreen) {
-                                    saveState = true
-                                    inclusive = true
-                                }
-                                launchSingleTop = true
-                                restoreState = true
+        }
+
+        // Use currentUser?.uid as key to force complete recreation on user change
+        // This ensures a fresh NavController and clean state for each user session
+        key(currentUser?.uid) {
+            if (currentUser == null) {
+                // Authentication navigation - fresh NavController for each session
+                val authNavController = rememberNavController()
+                NavHost(
+                    navController = authNavController,
+                    startDestination = Panel.LoginPanel
+                ) {
+                    composable<Panel.LoginPanel> {
+                        LoginScreen(
+                            onNavigateToRegister = {
+                                authNavController.navigate(Panel.RegisterPanel)
                             }
-                            viewModel.updateMainScreen(panel)
-                        }
-                    )
+                        )
+                    }
+
+                    composable<Panel.RegisterPanel> {
+                        RegisterScreen(
+                            onNavigateToLogin = {
+                                authNavController.popBackStack()
+                            }
+                        )
+                    }
                 }
-            ) { paddingValues ->
+            } else {
+                // Main app navigation - fresh NavController for each user session
+                val navController = rememberNavController()
+                Scaffold(
+                    bottomBar = {
+                        IWBIBottomBar(
+                            isSelected = { mainScreen ->
+                                mainScreen.screen == state.currentMainScreen
+                            },
+                            onClick = { mainPanel: MainPanel ->
+                                val panel = mainPanel.screen
+                                navController.navigate(panel) {
+                                    popUpTo(state.currentMainScreen) {
+                                        saveState = true
+                                        inclusive = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                                viewModel.updateMainScreen(panel)
+                            }
+                        )
+                    }
+                ) { paddingValues ->
                 NavHost(
                     navController = navController,
                     startDestination = Panel.HomePanel,
@@ -129,6 +142,7 @@ fun App() {
                     composable<Panel.ProfilePanel> {
                         ProfilePanel(
                             modifier = Modifier.padding(0.dp)
+                            // onSignOut is not needed - key(currentUser?.uid) handles recreation
                         )
                     }
 
@@ -167,6 +181,7 @@ fun App() {
                         )
                     }
                 }
+            }
             }
         }
     }

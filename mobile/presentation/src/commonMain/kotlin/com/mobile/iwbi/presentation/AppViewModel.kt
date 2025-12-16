@@ -25,5 +25,9 @@ class AppViewModel(
             currentMainScreen = panel
         )
     }
+
+    fun resetState() {
+        _uiState.value = AppUiState()
+    }
 }
 
