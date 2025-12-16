@@ -32,7 +32,8 @@ import kotlinx.coroutines.delay
 fun UltraSmoothShoppingListItem(
     item: ShoppingItem,
     onToggle: () -> Unit,
-    onRemove: () -> Unit
+    onRemove: () -> Unit,
+    enableToggle: Boolean = true
 ) {
     var isDeleting by remember { mutableStateOf(false) }
     var showConfirmDelete by remember { mutableStateOf(false) }
@@ -92,7 +93,13 @@ fun UltraSmoothShoppingListItem(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { onToggle() }
+                    .then(
+                        if (enableToggle) {
+                            Modifier.clickable { onToggle() }
+                        } else {
+                            Modifier
+                        }
+                    )
                     .padding(horizontal = 20.dp, vertical = 20.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {

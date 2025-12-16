@@ -241,7 +241,7 @@ fun ImprovedNoteEditingView(
                     style = MaterialTheme.typography.titleLarge
                 )
 
-                if (note.items.isNotEmpty()) {
+                if (note.items.isNotEmpty() && !isCreatingNewNote) {
                     val completedItems = note.items.count { it.isChecked }
                     AnimatedVisibility(
                         visible = true,
@@ -260,7 +260,11 @@ fun ImprovedNoteEditingView(
 
             if (note.items.isNotEmpty()) {
                 Text(
-                    text = "Tap on any item to mark it as completed • Tap delete for smooth removal",
+                    text = if (isCreatingNewNote) {
+                        "Tap delete to remove items • Save the note to mark items as completed"
+                    } else {
+                        "Tap on any item to mark it as completed • Tap delete for smooth removal"
+                    },
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(bottom = 12.dp)
@@ -305,7 +309,8 @@ fun ImprovedNoteEditingView(
                         UltraSmoothShoppingListItem(
                             item = item,
                             onToggle = { onToggleItem(note.id, index) },
-                            onRemove = { onRemoveItem(note.id, index) }
+                            onRemove = { onRemoveItem(note.id, index) },
+                            enableToggle = !isCreatingNewNote
                         )
                     }
                 }
