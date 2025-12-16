@@ -291,10 +291,16 @@ fun ImprovedNoteEditingView(
                 verticalArrangement = Arrangement.spacedBy(IWBIDesignTokens.space_m),
                 contentPadding = PaddingValues(vertical = IWBIDesignTokens.space_m)
             ) {
+                // Sort items: unchecked first, then checked
+                val sortedItems = note.items.sortedBy { it.isChecked }
+
                 itemsIndexed(
-                    items = note.items,
-                    key = { index, item -> "${item.name}_$index" }
-                ) { index, item ->
+                    items = sortedItems,
+                    key = { index, item -> "${item.name}_${item.isChecked}_$index" }
+                ) { sortedIndex, item ->
+                    // Find the original index for proper toggle/remove operations
+                    val originalIndex = note.items.indexOf(item)
+
                     AnimatedVisibility(
                         visible = true,
                         enter = slideInVertically(
@@ -322,8 +328,8 @@ fun ImprovedNoteEditingView(
                     ) {
                         UltraSmoothShoppingListItem(
                             item = item,
-                            onToggle = { onToggleItem(note.id, index) },
-                            onRemove = { onRemoveItem(note.id, index) },
+                            onToggle = { onToggleItem(note.id, originalIndex) },
+                            onRemove = { onRemoveItem(note.id, originalIndex) },
                             enableToggle = !isCreatingNewNote
                         )
                     }

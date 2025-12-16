@@ -195,7 +195,13 @@ fun ExpandableShoppingNoteCard(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(IWBIDesignTokens.space_s)
                 ) {
-                    note.items.take(5).forEachIndexed { index, item ->
+                    // Sort items: unchecked first, then checked
+                    val sortedItems = note.items.sortedBy { it.isChecked }
+
+                    sortedItems.take(5).forEachIndexed { sortedIndex, item ->
+                        // Find the original index for proper toggle operations
+                        val originalIndex = note.items.indexOf(item)
+
                         Text(
                             text = item.name,
                             style = MaterialTheme.typography.titleMedium, // Made text bigger (was bodyMedium)
@@ -216,7 +222,7 @@ fun ExpandableShoppingNoteCard(
                                     },
                                     shape = RoundedCornerShape(IWBIDesignTokens.corner_radius_s)
                                 )
-                                .clickable { onItemToggle(note.id, index) }
+                                .clickable { onItemToggle(note.id, originalIndex) }
                                 .padding(IWBIDesignTokens.space_m) // Increased padding for better touch target
                         )
                     }
