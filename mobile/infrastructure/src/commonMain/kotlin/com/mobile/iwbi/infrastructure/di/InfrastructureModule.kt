@@ -81,7 +81,8 @@ val infrastructureModule = module {
     factory<TemplateRepositoryPort> {
         println("🏭 Creating fresh TemplateRepository")
         TemplateRepository(
-            dataStore = get()
+            dataStore = get(),
+            authProvider = get()
         )
     }
 

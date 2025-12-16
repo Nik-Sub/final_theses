@@ -15,7 +15,7 @@ actual val platformInfrastructureModule: Module = module {
     }
 
     single<TemplateRepositoryPort> {
-        TemplateRepository(dataStore = get())
+        TemplateRepository(dataStore = get(), authProvider = get())
     }
 }
 
