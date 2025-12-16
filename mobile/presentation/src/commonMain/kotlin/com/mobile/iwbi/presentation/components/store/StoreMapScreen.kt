@@ -2,6 +2,8 @@ package com.mobile.iwbi.presentation.components.store
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
@@ -19,6 +21,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
@@ -54,6 +57,9 @@ fun StoreMapScreen(
     var searchText by remember { mutableStateOf("") }
     var highlightedSection by remember { mutableStateOf<MapSection?>(null) }
     var pathToDisplay by remember { mutableStateOf<List<PathNode>>(emptyList()) }
+
+    val focusManager = LocalFocusManager.current
+    val interactionSource = remember { MutableInteractionSource() }
 
     val storeLayout = remember(store.mapOfTheStore) {
         try {
@@ -92,6 +98,12 @@ fun StoreMapScreen(
             modifier = Modifier
                 .padding(padding)
                 .fillMaxSize()
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = null // No ripple effect
+                ) {
+                    focusManager.clearFocus()
+                }
                 .padding(IWBIDesignTokens.space_m)
         ) {
             // Branded Search Field

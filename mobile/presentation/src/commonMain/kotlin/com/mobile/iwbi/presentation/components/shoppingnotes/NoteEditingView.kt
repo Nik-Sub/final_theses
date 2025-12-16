@@ -21,6 +21,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -52,6 +55,9 @@ fun ImprovedNoteEditingView(
     var isEditingTitle by remember { mutableStateOf(false) }
     var titleText by remember(note.title) { mutableStateOf(note.title) }
     var showDeleteNoteDialog by remember { mutableStateOf(false) }
+
+    val focusManager = LocalFocusManager.current
+    val focusRequester = remember { FocusRequester() }
 
     // Update title text when note changes (real-time updates)
     LaunchedEffect(note.title) {
@@ -173,6 +179,7 @@ fun ImprovedNoteEditingView(
                                 onNoteTitleChange(titleText)
                                 onSaveTitle()
                                 isEditingTitle = false
+                                focusManager.clearFocus()
                             }
                         ) {
                             Icon(
@@ -187,6 +194,7 @@ fun ImprovedNoteEditingView(
                             onNoteTitleChange(titleText)
                             onSaveTitle()
                             isEditingTitle = false
+                            focusManager.clearFocus()
                         }
                     )
                 )
@@ -206,19 +214,25 @@ fun ImprovedNoteEditingView(
                         value = newItemText,
                         onValueChange = onNewItemTextChange,
                         placeholder = { Text("Enter new item...") },
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier
+                            .weight(1f)
+                            .focusRequester(focusRequester),
                         singleLine = true,
                         keyboardActions = KeyboardActions(
                             onDone = {
                                 if (newItemText.trim().isNotEmpty()) {
                                     onAddItem()
+                                    focusManager.clearFocus()
                                 }
                             }
                         )
                     )
                     Spacer(modifier = Modifier.padding(8.dp))
                     Button(
-                        onClick = onAddItem,
+                        onClick = {
+                            onAddItem()
+                            focusManager.clearFocus()
+                        },
                         enabled = newItemText.trim().isNotEmpty()
                     ) {
                         Icon(Icons.Default.Add, contentDescription = null)
