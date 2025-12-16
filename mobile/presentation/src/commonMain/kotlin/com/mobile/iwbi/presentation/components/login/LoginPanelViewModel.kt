@@ -27,12 +27,6 @@ class LoginPanelViewModel(
         }
     }
 
-    fun onRegisterClick() {
-        viewModelScope.launch {
-            val result = authenticationServicePort.signUpWithEmailPassword(_uiState.value.email, _uiState.value.password)
-            println("NIKOLA: ${result}")
-        }
-    }
 
     private val _uiState = MutableStateFlow(LoginPanelUiState())
     val uiState: StateFlow<LoginPanelUiState> = _uiState.asStateFlow()

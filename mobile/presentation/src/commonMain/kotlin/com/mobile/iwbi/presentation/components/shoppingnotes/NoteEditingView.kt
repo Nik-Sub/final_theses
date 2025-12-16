@@ -11,13 +11,11 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -42,6 +40,7 @@ fun ImprovedNoteEditingView(
     onRemoveItem: (String, Int) -> Unit,
     onToggleItem: (String, Int) -> Unit,
     onDeleteNote: (String) -> Unit,
+    onShareNote: (String) -> Unit = {},
     onSaveAsTemplate: (String) -> Unit = {},
     isTemplateAlreadyExists: (String) -> Boolean = { false },
     onBack: () -> Unit,
@@ -64,16 +63,12 @@ fun ImprovedNoteEditingView(
                 headerTitle = note.title,
                 onLeadingIconClick = onBack,
                 actions = {
-                    // Edit title button
-                    IconButton(
-                        onClick = {
-                            titleText = note.title
-                            isEditingTitle = true
-                        }
-                    ) {
+                    // Share button
+                    IconButton(onClick = { onShareNote(note.id) }) {
                         Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = "Edit title"
+                            imageVector = Icons.Default.Share,
+                            contentDescription = "Share note",
+                            tint = IWBIDesignTokens.BrandColors.Primary
                         )
                     }
 

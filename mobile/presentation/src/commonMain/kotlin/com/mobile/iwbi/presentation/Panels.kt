@@ -9,6 +9,9 @@ sealed interface Panel {
     data object LoginPanel : Panel
 
     @Serializable
+    data object RegisterPanel : Panel
+
+    @Serializable
     data object HomePanel : Panel
 
     @Serializable

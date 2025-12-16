@@ -11,6 +11,7 @@ import com.mobile.iwbi.presentation.AppViewModel
 import com.mobile.iwbi.presentation.components.friends.FriendsViewModel
 import com.mobile.iwbi.presentation.components.friends.ShareNoteViewModel
 import com.mobile.iwbi.presentation.components.login.LoginPanelViewModel
+import com.mobile.iwbi.presentation.components.register.RegisterPanelViewModel
 import com.mobile.iwbi.presentation.components.profile.ProfileViewModel
 import com.mobile.iwbi.presentation.components.shoppingnotes.ShoppingNotesViewModel
 import org.koin.compose.viewmodel.dsl.viewModel
@@ -24,6 +25,10 @@ val presentationModule = module {
 
     viewModel {
         LoginPanelViewModel(get())
+    }
+
+    viewModel {
+        RegisterPanelViewModel(get())
     }
 
     // HomePanelViewModel removed - not currently in use

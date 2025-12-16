@@ -88,6 +88,7 @@ fun ShoppingNotesPanel(
                     onRemoveItem = viewModel::removeItemFromNote,
                     onToggleItem = viewModel::toggleItem,
                     onDeleteNote = viewModel::deleteNote,
+                    onShareNote = viewModel::startSharing,
                     onSaveAsTemplate = viewModel::saveNoteAsTemplate,
                     isTemplateAlreadyExists = viewModel::isTemplateAlreadyExists,
                     onBack = viewModel::exitEditMode,

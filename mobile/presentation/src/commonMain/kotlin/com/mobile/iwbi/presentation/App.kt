@@ -20,6 +20,7 @@ import com.mobile.iwbi.presentation.components.friends.FriendRequestsPanel
 import com.mobile.iwbi.presentation.components.friends.FriendsPanel
 import com.mobile.iwbi.presentation.components.friends.ShareNotePanel
 import com.mobile.iwbi.presentation.components.login.LoginScreen
+import com.mobile.iwbi.presentation.components.register.RegisterScreen
 import com.mobile.iwbi.presentation.components.profile.ProfilePanel
 import com.mobile.iwbi.presentation.components.shoppingnotes.ShoppingNotesPanel
 import com.mobile.iwbi.presentation.components.store.StoreMapScreen
@@ -31,14 +32,35 @@ import kotlin.reflect.typeOf
 @Composable
 fun App() {
     IWBITheme {
-        val navController = rememberNavController()
+        val authNavController = rememberNavController()
         val viewModel: AppViewModel = koinViewModel<AppViewModel>()
         val state by viewModel.uiState.collectAsState()
         val currentUser by viewModel.currentUser.collectAsState()
 
         if (currentUser == null) {
-            LoginScreen()
+            // Authentication navigation
+            NavHost(
+                navController = authNavController,
+                startDestination = Panel.LoginPanel
+            ) {
+                composable<Panel.LoginPanel> {
+                    LoginScreen(
+                        onNavigateToRegister = {
+                            authNavController.navigate(Panel.RegisterPanel)
+                        }
+                    )
+                }
+
+                composable<Panel.RegisterPanel> {
+                    RegisterScreen(
+                        onNavigateToLogin = {
+                            authNavController.popBackStack()
+                        }
+                    )
+                }
+            }
         } else {
+            val navController = rememberNavController()
             Scaffold(
                 bottomBar = {
                     IWBIBottomBar(

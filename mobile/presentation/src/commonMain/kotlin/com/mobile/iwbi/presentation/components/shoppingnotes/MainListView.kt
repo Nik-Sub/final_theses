@@ -100,7 +100,6 @@ fun ImprovedMainListView(
                 items(notesToShow) { note ->
                     ExpandableShoppingNoteCard(
                         note = note,
-                        isOwner = uiState.currentUserId == note.createdBy,
                         isExpanded = expandedNotes.contains(note.id),
                         onExpandToggle = {
                             expandedNotes = if (expandedNotes.contains(note.id)) {
@@ -110,11 +109,7 @@ fun ImprovedMainListView(
                             }
                         },
                         onNoteClick = { onSelectNote(note.id) },
-                        onItemToggle = onToggleItem,
-                        onDeleteNote = { onDeleteNote(note.id) },
-                        onShareNote = { onShareNote(note.id) },
-                        onSaveAsTemplate = { onSaveAsTemplate(note.id) },
-                        isTemplateAlreadyExists = isTemplateAlreadyExists
+                        onItemToggle = onToggleItem
                     )
                 }
 
@@ -138,15 +133,10 @@ fun ImprovedMainListView(
 @Composable
 fun ExpandableShoppingNoteCard(
     note: ShoppingNote,
-    isOwner: Boolean,
     isExpanded: Boolean,
     onExpandToggle: () -> Unit,
     onNoteClick: (ShoppingNote) -> Unit,
-    onItemToggle: (String, Int) -> Unit,
-    onDeleteNote: (ShoppingNote) -> Unit,
-    onShareNote: (ShoppingNote) -> Unit,
-    onSaveAsTemplate: (ShoppingNote) -> Unit = {},
-    isTemplateAlreadyExists: (String) -> Boolean = { false }
+    onItemToggle: (String, Int) -> Unit
 ) {
     IWBICard(
         modifier = Modifier.fillMaxWidth(),
@@ -175,40 +165,17 @@ fun ExpandableShoppingNoteCard(
                     )
                 }
 
-                // Action buttons
-                Row {
-                    // Save as template button (only show if template doesn't already exist)
-                    if (!isTemplateAlreadyExists(note.title)) {
-                        IWBIIconButton(
-                            icon = Icons.Default.Star,
-                            contentDescription = "Save as template",
-                            onClick = { onSaveAsTemplate(note) },
-                            tint = IWBIDesignTokens.BrandColors.Secondary
-                        )
-                    }
-
-                    if (isOwner) {
-                        IWBIIconButton(
-                            icon = Icons.Default.Share,
-                            contentDescription = "Share note",
-                            onClick = { onShareNote(note) },
-                            tint = IWBIDesignTokens.BrandColors.Primary
-                        )
-
-                        IWBIIconButton(
-                            icon = Icons.Default.Delete,
-                            contentDescription = "Delete note",
-                            onClick = { onDeleteNote(note) },
-                            tint = IWBIDesignTokens.BrandColors.Error
-                        )
-                    }
-
+                // Action buttons - only expand indicator and edit
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(IWBIDesignTokens.space_xs),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     // Show arrow as visual indicator (header is clickable, not just this icon)
                     Icon(
                         imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                         contentDescription = if (isExpanded) "Collapse" else "Expand",
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(IWBIDesignTokens.space_m)
+                        modifier = Modifier.padding(IWBIDesignTokens.space_xs)
                     )
 
                     IWBIIconButton(

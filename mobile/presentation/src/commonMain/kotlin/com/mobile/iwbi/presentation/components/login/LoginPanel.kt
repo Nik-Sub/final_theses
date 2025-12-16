@@ -14,7 +14,6 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import com.mobile.iwbi.presentation.design.IWBIDesignTokens
 import com.mobile.iwbi.presentation.design.StandardPadding
 import com.mobile.iwbi.presentation.design.components.IWBIButton
@@ -29,7 +28,9 @@ import org.koin.core.annotation.KoinExperimentalAPI
 
 @OptIn(KoinExperimentalAPI::class)
 @Composable
-fun LoginScreen() {
+fun LoginScreen(
+    onNavigateToRegister: () -> Unit
+) {
     val viewModel = koinViewModel<LoginPanelViewModel>()
     val uiState by viewModel.uiState.collectAsState()
 
@@ -115,14 +116,27 @@ fun LoginScreen() {
                     enabled = uiState.email.isNotBlank() && uiState.password.isNotBlank()
                 )
 
-                // Register button
-                IWBIButton(
-                    text = "Create Account",
-                    onClick = { viewModel.onRegisterClick() },
-                    modifier = Modifier.fillMaxWidth(),
-                    style = IWBIButtonStyle.OUTLINED,
-                    size = IWBIButtonSize.LARGE
-                )
+                // Don't have an account link
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Don't have an account?",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    TextButton(
+                        onClick = onNavigateToRegister
+                    ) {
+                        Text(
+                            text = "Create Account",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = IWBIDesignTokens.BrandColors.Primary
+                        )
+                    }
+                }
             }
         }
     }
