@@ -165,24 +165,24 @@ fun ExpandableShoppingNoteCard(
                     )
                 }
 
-                // Action buttons - only expand indicator and edit
+                // Action buttons - edit button first, then expand indicator
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(IWBIDesignTokens.space_xs),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    IWBIIconButton(
+                        icon = Icons.Default.Edit,
+                        contentDescription = "Edit note",
+                        onClick = { onNoteClick(note) },
+                        tint = IWBIDesignTokens.BrandColors.Primary
+                    )
+
                     // Show arrow as visual indicator (header is clickable, not just this icon)
                     Icon(
                         imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                         contentDescription = if (isExpanded) "Collapse" else "Expand",
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(IWBIDesignTokens.space_xs)
-                    )
-
-                    IWBIIconButton(
-                        icon = Icons.Default.Edit,
-                        contentDescription = "Edit note",
-                        onClick = { onNoteClick(note) },
-                        tint = IWBIDesignTokens.BrandColors.Primary
                     )
                 }
             }

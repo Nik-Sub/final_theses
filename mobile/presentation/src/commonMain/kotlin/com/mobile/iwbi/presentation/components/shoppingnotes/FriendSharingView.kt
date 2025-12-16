@@ -14,12 +14,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.iwbi.domain.shopping.ShoppingNote
 import com.iwbi.domain.user.User
+import com.mobile.iwbi.presentation.components.IWBITopAppBar
 import com.mobile.iwbi.presentation.design.IWBIDesignTokens
 import com.mobile.iwbi.presentation.design.StandardPadding
 import com.mobile.iwbi.presentation.design.components.IWBIButton
 import com.mobile.iwbi.presentation.design.components.IWBIButtonStyle
 import com.mobile.iwbi.presentation.design.components.IWBISearchField
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FriendSharingView(
     note: ShoppingNote,
@@ -32,32 +34,20 @@ fun FriendSharingView(
     onShareWithSelected: () -> Unit,
     onCancel: () -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(StandardPadding)
-    ) {
-        // Header
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Share Shopping List",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
+    Scaffold(
+        topBar = {
+            IWBITopAppBar(
+                headerTitle = "Share Shopping List",
+                onLeadingIconClick = onCancel
             )
-
-            IconButton(onClick = onCancel) {
-                Icon(
-                    imageVector = Icons.Default.Close,
-                    contentDescription = "Cancel sharing"
-                )
-            }
         }
-
-        Spacer(modifier = Modifier.height(IWBIDesignTokens.space_l))
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(StandardPadding)
+        ) {
 
         // Note info card with consistent styling
         Card(
@@ -268,6 +258,7 @@ fun FriendSharingView(
                 style = IWBIButtonStyle.PRIMARY,
                 icon = Icons.Default.Share
             )
+        }
         }
     }
 }

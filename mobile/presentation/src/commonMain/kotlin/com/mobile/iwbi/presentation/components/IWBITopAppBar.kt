@@ -5,8 +5,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import com.mobile.iwbi.presentation.design.IWBIDesignTokens
 
 /**
  * IWBI Top App Bar with brand styling
@@ -31,7 +29,7 @@ fun IWBITopAppBar(
                 text = headerTitle,
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onPrimaryContainer
             )
         },
         navigationIcon = {
@@ -40,17 +38,17 @@ fun IWBITopAppBar(
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Navigate back",
-                        tint = MaterialTheme.colorScheme.onSurface
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 }
             }
         },
         actions = { actions() },
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-            titleContentColor = MaterialTheme.colorScheme.onSurface,
-            navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
-            actionIconContentColor = MaterialTheme.colorScheme.onSurface
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            actionIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer
         ),
         scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     )
@@ -72,7 +70,7 @@ fun IWBILargeTopAppBar(
                 text = headerTitle,
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onPrimaryContainer
             )
         },
         navigationIcon = {
@@ -81,17 +79,17 @@ fun IWBILargeTopAppBar(
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Navigate back",
-                        tint = MaterialTheme.colorScheme.onSurface
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 }
             }
         },
         actions = { actions() },
         colors = TopAppBarDefaults.largeTopAppBarColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-            titleContentColor = MaterialTheme.colorScheme.onSurface,
-            navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
-            actionIconContentColor = MaterialTheme.colorScheme.onSurface
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            actionIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer
         )
     )
 }
@@ -112,7 +110,7 @@ fun IWBICenterAlignedTopAppBar(
                 text = headerTitle,
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onPrimaryContainer
             )
         },
         navigationIcon = {
@@ -121,17 +119,17 @@ fun IWBICenterAlignedTopAppBar(
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Navigate back",
-                        tint = MaterialTheme.colorScheme.onSurface
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 }
             }
         },
         actions = { actions() },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-            titleContentColor = MaterialTheme.colorScheme.onSurface,
-            navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
-            actionIconContentColor = MaterialTheme.colorScheme.onSurface
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            actionIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer
         )
     )
 }
