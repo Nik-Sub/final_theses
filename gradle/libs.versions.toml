@@ -21,6 +21,7 @@ mysql = "8.0.33"
 
 kotlinxCoroutines = "1.8.1"
 kotlinxSerialization = "1.7.1"
+datastore = "1.1.1"
 
 gitlive-firebase = "2.1.0"
 jetbrainsKotlinJvm = "2.0.0"
@@ -72,6 +73,10 @@ kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-t
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version = "0.6.0" }
 kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinxSerialization" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
+
+androidx-datastore-core = { module = "androidx.datastore:datastore-core", version.ref = "datastore" }
+androidx-datastore-preferences-core = { module = "androidx.datastore:datastore-preferences-core", version.ref = "datastore" }
+androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
 
 kotlin-logging = { module = "io.github.oshai:kotlin-logging", version = "7.0.0" }
 slf4j-api = { module = "org.slf4j:slf4j-api", version = "2.0.16" }

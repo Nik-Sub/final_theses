@@ -4,6 +4,7 @@ import com.mobile.iwbi.application.authentication.output.AuthenticationProviderP
 import com.mobile.iwbi.application.friends.output.FriendRepositoryPort
 import com.mobile.iwbi.application.helloworld.output.HelloWorldRepositoryPort
 import com.mobile.iwbi.application.shoppingnotes.output.ShoppingNotesRepositoryPort
+import com.mobile.iwbi.application.templates.output.TemplateRepositoryPort
 import com.mobile.iwbi.application.user.output.UserRepositoryPort
 
 interface OutputPorts {
@@ -11,5 +12,6 @@ interface OutputPorts {
     val friendRepositoryPort: FriendRepositoryPort
     val helloWorldRepositoryPort: HelloWorldRepositoryPort
     val shoppingNotesRepositoryPort: ShoppingNotesRepositoryPort
+    val templateRepositoryPort: TemplateRepositoryPort
     val userRepositoryPort: UserRepositoryPort
 }

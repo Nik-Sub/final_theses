@@ -34,6 +34,7 @@ dependencies {
     commonMainImplementation(libs.ktor.client.contentNegotiation)
     commonMainImplementation(libs.ktor.serialization.kotlinx.json)
     commonMainImplementation(libs.ktor.client.logging)
+    commonMainImplementation(libs.androidx.datastore.preferences.core)
 
     androidMainImplementation(libs.slf4j.api)
     androidMainImplementation(libs.google.android.playServicesAuth)
@@ -41,6 +42,7 @@ dependencies {
     androidMainImplementation(libs.androidx.credentials.playServicesAuth)
     androidMainImplementation(libs.google.android.identity.googleid)
     androidMainImplementation(libs.ktor.client.okhttp)
+    androidMainImplementation(libs.androidx.datastore.preferences)
 
 
 }

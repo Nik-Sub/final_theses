@@ -7,6 +7,7 @@ import com.mobile.iwbi.application.authentication.input.AuthenticationServicePor
 import com.mobile.iwbi.application.friends.input.FriendServicePort
 import com.mobile.iwbi.application.helloworld.input.HelloWorldServicePort
 import com.mobile.iwbi.application.shoppingnotes.input.ShoppingNotesServicePort
+import com.mobile.iwbi.application.templates.input.TemplateServicePort
 import com.mobile.iwbi.presentation.AppViewModel
 import com.mobile.iwbi.presentation.components.friends.FriendsViewModel
 import com.mobile.iwbi.presentation.components.friends.ShareNoteViewModel
@@ -22,6 +23,7 @@ val presentationModule = module {
     singleUsing<FriendServicePort, InputPorts> { it.friendServicePort }
     singleUsing<HelloWorldServicePort, InputPorts> { it.helloWorldServicePort }
     singleUsing<ShoppingNotesServicePort, InputPorts> { it.shoppingNotesServicePort }
+    singleUsing<TemplateServicePort, InputPorts> { it.templateServicePort }
 
     viewModel {
         LoginPanelViewModel(get())
@@ -42,7 +44,7 @@ val presentationModule = module {
     }
 
     viewModel {
-        ShoppingNotesViewModel(get(), get(), get())
+        ShoppingNotesViewModel(get(), get(), get(), get())
     }
 
     viewModel {

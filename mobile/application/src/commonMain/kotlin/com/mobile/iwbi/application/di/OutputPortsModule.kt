@@ -6,6 +6,7 @@ import com.mobile.iwbi.application.authentication.output.AuthenticationProviderP
 import com.mobile.iwbi.application.friends.output.FriendRepositoryPort
 import com.mobile.iwbi.application.helloworld.output.HelloWorldRepositoryPort
 import com.mobile.iwbi.application.shoppingnotes.output.ShoppingNotesRepositoryPort
+import com.mobile.iwbi.application.templates.output.TemplateRepositoryPort
 import com.mobile.iwbi.application.user.output.UserRepositoryPort
 import org.koin.dsl.module
 
@@ -15,4 +16,5 @@ val outputPortsModule = module {
     singleUsing<HelloWorldRepositoryPort, OutputPorts> { it.helloWorldRepositoryPort }
     singleUsing<ShoppingNotesRepositoryPort, OutputPorts> { it.shoppingNotesRepositoryPort }
     singleUsing<UserRepositoryPort, OutputPorts> { it.userRepositoryPort }
+    singleUsing<TemplateRepositoryPort, OutputPorts> { it.templateRepositoryPort }
 }

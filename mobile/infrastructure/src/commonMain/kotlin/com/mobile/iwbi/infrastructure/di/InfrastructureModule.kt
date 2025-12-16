@@ -5,12 +5,14 @@ import com.mobile.iwbi.application.authentication.output.AuthenticationProviderP
 import com.mobile.iwbi.application.friends.output.FriendRepositoryPort
 import com.mobile.iwbi.application.helloworld.output.HelloWorldRepositoryPort
 import com.mobile.iwbi.application.shoppingnotes.output.ShoppingNotesRepositoryPort
+import com.mobile.iwbi.application.templates.output.TemplateRepositoryPort
 import com.mobile.iwbi.application.user.output.UserRepositoryPort
 import com.mobile.iwbi.infrastructure.InfrastructureConfig
 import com.mobile.iwbi.infrastructure.authentication.AuthenticationProvider
 import com.mobile.iwbi.infrastructure.friends.FriendRepository
 import com.mobile.iwbi.infrastructure.helloworld.HelloWorldRepository
 import com.mobile.iwbi.infrastructure.shoppingnotes.ShoppingNotesRepository
+import com.mobile.iwbi.infrastructure.templates.TemplateRepository
 import com.mobile.iwbi.infrastructure.user.UserApi
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpTimeout
@@ -31,6 +33,7 @@ import org.koin.dsl.module
 import kotlin.time.Duration.Companion.seconds
 
 val infrastructureModule = module {
+    includes(platformInfrastructureModule)
     factory<OutputPorts> {
         println("🏭 Creating fresh OutputPorts")
         OutputPortsImpl(
@@ -38,6 +41,7 @@ val infrastructureModule = module {
             friendRepositoryPort = get(),
             helloWorldRepositoryPort = get(),
             shoppingNotesRepositoryPort = get(),
+            templateRepositoryPort = get(),
             userRepositoryPort = get()
         )
     }
@@ -71,6 +75,13 @@ val infrastructureModule = module {
         println("🏭 Creating fresh UserApi")
         UserApi(
             httpClientProvider = { get(qualifier = TypeQualifier(BackendHttpClient::class)) }
+        )
+    }
+
+    factory<TemplateRepositoryPort> {
+        println("🏭 Creating fresh TemplateRepository")
+        TemplateRepository(
+            dataStore = get()
         )
     }
 
@@ -119,6 +130,7 @@ internal class OutputPortsImpl(
     override val friendRepositoryPort: FriendRepositoryPort,
     override val helloWorldRepositoryPort: HelloWorldRepositoryPort,
     override val shoppingNotesRepositoryPort: ShoppingNotesRepositoryPort,
+    override val templateRepositoryPort: TemplateRepositoryPort,
     override val userRepositoryPort: UserRepositoryPort
 ) : OutputPorts
 

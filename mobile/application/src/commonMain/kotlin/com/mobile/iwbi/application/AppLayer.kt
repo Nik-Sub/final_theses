@@ -7,6 +7,7 @@ import com.mobile.iwbi.application.di.outputPortsModule
 import com.mobile.iwbi.application.friends.di.friendsModule
 import com.mobile.iwbi.application.helloworld.di.helloWorldModule
 import com.mobile.iwbi.application.shoppingnotes.di.shoppingNotesModule
+import com.mobile.iwbi.application.templates.di.templatesModule
 import com.mobile.iwbi.application.user.di.userModule
 import org.koin.core.component.inject
 import org.koin.dsl.koinApplication
@@ -30,6 +31,7 @@ fun createApplicationLayer(
         modules(authenticationModule)
         modules(helloWorldModule)
         modules(shoppingNotesModule)
+        modules(templatesModule)
         modules(friendsModule)
         modules(userModule)
     }

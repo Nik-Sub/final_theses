@@ -9,6 +9,7 @@ import com.iwbi.domain.user.User
 import com.mobile.iwbi.application.authentication.input.AuthenticationServicePort
 import com.mobile.iwbi.application.friends.input.FriendServicePort
 import com.mobile.iwbi.application.shoppingnotes.input.ShoppingNotesServicePort
+import com.mobile.iwbi.application.templates.input.TemplateServicePort
 import com.mobile.iwbi.presentation.uistate.ShoppingNotesUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,7 +20,8 @@ import kotlinx.coroutines.launch
 class ShoppingNotesViewModel(
     private val shoppingNotesServicePort: ShoppingNotesServicePort,
     private val authenticationServicePort: AuthenticationServicePort,
-    private val friendServicePort: FriendServicePort
+    private val friendServicePort: FriendServicePort,
+    private val templateServicePort: TemplateServicePort
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ShoppingNotesUiState())
@@ -31,6 +33,7 @@ class ShoppingNotesViewModel(
         observeShoppingNotes()
         loadFriends()
         observeCurrentUser()
+        observeTemplates()
     }
 
     private fun observeShoppingNotes() {
@@ -62,6 +65,14 @@ class ShoppingNotesViewModel(
         viewModelScope.launch {
             authenticationServicePort.observeCurrentUser().collect { user ->
                 _uiState.value = _uiState.value.copy(currentUserId = user?.uid)
+            }
+        }
+    }
+
+    private fun observeTemplates() {
+        viewModelScope.launch {
+            templateServicePort.observeTemplates().collect { templates ->
+                _uiState.value = _uiState.value.copy(templates = templates)
             }
         }
     }
@@ -458,29 +469,40 @@ class ShoppingNotesViewModel(
             return
         }
 
-        val currentTemplates = _uiState.value.templates.toMutableList()
+        viewModelScope.launch {
+            try {
+                // Create new template with the note's actual title
+                val newTemplate = Template(
+                    name = note.title,
+                    items = note.items.map { it.copy(isChecked = false) } // Reset checked state for template
+                )
 
-        // Create new template with the note's actual title
-        val newTemplate = Template(
-            name = note.title,
-            items = note.items.map { it.copy(isChecked = false) } // Reset checked state for template
-        )
-        currentTemplates.add(newTemplate)
+                templateServicePort.saveTemplate(newTemplate)
 
-        _uiState.value = _uiState.value.copy(
-            templates = currentTemplates,
-            errorMessage = "\"${note.title}\" saved as template successfully!"
-        )
+                _uiState.value = _uiState.value.copy(
+                    errorMessage = "\"${note.title}\" saved as template successfully!"
+                )
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    errorMessage = "Failed to save template: ${e.message}"
+                )
+            }
+        }
     }
 
     fun removeTemplate(template: Template) {
-        val currentTemplates = _uiState.value.templates.toMutableList()
-        currentTemplates.remove(template)
-
-        _uiState.value = _uiState.value.copy(
-            templates = currentTemplates,
-            errorMessage = "Template \"${template.name}\" removed successfully!"
-        )
+        viewModelScope.launch {
+            try {
+                templateServicePort.deleteTemplate(template.name)
+                _uiState.value = _uiState.value.copy(
+                    errorMessage = "Template \"${template.name}\" removed successfully!"
+                )
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    errorMessage = "Failed to remove template: ${e.message}"
+                )
+            }
+        }
     }
 
     fun isTemplateAlreadyExists(noteTitle: String): Boolean {

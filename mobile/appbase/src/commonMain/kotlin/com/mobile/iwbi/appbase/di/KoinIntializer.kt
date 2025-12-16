@@ -4,17 +4,23 @@ import com.mobile.iwbi.presentation.di.presentationModule
 import com.mobile.iwbi.application.createApplicationLayer
 import com.mobile.iwbi.infrastructure.InfrastructureConfig
 import com.mobile.iwbi.infrastructure.createInfrastructureLayer
+import com.mobile.iwbi.infrastructure.di.platformInfrastructureModule
 import org.koin.core.context.startKoin
 import org.koin.dsl.KoinAppDeclaration
+import org.koin.dsl.ModuleDeclaration
 import org.koin.dsl.module
 
 class KoinIntializer(
-    private val infrastructureConfig: InfrastructureConfig
+    private val infrastructureConfig: InfrastructureConfig,
+    private val block: ModuleDeclaration,
 ) {
     fun init(config: KoinAppDeclaration?) = startKoin{
         config?.invoke(this)
-
-        val outputPorts = createInfrastructureLayer(infrastructureConfig).outputPorts
+        val platformModule = module(moduleDeclaration = block)
+        val outputPorts = createInfrastructureLayer(
+            infrastructureConfig,
+            platformModule,
+        ).outputPorts
         val inputPorts = createApplicationLayer(outputPorts).inputPorts
 
         modules(module {
