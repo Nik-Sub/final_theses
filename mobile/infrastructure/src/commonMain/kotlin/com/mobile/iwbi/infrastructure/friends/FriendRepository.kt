@@ -34,6 +34,7 @@ class FriendRepository(
     private val _sentRequests = MutableStateFlow<List<FriendRequest>>(emptyList())
 
     private var currentUserId: String? = null
+    private var pollingJob: kotlinx.coroutines.Job? = null
 
     init {
         println("DEBUG: FriendRepository - Initializing...")
@@ -43,14 +44,36 @@ class FriendRepository(
             authProvider.observeCurrentUser().collect { user ->
                 if (currentUserId != user?.uid) {
                     println("DEBUG: User changed from $currentUserId to ${user?.uid} - clearing state")
+
+                    // Cancel previous polling
+                    pollingJob?.cancel()
+                    pollingJob = null
+
                     clearState()
                     currentUserId = user?.uid
 
-                    // Only refresh data if we have a user
+                    // Start polling if we have a user
                     if (user != null) {
-                        println("DEBUG: Starting refresh for new user: ${user.uid}")
-                        refreshAllData()
+                        println("DEBUG: Starting polling for user: ${user.uid}")
+                        startPolling()
                     }
+                }
+            }
+        }
+    }
+
+    private fun startPolling() {
+        pollingJob = scope.launch {
+            // Initial refresh
+            refreshAllData()
+
+            // Continuous polling every 10 seconds
+            while (true) {
+                kotlinx.coroutines.delay(1000) // 10 seconds
+                try {
+                    refreshAllData()
+                } catch (e: Exception) {
+                    println("DEBUG: Polling refresh failed: ${e.message}")
                 }
             }
         }

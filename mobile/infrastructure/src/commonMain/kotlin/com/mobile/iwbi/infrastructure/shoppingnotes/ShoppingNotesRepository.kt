@@ -33,6 +33,7 @@ class ShoppingNotesRepository(
     private val _shoppingNotes = MutableStateFlow<List<ShoppingNote>>(emptyList())
 
     private var currentUserId: String? = null
+    private var pollingJob: kotlinx.coroutines.Job? = null
 
     init {
         // Observe user changes and clear state when user changes
@@ -40,13 +41,36 @@ class ShoppingNotesRepository(
             authProvider.observeCurrentUser().collect { user ->
                 if (currentUserId != user?.uid) {
                     println("DEBUG: ShoppingNotesRepository - User changed from $currentUserId to ${user?.uid} - clearing state")
+
+                    // Cancel previous polling
+                    pollingJob?.cancel()
+                    pollingJob = null
+
                     _shoppingNotes.value = emptyList()
                     currentUserId = user?.uid
 
-                    // Only refresh data if we have a user
+                    // Start polling if we have a user
                     if (user != null) {
-                        refresh()
+                        println("DEBUG: Starting polling for shopping notes for user: ${user.uid}")
+                        startPolling()
                     }
+                }
+            }
+        }
+    }
+
+    private fun startPolling() {
+        pollingJob = scope.launch {
+            // Initial refresh
+            refresh()
+
+            // Continuous polling every 10 seconds
+            while (true) {
+                kotlinx.coroutines.delay(1000) // 10 seconds
+                try {
+                    refresh()
+                } catch (e: Exception) {
+                    println("DEBUG: Shopping notes polling refresh failed: ${e.message}")
                 }
             }
         }
